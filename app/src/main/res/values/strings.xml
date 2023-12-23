@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Velobike</string>
+    <string name="error_no_network">No network</string>
+    <string name="error_unknown">Unknown error</string>
+</resources>
