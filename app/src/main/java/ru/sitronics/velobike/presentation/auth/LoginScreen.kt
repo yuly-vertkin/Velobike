@@ -1,7 +1,11 @@
 package ru.sitronics.velobike.presentation.auth
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
@@ -17,11 +21,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import ru.sitronics.velobike.R
 import ru.sitronics.velobike.presentation.SimpleDialog
 import ru.sitronics.velobike.ui.theme.VelobikeTheme
 
@@ -59,33 +66,40 @@ fun LoginScreenInt(
     var loading by remember { mutableStateOf(false) }
 
     Box/*(Modifier.imePadding())*/ {
-        Text(
-            text = "Title",
+        Image(
+            painter = painterResource(id = R.drawable.login_image),
+            contentDescription = "",
             modifier = Modifier.align(Alignment.TopCenter)
         )
 
-        OutlinedTextField(
-            value = login,
-            onValueChange = { login = it },
-            label = { Text("Login") },
-            singleLine = true,
+        Column (
             modifier = Modifier
-                .width(300.dp)
+                .fillMaxWidth()
                 .align(Alignment.Center)
-                .offset(y = (-30).dp),
-        )
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier
-                .width(300.dp)
-                .align(Alignment.Center)
-                .offset(y = 30.dp),
+                .padding(top = 100.dp)
+                .background(Color.White)
+        ) {
+            OutlinedTextField(
+                value = login,
+                onValueChange = { login = it },
+                label = { Text("Login") },
+                singleLine = true,
+                modifier = Modifier
+                    .width(300.dp)
+                    .align(Alignment.CenterHorizontally)
             )
+
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Password") },
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier
+                    .width(300.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+        }
 
         Button(
             onClick = { loading = true; onButtonClick(login, password) },
@@ -99,7 +113,9 @@ fun LoginScreenInt(
 
         if (loading) {
             CircularProgressIndicator(
-                modifier = Modifier.width(64.dp).align(Alignment.Center),
+                modifier = Modifier
+                    .width(64.dp)
+                    .align(Alignment.Center),
                 color = MaterialTheme.colorScheme.secondary,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant,
             )
@@ -119,10 +135,61 @@ fun ShowErrorDialog(error: String?, onClick: () -> Unit) {
 
 }
 
-@Preview(showBackground = true, widthDp = 500, heightDp = 500)
+@Preview(showBackground = true/*, widthDp = 500, heightDp = 500*/)
 @Composable
 fun LoginScreenPreview() {
     VelobikeTheme {
         LoginScreenInt("", "") { _, _ -> }
     }
 }
+
+/*
+Box(Modifier.imePadding()) {
+//        Text(
+//            text = "Title",
+//            modifier = Modifier.align(Alignment.TopCenter)
+//        )
+
+    Column {
+        Image(
+            painter = painterResource(id = R.drawable.login_image),
+            contentDescription = "",
+        )
+
+        OutlinedTextField(
+            value = login,
+            onValueChange = { login = it },
+            label = { Text("Login") },
+            singleLine = true,
+            modifier = Modifier
+                .width(300.dp)
+                .padding(top = 32.dp)
+//                    .align(Alignment.Center)
+//                    .offset(y = (-30).dp),
+        )
+
+        OutlinedTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Password") },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier
+                .width(300.dp)
+                .padding(top = 16.dp)
+//                    .align(Alignment.Center)
+//                    .offset(y = 30.dp),
+        )
+
+        Button(
+            onClick = { loading = true; onButtonClick(login, password) },
+            enabled = !loading,
+            modifier = Modifier
+                .width(300.dp)
+                .padding(top = 32.dp)
+//                    .align(Alignment.BottomCenter)
+        ) {
+            Text(text = "Enter")
+        }
+    }
+*/

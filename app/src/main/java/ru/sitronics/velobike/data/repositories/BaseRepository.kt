@@ -42,7 +42,7 @@ open class BaseRepository<T>(
         emit(Result.Loading)
         try {
 // for testing
-            delay(5000)
+//            delay(5000)
 
             val resDto = action()
             val result = when {
