@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -67,6 +68,7 @@ fun LoginScreenInt(
             value = login,
             onValueChange = { login = it },
             label = { Text("Login") },
+            singleLine = true,
             modifier = Modifier
                 .width(300.dp)
                 .align(Alignment.Center)
@@ -77,6 +79,8 @@ fun LoginScreenInt(
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier
                 .width(300.dp)
                 .align(Alignment.Center)
