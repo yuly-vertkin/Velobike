@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,6 +55,7 @@ fun LoginScreenInt(
 ) {
     var login by remember { mutableStateOf(loginStr) }
     var password by remember { mutableStateOf(passwordStr) }
+    var loading by remember { mutableStateOf(false) }
 
     Box/*(Modifier.imePadding())*/ {
         Text(
@@ -81,12 +84,21 @@ fun LoginScreenInt(
             )
 
         Button(
-            onClick = { onButtonClick(login, password) },
+            onClick = { loading = true; onButtonClick(login, password) },
+            enabled = !loading,
             modifier = Modifier
                 .width(300.dp)
                 .align(Alignment.BottomCenter)
         ) {
             Text(text = "Enter")
+        }
+
+        if (loading) {
+            CircularProgressIndicator(
+                modifier = Modifier.width(64.dp).align(Alignment.Center),
+                color = MaterialTheme.colorScheme.secondary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+            )
         }
     }
 }

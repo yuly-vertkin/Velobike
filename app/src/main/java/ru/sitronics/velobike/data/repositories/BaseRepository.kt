@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
@@ -41,7 +42,7 @@ open class BaseRepository<T>(
         emit(Result.Loading)
         try {
 // for testing
-//            delay(5000)
+            delay(5000)
 
             val resDto = action()
             val result = when {

@@ -1,6 +1,7 @@
 package ru.sitronics.velobike.presentation.main
 
 import android.content.Context
+import android.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
@@ -14,6 +15,8 @@ import com.yandex.mapkit.ScreenPoint
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraListener
 import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.map.ClusterListener
+import com.yandex.mapkit.map.ClusterizedPlacemarkCollection
 import com.yandex.mapkit.map.MapObjectCollection
 import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.mapkit.mapview.MapView
@@ -21,6 +24,7 @@ import com.yandex.runtime.image.ImageProvider
 import ru.sitronics.velobike.INITIAL_ZOOM
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.MapRect
+import ru.sitronics.velobike.tools.ClusterImageProvider
 import ru.sitronics.velobike.tools.Logg
 import ru.sitronics.velobike.tools.RunWithLocation
 import ru.sitronics.velobike.tools.getBitmapFromVectorDrawable
@@ -40,6 +44,7 @@ fun MapViewContainer(
     uiState: MainUiState,
     onAction: (MainIntent) -> Unit,
 ) {
+    val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle()
 //    val coroutineScope = rememberCoroutineScope()
     val cameraListener = remember {
@@ -53,7 +58,8 @@ fun MapViewContainer(
 
     val locationPermissionLauncher = rememberLocationPermissionLauncher()
     locationPermissionLauncher.RunWithLocation { lat, lon ->
-        moveMap(mapView, lat ?: MOSCOW_LAT, lon ?: MOSCOW_LON)
+        // TODO: commented for debug purpose
+        moveMap(mapView, /*lat ?:*/ MOSCOW_LAT, /*lon ?:*/ MOSCOW_LON)
     }
 
     Logg.d("!!! MapViewContainer called")
@@ -64,19 +70,27 @@ fun MapViewContainer(
         mapView
     })
 
-    val bikeCollection = remember { mapView.mapWindow.map.mapObjects.addCollection() }
+    val bikeClusterListener = remember { ClusterListener { cluster ->
+            cluster.appearance.setIcon(ClusterImageProvider(context, cluster.size, R.drawable.bike_cluster))
+    }}
+    val parkingClusterListener = remember { ClusterListener { cluster ->
+        cluster.appearance.setIcon(ClusterImageProvider(context, cluster.size, R.drawable.parking_cluster, Color.WHITE))
+    }}
+//    val bikeCollection = remember { mapView.mapWindow.map.mapObjects.addCollection() }
+    val bikeClusterCollection = remember { mapView.mapWindow.map.mapObjects.addClusterizedPlacemarkCollection(bikeClusterListener) }
     val bikePlacemarks = remember { hashMapOf<String, PlacemarkMapObject>() }
-    val parkingCollection = remember { mapView.mapWindow.map.mapObjects.addCollection() }
+//    val parkingCollection = remember { mapView.mapWindow.map.mapObjects.addCollection() }
+    val parkingClusterCollection = remember { mapView.mapWindow.map.mapObjects.addClusterizedPlacemarkCollection(parkingClusterListener) }
     val parkingPlacemarks = remember { hashMapOf<String, PlacemarkMapObject>() }
 
     when(uiState) {
         is MainUiState.BikesUpdated -> {
             val markers = uiState.bikes.map { Marker(it.deviceId, it.latitude, it.longitude) }
-            updateMarkers(LocalContext.current, markers, bikeCollection, bikePlacemarks, R.drawable.bike, "bike")
+            updateMarkers(LocalContext.current, markers, bikeClusterCollection, bikePlacemarks, R.drawable.bike, "bike")
         }
         is MainUiState.ParkingsUpdated -> {
             val markers = uiState.parkings.map { Marker(it.id, it.latitude, it.longitude) }
-            updateMarkers(LocalContext.current, markers, parkingCollection, parkingPlacemarks, R.drawable.parking, "parking")
+            updateMarkers(LocalContext.current, markers, parkingClusterCollection, parkingPlacemarks, R.drawable.parking, "parking")
         }
         else -> {}
     }
@@ -85,7 +99,8 @@ fun MapViewContainer(
 private fun updateMarkers(
     context: Context,
     markers: List<Marker>,
-    pinsCollection: MapObjectCollection,
+//    pinsCollection: MapObjectCollection,
+    clusterizedCollection: ClusterizedPlacemarkCollection,
     placemarks: HashMap<String, PlacemarkMapObject>,
     resourceId: Int,
     name: String,
@@ -100,7 +115,7 @@ private fun updateMarkers(
         currentIds.add(id)
 
         if (id !in placemarks) {
-            placemarks[id] = pinsCollection.addPlacemark().apply {
+            placemarks[id] = /*pinsCollection*/clusterizedCollection.addPlacemark().apply {
                 geometry = Point(marker.latitude, marker.longitude)
                 setIcon(imageProvider)
             }
@@ -110,10 +125,12 @@ private fun updateMarkers(
     val removedIds = placemarks.keys.filter { !currentIds.contains(it) }
     removedIds.forEach { key ->
         placemarks.remove(key)?.let {
-            pinsCollection.remove(it)
+            /*pinsCollection*/clusterizedCollection.remove(it)
             Logg.d("!!! removed!")
         }
     }
+
+    clusterizedCollection.clusterPlacemarks(60.0, 15)
 }
 
 /**
