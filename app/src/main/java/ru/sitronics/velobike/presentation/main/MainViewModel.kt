@@ -4,7 +4,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.AuthManager
 import ru.sitronics.velobike.domain.MapRect
@@ -33,7 +32,29 @@ class MainViewModel @Inject constructor(
                 if (intent.zoom >= SHOW_CONTENT_ZOOM)
                     updateBikesAndParkings(intent.mapRect)
             }
+            is MainIntent.TapMapObject -> {
+                when (intent.userData) {
+                    is MarkerUserData.Bike -> onBikeClick(intent.userData.id)
+                    is MarkerUserData.Parking -> onParkingClick(intent.userData.id)
+                    is MarkerUserData.SlowZone -> {}//onSlowZoneClick(data)
+                    is MarkerUserData.MoveZone -> {}//onNotMoveZoneClick()
+                    null -> {}
+                }
+            }
+            is MainIntent.CloseBikeDetail -> {
+                _mainUiState.value = MainUiState.Normal
+            }
         }
+    }
+
+    private fun onBikeClick(id: String) {
+        println("!!! onBikeClick $id")
+        val bike = mapContentRepository.getData().bikes?.find { it.id == id } ?: return
+        _mainUiState.value = MainUiState.ShowBikeDetail(bike)
+    }
+
+    private fun onParkingClick(id: String) {
+        println("!!! onParkingClick $id")
     }
 
     private fun updateBikesAndParkings(mapRect: MapRect) {
@@ -42,6 +63,9 @@ class MainViewModel @Inject constructor(
             action = { mapContentRepository.getBikes(mapRect) },
             onSuccess = {
                 Logg.d("!!! getBikes() ${it.size}")
+                mapContentRepository.saveData(mapContentRepository.getData().copy(
+                    bikes = it
+                ))
                 _mainUiState.value = MainUiState.BikesUpdated(it)
             },
             onError = { Logg.d("!!! ERROR getBikes()") },
@@ -52,6 +76,9 @@ class MainViewModel @Inject constructor(
             action = { mapContentRepository.getParkings(mapRect) },
             onSuccess = {
                 Logg.d("!!! getParkings() ${it.size}")
+                mapContentRepository.saveData(mapContentRepository.getData().copy(
+                    parkings = it
+                ))
                 _mainUiState.value = MainUiState.ParkingsUpdated(it)
             },
             onError = { Logg.d("!!! ERROR getParkings() ${it.message}") },

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Velobike</string>
+
     <string name="error_no_network">No network</string>
     <string name="error_unknown">Unknown error</string>
+
+    <string name="bike_detail_title">Electric bike 2.0 №%s</string>
+    <string name="start_ride_btn">Start ride</string>
 </resources>

@@ -1,5 +1,6 @@
 package ru.sitronics.velobike.domain.content
 
 data class MapContentData(
-    val someData: Boolean = false,
+    val bikes: List<Bike>? = null,
+    val parkings: List<Parking>? = null,
 )

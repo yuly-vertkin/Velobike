@@ -59,7 +59,7 @@ data class BikeDto(
 ) : Parcelable, ResponseDto<Bike> {
     override fun toModel(): Bike =
         Bike(
-            deviceId = frameNumber ?: "",
+            id = frameNumber ?: "",
             bikeSerialNumber = serialNum ?: "",
             batteryPower = telemetry?.batteryLevel ?: 0,
             latitude = telemetry?.coordinates?.latitude ?: 0.0,

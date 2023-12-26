@@ -20,9 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ru.sitronics.velobike.presentation.SimpleBottomSheet
-import ru.sitronics.velobike.presentation.SimpleDialog
 import ru.sitronics.velobike.presentation.auth.LoginScreen
+import ru.sitronics.velobike.presentation.bike_detail.BikeDetailDialog
 
 @Composable
 fun MainScreen(mainViewModel: MainViewModel = viewModel()) {
@@ -48,6 +47,11 @@ fun MainScreenInt(
 
             MapTopLayerContainer(uiState, onAction)
 
+            if (uiState is MainUiState.ShowBikeDetail) {
+                BikeDetailDialog(uiState.bike, onDismissRequest = { onAction(MainIntent.CloseBikeDetail) },
+                    onClick = { onAction(MainIntent.CloseBikeDetail) })
+            }
+
 /*
             if (uiState.dialogState) {
                 SimpleDialog(
@@ -57,11 +61,6 @@ fun MainScreenInt(
                     dialogText = "This is an example of an alert dialog with buttons.",
                     icon = Icons.Default.Info
                 )
-            }
-
-            if (uiState.bottomSheetState) {
-                SimpleBottomSheet(onDismissRequest = { onAction(MainIntent.BottomSheet) },
-                    onClick = { onAction(MainIntent.BottomSheet) })
             }
 */
         }

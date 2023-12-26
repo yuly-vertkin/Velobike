@@ -3,7 +3,7 @@ package ru.sitronics.velobike.domain.content
 import java.util.UUID
 
 data class Bike(
-    val deviceId: String,
+    val id: String,
     val bikeSerialNumber: String,
     val batteryPower: Int,
     val latitude: Double,

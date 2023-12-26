@@ -17,7 +17,7 @@ import com.yandex.mapkit.map.CameraListener
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.ClusterListener
 import com.yandex.mapkit.map.ClusterizedPlacemarkCollection
-import com.yandex.mapkit.map.MapObjectCollection
+import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.mapkit.mapview.MapView
 import com.yandex.runtime.image.ImageProvider
@@ -29,15 +29,6 @@ import ru.sitronics.velobike.tools.Logg
 import ru.sitronics.velobike.tools.RunWithLocation
 import ru.sitronics.velobike.tools.getBitmapFromVectorDrawable
 import ru.sitronics.velobike.tools.rememberLocationPermissionLauncher
-
-const val MOSCOW_LAT = 55.75222
-const val MOSCOW_LON = 37.61556
-
-data class Marker(
-    val id: String,
-    val latitude: Double,
-    val longitude: Double,
-)
 
 @Composable
 fun MapViewContainer(
@@ -53,6 +44,13 @@ fun MapViewContainer(
                 println("!!! Camera position changed")
                 onAction(MainIntent.ChangeMapPosition(getMapRect(mapView), cameraPosition.zoom))
             }
+        }
+    }
+    val tapListener = remember {
+        MapObjectTapListener { mapObject, point ->
+            val data = mapObject.userData as? MarkerUserData
+            onAction(MainIntent.TapMapObject(data))
+            return@MapObjectTapListener true
         }
     }
 
@@ -85,12 +83,12 @@ fun MapViewContainer(
 
     when(uiState) {
         is MainUiState.BikesUpdated -> {
-            val markers = uiState.bikes.map { Marker(it.deviceId, it.latitude, it.longitude) }
-            updateMarkers(LocalContext.current, markers, bikeClusterCollection, bikePlacemarks, R.drawable.bike, "bike")
+            val markers = uiState.bikes.map { Marker(it.id, it.latitude, it.longitude, MarkerUserData.Bike(it.id)) }
+            updateMarkers(LocalContext.current, markers, bikeClusterCollection, bikePlacemarks, tapListener, R.drawable.bike)
         }
         is MainUiState.ParkingsUpdated -> {
-            val markers = uiState.parkings.map { Marker(it.id, it.latitude, it.longitude) }
-            updateMarkers(LocalContext.current, markers, parkingClusterCollection, parkingPlacemarks, R.drawable.parking, "parking")
+            val markers = uiState.parkings.map { Marker(it.id, it.latitude, it.longitude, MarkerUserData.Parking(it.id)) }
+            updateMarkers(LocalContext.current, markers, parkingClusterCollection, parkingPlacemarks, tapListener, R.drawable.parking)
         }
         else -> {}
     }
@@ -102,14 +100,14 @@ private fun updateMarkers(
 //    pinsCollection: MapObjectCollection,
     clusterizedCollection: ClusterizedPlacemarkCollection,
     placemarks: HashMap<String, PlacemarkMapObject>,
+    tapListener: MapObjectTapListener,
     resourceId: Int,
-    name: String,
 ) {
     val currentIds = mutableListOf<String>()
     val bitmap = context.getBitmapFromVectorDrawable(resourceId)
     val imageProvider = ImageProvider.fromBitmap(bitmap)
 
-    Logg.d("!!! update $name: ${markers.size}")
+//    Logg.d("!!! update $name: ${markers.size}")
     markers.forEach { marker ->
         val id = marker.id
         currentIds.add(id)
@@ -118,6 +116,8 @@ private fun updateMarkers(
             placemarks[id] = /*pinsCollection*/clusterizedCollection.addPlacemark().apply {
                 geometry = Point(marker.latitude, marker.longitude)
                 setIcon(imageProvider)
+                userData = marker.userData
+                addTapListener(tapListener)
             }
         }
     }
