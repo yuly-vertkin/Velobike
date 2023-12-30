@@ -42,6 +42,16 @@ class MainViewModel @Inject constructor(
                 }
             }
             is MainIntent.CloseBikeDetail -> {
+                if (intent.startRide) {
+                    _mainUiState.value = MainUiState.ShowQrScan
+                } else
+                    _mainUiState.value = MainUiState.Normal
+            }
+            is MainIntent.QrScanClick -> {
+                _mainUiState.value = MainUiState.ShowQrScan
+            }
+            is MainIntent.CloseQrScan -> {
+                Logg.d("!!!! ${intent.bikeNumber}")
                 _mainUiState.value = MainUiState.Normal
             }
         }

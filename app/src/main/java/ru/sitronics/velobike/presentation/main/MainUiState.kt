@@ -10,11 +10,14 @@ sealed class MainUiState {
     data class BikesUpdated(val bikes: List<Bike>) : MainUiState()
     data class ParkingsUpdated(val parkings: List<Parking>) : MainUiState()
     data class ShowBikeDetail(val bike: Bike) : MainUiState()
+    object ShowQrScan : MainUiState()
 }
 
 sealed class MainIntent {
     object Logged : MainIntent()
     data class ChangeMapPosition(val mapRect: MapRect, val zoom: Float) : MainIntent()
     data class TapMapObject(val userData: MarkerUserData?) : MainIntent()
-    object CloseBikeDetail : MainIntent()
+    object QrScanClick : MainIntent()
+    data class CloseBikeDetail(val startRide: Boolean = false) : MainIntent()
+    data class CloseQrScan(val bikeNumber: String? = null) : MainIntent()
 }

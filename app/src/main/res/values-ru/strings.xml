@@ -2,9 +2,27 @@
 <resources>
     <string name="app_name">Велобайк</string>
 
+<!-- Buttons -->
+    <string name="ok_btn">ОК</string>
+    <string name="cancel_btn">Отменить</string>
+
+<!-- Errors -->
     <string name="error_no_network">Нет сети</string>
     <string name="error_unknown">Неизвестная ошибка</string>
 
+    <!--    Login-->
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+
+<!-- Bike detail -->
     <string name="bike_detail_title">Электровелосипед 2.0 №%s</string>
     <string name="start_ride_btn">Начать поездку</string>
+
+<!-- QR-code scan -->
+    <string name="qr_scan_text">Начните поездку отсканировав QR-код. Он находится на руле велосипеда</string>
+    <string name="qr_scan_btn">Сканировать</string>
+    <string name="enter_bike_number">Ввести номер ведосипеда вручную</string>
+
+    <string name="qr_scan_missing_camera_permission">Нужно разрешение на использование камеры</string>
+
 </resources>

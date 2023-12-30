@@ -41,7 +41,7 @@ fun ActivityResultLauncher<Array<String>>.RunWithLocation(action: (Double?, Doub
     DisposableEffect(key1 = lifecycle, effect = {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_START) {
-                if (!areLocationPermissionsGranted(context)) {
+                if (!areLocationPermissionGranted(context)) {
                     runAction = action
                     launch(locationPermissions)
                 } else {
@@ -57,7 +57,7 @@ fun ActivityResultLauncher<Array<String>>.RunWithLocation(action: (Double?, Doub
 }
 
 fun ActivityResultLauncher<Array<String>>.runWithLocation(context: Context, action: (Double?, Double?) -> Unit) {
-    if (!areLocationPermissionsGranted(context)) {
+    if (!areLocationPermissionGranted(context)) {
         runAction = action
         launch(locationPermissions)
     } else {
@@ -72,7 +72,7 @@ private fun runWithLocationInt(context: Context, action: ((Double?, Double?) -> 
     }
 }
 
-private fun areLocationPermissionsGranted(context: Context): Boolean {
+private fun areLocationPermissionGranted(context: Context): Boolean {
     return  ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
             ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 }

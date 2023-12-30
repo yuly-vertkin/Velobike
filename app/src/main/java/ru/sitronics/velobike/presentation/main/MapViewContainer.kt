@@ -2,6 +2,7 @@ package ru.sitronics.velobike.presentation.main
 
 import android.content.Context
 import android.graphics.Color
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
@@ -13,6 +14,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.ScreenPoint
 import com.yandex.mapkit.geometry.Point
+import com.yandex.mapkit.layers.ObjectEvent
 import com.yandex.mapkit.map.CameraListener
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.ClusterListener
@@ -20,6 +22,8 @@ import com.yandex.mapkit.map.ClusterizedPlacemarkCollection
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.mapkit.mapview.MapView
+import com.yandex.mapkit.user_location.UserLocationObjectListener
+import com.yandex.mapkit.user_location.UserLocationView
 import com.yandex.runtime.image.ImageProvider
 import ru.sitronics.velobike.INITIAL_ZOOM
 import ru.sitronics.velobike.R
@@ -31,7 +35,7 @@ import ru.sitronics.velobike.tools.getBitmapFromVectorDrawable
 import ru.sitronics.velobike.tools.rememberLocationPermissionLauncher
 
 @Composable
-fun MapViewContainer(
+fun BoxScope.MapViewContainer(
     uiState: MainUiState,
     onAction: (MainIntent) -> Unit,
 ) {
@@ -53,17 +57,35 @@ fun MapViewContainer(
             return@MapObjectTapListener true
         }
     }
+    val userLocationObjectListener = remember {
+        object : UserLocationObjectListener {
+            override fun onObjectAdded(userLocationView: UserLocationView) {
+                userLocationView.arrow.setIcon(ImageProvider.fromResource(context, R.drawable.ic_user_place))
+            }
+            override fun onObjectRemoved(p0: UserLocationView) {}
+            override fun onObjectUpdated(p0: UserLocationView, p1: ObjectEvent) {}
+        }
+    }
 
     val locationPermissionLauncher = rememberLocationPermissionLauncher()
     locationPermissionLauncher.RunWithLocation { lat, lon ->
         // TODO: commented for debug purpose
-        moveMap(mapView, /*lat ?:*/ MOSCOW_LAT, /*lon ?:*/ MOSCOW_LON)
+        moveMap(mapView, lat ?: MOSCOW_LAT, lon ?: MOSCOW_LON)
+        MapKitFactory.getInstance().resetLocationManagerToDefault()
+        try {
+            MapKitFactory.getInstance().createUserLocationLayer(mapView.mapWindow).apply {
+                isVisible = true
+                isHeadingEnabled = true
+                setObjectListener(userLocationObjectListener)
+            }
+        } catch (ignored: Exception) {}
     }
 
     Logg.d("!!! MapViewContainer called")
 
     AndroidView({
         moveMap(mapView, MOSCOW_LAT, MOSCOW_LON)
+        changeZoom(mapView, initZoom = INITIAL_ZOOM)
         mapView.mapWindow.map.addCameraListener(cameraListener)
         mapView
     })
@@ -92,6 +114,8 @@ fun MapViewContainer(
         }
         else -> {}
     }
+
+    MapTopLayerContainer(mapView, uiState, onAction)
 }
 
 private fun updateMarkers(
@@ -178,11 +202,22 @@ private fun getMapRect(mapView: MapView) : MapRect {
     return MapRect(bottomRight.latitude, topLeft.longitude, topLeft.latitude, bottomRight.longitude)
 }
 
-private fun moveMap(mapView: MapView, lat: Double, lon: Double, zoom: Float = INITIAL_ZOOM) {
+fun moveMap(mapView: MapView, lat: Double, lon: Double) {
     with(mapView.mapWindow.map) {
         move(CameraPosition(
             Point(lat, lon),
-            zoom,
+            cameraPosition.zoom,
+            cameraPosition.azimuth,
+            cameraPosition.tilt
+        ))
+    }
+}
+
+fun changeZoom(mapView: MapView, changeZoom: Float = 0f, initZoom: Float = 0f) {
+    with(mapView.mapWindow.map) {
+        move(CameraPosition(
+            cameraPosition.target,
+            if (initZoom == 0f) cameraPosition.zoom + changeZoom else initZoom,
             cameraPosition.azimuth,
             cameraPosition.tilt
         ))

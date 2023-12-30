@@ -22,6 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.sitronics.velobike.presentation.auth.LoginScreen
 import ru.sitronics.velobike.presentation.bike_detail.BikeDetailDialog
+import ru.sitronics.velobike.presentation.rent.ScanQrCodeDialog
 
 @Composable
 fun MainScreen(mainViewModel: MainViewModel = viewModel()) {
@@ -45,13 +46,21 @@ fun MainScreenInt(
         Box(modifier = Modifier.padding(contentPadding)) {
             MapViewContainer(uiState, onAction)
 
-            MapTopLayerContainer(uiState, onAction)
-
-            if (uiState is MainUiState.ShowBikeDetail) {
-                BikeDetailDialog(uiState.bike, onDismissRequest = { onAction(MainIntent.CloseBikeDetail) },
-                    onClick = { onAction(MainIntent.CloseBikeDetail) })
+            when (uiState) {
+                is MainUiState.ShowBikeDetail -> {
+                    BikeDetailDialog(uiState.bike,
+                        onDismissRequest = { onAction(MainIntent.CloseBikeDetail()) },
+                        onClick = { onAction(MainIntent.CloseBikeDetail(startRide = true)) }
+                    )
+                }
+                is MainUiState.ShowQrScan -> {
+                    ScanQrCodeDialog(
+                        onAction = { bikeNumber -> onAction(MainIntent.CloseQrScan(bikeNumber)) },
+                        onCancel = { onAction(MainIntent.CloseQrScan()) },
+                    )
+                }
+                else -> {}
             }
-
 /*
             if (uiState.dialogState) {
                 SimpleDialog(
@@ -90,6 +99,20 @@ fun MyBottomAppBar() {
         }
     }
 }
+
+/*
+@Composable
+fun Test(onBack: () -> Unit) {
+    Box(Modifier.fillMaxSize().background(Color.Yellow)) {
+        Text(
+            text = "test!!!",
+            modifier = Modifier.align(Alignment.Center)
+        )
+        BackPressHandler(onBackPressed = onBack)
+    }
+}
+*/
+
 
 // Doesn't work because of MapView
 /*
