@@ -1,4 +1,4 @@
-package ru.sitronics.velobike.presentation.main
+package ru.sitronics.velobike.presentation.map
 
 const val MOSCOW_LAT = 55.75222
 const val MOSCOW_LON = 37.61556

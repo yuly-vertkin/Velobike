@@ -17,7 +17,7 @@ fun SimpleDialog(
 ) {
     AlertDialog(
         icon = {
-            Icon(icon, contentDescription = "Example Icon")
+            Icon(icon, contentDescription = "")
         },
         title = {
             Text(text = dialogTitle)

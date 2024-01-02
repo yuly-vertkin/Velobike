@@ -25,4 +25,27 @@
 
     <string name="qr_scan_missing_camera_permission">Missing camera permission</string>
 
+    <!-- Rent error -->
+    <string name="start_omni_failed_open_chain_error">Bicycle lock failed. Choose another bike</string>
+    <string name="start_omni_failed_open_lock_error">Bicycle lock failed. Choose another bike</string>
+    <string name="start_omni_failed_bike_is_offline">Bike not available for rent</string>
+    <string name="start_omni_failed_bike_not_allowed">Bike not available for rent</string>
+    <string name="start_omni_failed_account_blocked">Your account has been blocked. Contact technical support</string>
+    <string name="start_omni_failed_bike_is_offline_title">This bike is empty or waiting for a technician.</string>
+    <string name="start_omni_failed_bike_is_offline_desc">Please take another bike</string>
+    <string name="start_omni_failed_account_debt">Pay the debt to unlock the bikeshare</string>
+    <string name="start_omni_failed_has_rent_already">Extra bike rental not available</string>
+    <string name="start_omni_failed_default">Error</string>
+    <string name="start_omni_failed_timeout">Timed out. Ride not started</string>
+    <string name="finish_omni_failed_open_chain_error">Bicycle lock failed. Contact technical support</string>
+    <string name="finish_omni_failed_open_lock_error">Bicycle lock failed. Contact technical support</string>
+    <string name="finish_omni_failed_parking_not_allowed">You can\'t end your ride here. Find the nearest car park on the map</string>
+    <string name="need_close_chain_error">The wheel lock cannot be opened. Insert the end of the cable back into the lock and try again</string>
+    <string name="need_close_error">The opening of the cable lock is not available. Close the lock on the wheel and try again</string>
+    <string name="far_from_user_error">You are too far away from the bike, get closer or start the rental by scanning the QR code on the bike handlebar</string>
+    <string name="finish_omni_failed_timeout">Timed out. Ride resumed</string>
+    <string name="finish_omni_failed_restarted">Error. Ride resumed</string>
+    <string name="finish_omni_failed_default">Error</string>
+    <string name="omni_ride_not_found_error">Ride not found</string>
+
 </resources>

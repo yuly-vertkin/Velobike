@@ -1,126 +1,93 @@
 package ru.sitronics.velobike.presentation.main
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import ru.sitronics.velobike.R
 import ru.sitronics.velobike.presentation.auth.LoginScreen
-import ru.sitronics.velobike.presentation.bike_detail.BikeDetailDialog
-import ru.sitronics.velobike.presentation.rent.ScanQrCodeDialog
+import ru.sitronics.velobike.presentation.help.HelpScreen
+import ru.sitronics.velobike.presentation.history.HistoryScreen
+import ru.sitronics.velobike.presentation.map.MapScreen
+import ru.sitronics.velobike.presentation.profile.ProfileScreen
+import ru.sitronics.velobike.ui.theme.VelobikeTheme
+
+sealed class AppScreen {
+    object Map : AppScreen()
+    object History : AppScreen()
+    object Profile : AppScreen()
+    object Help : AppScreen()
+}
 
 @Composable
 fun MainScreen(mainViewModel: MainViewModel = viewModel()) {
     val mainUiState by mainViewModel.mainUiState.collectAsStateWithLifecycle()
 
-    if (mainUiState is MainUiState.Login) {
-        LoginScreen() { mainViewModel.handleIntent(MainIntent.Logged) }
+    if (mainUiState == MainUiState.Login) {
+        LoginScreen { mainViewModel.handleIntent(MainIntent.Logged) }
     } else {
-        MainScreenInt(mainUiState) { intent -> mainViewModel.handleIntent(intent) }
+        MainScreenInt()
     }
 }
 
 @Composable
-fun MainScreenInt(
-    uiState: MainUiState,
-    onAction: (MainIntent) -> Unit,
-) {
-    Scaffold(
-        bottomBar = { MyBottomAppBar() },
-    ) { contentPadding ->
-        Box(modifier = Modifier.padding(contentPadding)) {
-            MapViewContainer(uiState, onAction)
+fun MainScreenInt() {
+    var screen: AppScreen by remember { mutableStateOf(AppScreen.Map) }
 
-            when (uiState) {
-                is MainUiState.ShowBikeDetail -> {
-                    BikeDetailDialog(uiState.bike,
-                        onDismissRequest = { onAction(MainIntent.CloseBikeDetail()) },
-                        onClick = { onAction(MainIntent.CloseBikeDetail(startRide = true)) }
-                    )
-                }
-                is MainUiState.ShowQrScan -> {
-                    ScanQrCodeDialog(
-                        onAction = { bikeNumber -> onAction(MainIntent.CloseQrScan(bikeNumber)) },
-                        onCancel = { onAction(MainIntent.CloseQrScan()) },
-                    )
-                }
-                else -> {}
-            }
-/*
-            if (uiState.dialogState) {
-                SimpleDialog(
-                    onDismissRequest = { onAction(MainIntent.Dialog(true)) },
-                    onConfirmation = { onAction(MainIntent.Dialog(true)) },
-                    dialogTitle = "Alert dialog example",
-                    dialogText = "This is an example of an alert dialog with buttons.",
-                    icon = Icons.Default.Info
-                )
-            }
-*/
+    Scaffold(
+        bottomBar = { MainBottomBar { screen = it } },
+    ) { contentPadding ->
+        when (screen) {
+            is AppScreen.Map -> MapScreen(contentPadding)
+            is AppScreen.History -> HistoryScreen(contentPadding)
+            is AppScreen.Profile -> ProfileScreen(contentPadding)
+            is AppScreen.Help -> HelpScreen(contentPadding)
         }
     }
 }
 
 @Composable
-fun MyBottomAppBar() {
+fun MainBottomBar(onAction: (AppScreen) -> Unit) {
     BottomAppBar {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { /* do something */ }) {
-                Icon(Icons.Filled.Check, contentDescription = "Localized description")
+            IconButton(onClick = { onAction(AppScreen.Map) }) {
+                Icon(painterResource(R.drawable.ic_map), contentDescription = "")
             }
-            IconButton(onClick = { /* do something */ }) {
-                Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+            IconButton(onClick = { onAction(AppScreen.History) }) {
+                Icon(painterResource(R.drawable.ic_bicycle), contentDescription = "")
             }
-            IconButton(onClick = { /* do something */ }) {
-                Icon(Icons.Filled.Email, contentDescription = "Localized description")
+            IconButton(onClick = { onAction(AppScreen.Profile) }) {
+                Icon(painterResource(R.drawable.ic_profile), contentDescription = "")
             }
-            IconButton(onClick = { /* do something */ }) {
-                Icon(Icons.Filled.Info, contentDescription = "Localized description")
+            IconButton(onClick = { onAction(AppScreen.Help) }) {
+                Icon(painterResource(R.drawable.ic_dots_menu), contentDescription = "")
             }
         }
     }
 }
 
-/*
-@Composable
-fun Test(onBack: () -> Unit) {
-    Box(Modifier.fillMaxSize().background(Color.Yellow)) {
-        Text(
-            text = "test!!!",
-            modifier = Modifier.align(Alignment.Center)
-        )
-        BackPressHandler(onBackPressed = onBack)
-    }
-}
-*/
-
-
-// Doesn't work because of MapView
-/*
 @Preview(showBackground = true)
 @Composable
-fun MainPreview() {
+fun MainScreenPreview() {
     VelobikeTheme {
-        MainScreenInt(MainUiState(), emptyList()) {}
+        MainScreenInt()
     }
 }
-*/

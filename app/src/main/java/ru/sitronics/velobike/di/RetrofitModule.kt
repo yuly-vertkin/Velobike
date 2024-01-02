@@ -10,15 +10,16 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import ru.sitronics.velobike.BuildConfig
 import ru.sitronics.velobike.data.AuthManager
 import ru.sitronics.velobike.data.network.AuthInterceptor
-import ru.sitronics.velobike.data.network.MapContentService
 import ru.sitronics.velobike.data.network.DebugOkHttpHelper
 import ru.sitronics.velobike.data.network.LoginService
-import ru.sitronics.velobike.data.network.TestInterceptor
+import ru.sitronics.velobike.data.network.MapContentService
+import ru.sitronics.velobike.data.network.RentService
 import ru.sitronics.velobike.data.network.SecureInterceptor
+import ru.sitronics.velobike.data.network.TestInterceptor
 import javax.inject.Singleton
-import ru.sitronics.velobike.BuildConfig
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -63,4 +64,9 @@ object RetrofitModule {
     @Provides
     fun provideBikeService(retrofit: Retrofit): MapContentService =
         retrofit.create(MapContentService::class.java)
+
+    @Singleton
+    @Provides
+    fun provideRentService(retrofit: Retrofit): RentService =
+        retrofit.create(RentService::class.java)
 }

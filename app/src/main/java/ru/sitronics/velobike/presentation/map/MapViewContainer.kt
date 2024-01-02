@@ -1,4 +1,4 @@
-package ru.sitronics.velobike.presentation.main
+package ru.sitronics.velobike.presentation.map
 
 import android.content.Context
 import android.graphics.Color
@@ -36,8 +36,8 @@ import ru.sitronics.velobike.tools.rememberLocationPermissionLauncher
 
 @Composable
 fun BoxScope.MapViewContainer(
-    uiState: MainUiState,
-    onAction: (MainIntent) -> Unit,
+    uiState: MapUiState,
+    onAction: (MapIntent) -> Unit,
 ) {
     val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle()
@@ -46,14 +46,14 @@ fun BoxScope.MapViewContainer(
         CameraListener { map, cameraPosition, _, finished ->
             if (finished) {
                 println("!!! Camera position changed")
-                onAction(MainIntent.ChangeMapPosition(getMapRect(mapView), cameraPosition.zoom))
+                onAction(MapIntent.ChangeMapPosition(getMapRect(mapView), cameraPosition.zoom))
             }
         }
     }
     val tapListener = remember {
         MapObjectTapListener { mapObject, point ->
             val data = mapObject.userData as? MarkerUserData
-            onAction(MainIntent.TapMapObject(data))
+            onAction(MapIntent.MapObjectTap(data))
             return@MapObjectTapListener true
         }
     }
@@ -104,11 +104,11 @@ fun BoxScope.MapViewContainer(
     val parkingPlacemarks = remember { hashMapOf<String, PlacemarkMapObject>() }
 
     when(uiState) {
-        is MainUiState.BikesUpdated -> {
+        is MapUiState.BikesUpdated -> {
             val markers = uiState.bikes.map { Marker(it.id, it.latitude, it.longitude, MarkerUserData.Bike(it.id)) }
             updateMarkers(LocalContext.current, markers, bikeClusterCollection, bikePlacemarks, tapListener, R.drawable.bike)
         }
-        is MainUiState.ParkingsUpdated -> {
+        is MapUiState.ParkingsUpdated -> {
             val markers = uiState.parkings.map { Marker(it.id, it.latitude, it.longitude, MarkerUserData.Parking(it.id)) }
             updateMarkers(LocalContext.current, markers, parkingClusterCollection, parkingPlacemarks, tapListener, R.drawable.parking)
         }

@@ -25,4 +25,27 @@
 
     <string name="qr_scan_missing_camera_permission">Нужно разрешение на использование камеры</string>
 
+    <!-- Rent error -->
+    <string name="start_omni_failed_open_chain_error">Ошибка замка велосипеда. Выберите другой велосипед</string>
+    <string name="start_omni_failed_open_lock_error">Ошибка замка велосипеда. Выберите другой велосипед</string>
+    <string name="start_omni_failed_bike_is_offline">Велосипед недоступен для аренды</string>
+    <string name="start_omni_failed_bike_not_allowed">Велосипед недоступен для аренды</string>
+    <string name="start_omni_failed_bike_is_offline_title">Этот велосипед разряжен или ждет технического специалиста.</string>
+    <string name="start_omni_failed_bike_is_offline_desc">Пожалуйста, возьмите другой велосипед</string>
+    <string name="start_omni_failed_account_blocked">Ваш аккаунт заблокирован. Обратитесь в техподдержку</string>
+    <string name="start_omni_failed_account_debt">Оплатите задолженность, чтобы разблокировать доступ к велопрокату</string>
+    <string name="start_omni_failed_has_rent_already">Аренда дополнительного велосипеда недоступна</string>
+    <string name="start_omni_failed_default">Ошибка</string>
+    <string name="start_omni_failed_timeout">Время ожидания закончилось. Поездка не начата</string>
+    <string name="finish_omni_failed_open_chain_error">Ошибка замка велосипеда. Обратитесь в техподдержку</string>
+    <string name="finish_omni_failed_open_lock_error">Ошибка замка велосипеда. Обратитесь в техподдержку</string>
+    <string name="finish_omni_failed_parking_not_allowed">Здесь нельзя завершить поездку. Найдите ближайшую парковку на карте</string>
+    <string name="need_close_chain_error">Открытие замка на колесе недоступно. Вставьте конец троса обратно в замок и повторите попытку</string>
+    <string name="need_close_error">Открытие замка троса недоступно. Закройте замок на колесе и повторите попытку</string>
+    <string name="far_from_user_error">Вы слишком далеко от велосипеда, подойдите ближе или начните аренду, отсканировав QR-код на руле велосипеда</string>
+    <string name="finish_omni_failed_timeout">Время ожидания закончилось. Поездка возобновлена</string>
+    <string name="finish_omni_failed_restarted">Ошибка. Поездка возобновлена</string>
+    <string name="finish_omni_failed_default">Ошибка</string>
+    <string name="omni_ride_not_found_error">Аренда не найдена</string>
+
 </resources>

@@ -1,4 +1,4 @@
-package ru.sitronics.velobike.presentation.main
+package ru.sitronics.velobike.presentation.map
 
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.offset
@@ -23,8 +23,8 @@ import ru.sitronics.velobike.tools.runWithLocation
 @Composable
 fun BoxScope.MapTopLayerContainer(
     mapView: MapView,
-    uiState: MainUiState,
-    onAction: (MainIntent) -> Unit,
+    uiState: MapUiState,
+    onAction: (MapIntent) -> Unit,
 ) {
     val context = LocalContext.current
     val locationPermissionLauncher = rememberLocationPermissionLauncher()
@@ -97,7 +97,7 @@ fun BoxScope.MapTopLayerContainer(
         modifier = Modifier
             .align(Alignment.BottomCenter)
             .offset(y = (-16).dp),
-        onClick = { onAction(MainIntent.QrScanClick) },
+        onClick = { onAction(MapIntent.QrScanTap) },
         shape = CircleShape,
         containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),

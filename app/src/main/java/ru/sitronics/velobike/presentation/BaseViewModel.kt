@@ -23,7 +23,7 @@ abstract class BaseViewModel(appContextProvider: AppContextProvider) : ViewModel
 
     protected fun <T> processNetworkCall(
         action: () -> Flow<Result<T>>,
-        onSuccess: ((T) -> Unit)? = null,
+        onSuccess: (suspend (T) -> Unit)? = null,
         onError: ((Throwable) -> Unit)? = null,
         force: Boolean = false,
         callName: String = DEFAULT_CALL_NAME
