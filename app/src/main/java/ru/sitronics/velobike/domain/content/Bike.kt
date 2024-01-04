@@ -1,5 +1,6 @@
 package ru.sitronics.velobike.domain.content
 
+import com.google.gson.annotations.SerializedName
 import java.util.UUID
 
 data class Bike(
@@ -14,23 +15,15 @@ data class Bike(
 )
 
 enum class BikeOperativeStatus(val value: String) {
+    @SerializedName("UNKNOWN")
     UNKNOWN("UNKNOWN"),
+    @SerializedName("STATIONED")
     STATIONED("STATIONED");
-
-    companion object {
-        fun fromString(string: String?): BikeOperativeStatus {
-            return BikeOperativeStatus.values().firstOrNull { it.value == string } ?: UNKNOWN
-        }
-    }
 }
 
 enum class BikeInventoryStatus(val value: String) {
+    @SerializedName("UNKNOWN")
     UNKNOWN("UNKNOWN"),
+    @SerializedName("IN_CITY")
     IN_CITY("IN_CITY");
-
-    companion object {
-        fun fromString(string: String?): BikeInventoryStatus {
-            return BikeInventoryStatus.values().firstOrNull { it.value == string } ?: UNKNOWN
-        }
-    }
 }

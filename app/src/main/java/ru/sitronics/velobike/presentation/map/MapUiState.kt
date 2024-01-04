@@ -17,7 +17,7 @@ sealed class MapIntent {
     data class ChangeMapPosition(val mapRect: MapRect, val zoom: Float) : MapIntent()
     data class MapObjectTap(val userData: MarkerUserData?) : MapIntent()
     object QrScanTap : MapIntent()
-    data class CloseBikeDetail(val bikeId: String? = null, val startRide: Boolean = false, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
+    data class CloseBikeDetail(val bikeId: String? = null, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
     data class CloseQrScan(val bikeId: String? = null, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
     object CloseError : MapIntent()
 }

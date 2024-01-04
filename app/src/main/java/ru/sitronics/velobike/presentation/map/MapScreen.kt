@@ -37,7 +37,7 @@ fun MapScreen(
                 BikeDetailDialog(
                     bike = uiState.bike,
                     onDismissRequest = { onAction(MapIntent.CloseBikeDetail()) },
-                    onClick = { onAction(MapIntent.CloseBikeDetail(startRide = true)) }
+                    onClick = { onAction(MapIntent.CloseBikeDetail(uiState.bike.id)) }
                 )
             }
             is MapUiState.ShowQrScan -> {

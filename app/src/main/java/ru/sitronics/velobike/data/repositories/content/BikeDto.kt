@@ -40,9 +40,9 @@ data class BikeDto(
     @SerializedName("inventoryStatusChangeDate")
     val inventoryStatusChangeDate: Long?,
     @SerializedName("operativeStatus")
-    val operativeStatus: String?,
+    val operativeStatus: BikeOperativeStatus?,
     @SerializedName("inventoryStatus")
-    val inventoryStatus: String?,
+    val inventoryStatus: BikeInventoryStatus?,
     @SerializedName("installedDevSerialNum")
     val serialNum: String?,
     @SerializedName("telemetry")
@@ -64,8 +64,8 @@ data class BikeDto(
             batteryPower = telemetry?.batteryLevel ?: 0,
             latitude = telemetry?.coordinates?.latitude ?: 0.0,
             longitude = telemetry?.coordinates?.longitude ?: 0.0,
-            vehicleInventoryStatus = BikeInventoryStatus.fromString(inventoryStatus),
-            vehicleOperativeStatus = BikeOperativeStatus.fromString(operativeStatus),
+            vehicleInventoryStatus = inventoryStatus ?: BikeInventoryStatus.UNKNOWN,
+            vehicleOperativeStatus = operativeStatus ?: BikeOperativeStatus.UNKNOWN,
         )
 }
 

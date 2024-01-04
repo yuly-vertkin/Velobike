@@ -37,10 +37,10 @@ sealed class AppScreen {
 fun MainScreen(mainViewModel: MainViewModel = viewModel()) {
     val mainUiState by mainViewModel.mainUiState.collectAsStateWithLifecycle()
 
-    if (mainUiState == MainUiState.Login) {
-        LoginScreen { mainViewModel.handleIntent(MainIntent.Logged) }
-    } else {
-        MainScreenInt()
+    when (mainUiState ) {
+        is MainUiState.Splash -> SplashScreen()
+        is MainUiState.Login -> LoginScreen { mainViewModel.handleIntent(MainIntent.Logged) }
+        else -> MainScreenInt()
     }
 }
 

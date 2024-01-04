@@ -70,7 +70,7 @@ fun BoxScope.MapViewContainer(
     val locationPermissionLauncher = rememberLocationPermissionLauncher()
     locationPermissionLauncher.RunWithLocation { lat, lon ->
         // TODO: commented for debug purpose
-        moveMap(mapView, lat ?: MOSCOW_LAT, lon ?: MOSCOW_LON)
+        moveMap(mapView, /*lat ?:*/ MOSCOW_LAT, /*lon ?:*/ MOSCOW_LON)
         MapKitFactory.getInstance().resetLocationManagerToDefault()
         try {
             MapKitFactory.getInstance().createUserLocationLayer(mapView.mapWindow).apply {

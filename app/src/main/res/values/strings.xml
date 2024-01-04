@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Velobike</string>
+    <string name="screen_not_ready">Screen is under development</string>
 
 <!-- Buttons -->
     <string name="ok_btn">OK</string>

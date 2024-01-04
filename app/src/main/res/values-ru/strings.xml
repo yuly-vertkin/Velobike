@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Велобайк</string>
+    <string name="screen_not_ready">Экран находится в разработке</string>
 
 <!-- Buttons -->
     <string name="ok_btn">ОК</string>

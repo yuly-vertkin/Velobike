@@ -8,14 +8,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import ru.sitronics.velobike.R
 
 @Composable
 fun ProfileScreen(
     contentPadding: PaddingValues,
 ) {
+    val context = LocalContext.current
+
     Box(modifier = Modifier.fillMaxSize().padding(contentPadding)) {
         Text(
-            text = "ProfileScreen is under development",
+            text = context.getString(R.string.screen_not_ready),
             modifier = Modifier.align(Alignment.Center)
         )
     }

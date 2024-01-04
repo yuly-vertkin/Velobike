@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.MapRect
+import ru.sitronics.velobike.domain.content.Bike
 import ru.sitronics.velobike.domain.content.MapContentRepository
 import ru.sitronics.velobike.domain.rent.FailedReason
 import ru.sitronics.velobike.domain.rent.MainRentStatus
@@ -24,6 +25,8 @@ class MapViewModel @Inject constructor(
 ) : BaseViewModel(appContextProvider) {
     private val _mapUiState: MutableStateFlow<MapUiState> = MutableStateFlow(MapUiState.Normal)
     val mapUiState: StateFlow<MapUiState> = _mapUiState.asStateFlow()
+    private var prevMapUiState: MapUiState = MapUiState.Normal
+    private var rentStatus: MainRentStatus? = null
 
     fun handleIntent(intent: MapIntent) {
         when (intent) {
@@ -41,28 +44,36 @@ class MapViewModel @Inject constructor(
                 }
             }
             is MapIntent.CloseBikeDetail -> {
-                if (intent.startRide) {
-                    _mapUiState.value = MapUiState.ShowQrScan
-                } else
-                    _mapUiState.value = MapUiState.Normal
-            }
-            is MapIntent.QrScanTap -> {
-                _mapUiState.value = MapUiState.ShowQrScan
-            }
-            is MapIntent.CloseQrScan -> {
-                if (intent.bikeId != null) {
+                if (prevMapUiState is MapUiState.ShowQrScan && intent.bikeId != null) {
                     startRent(intent.bikeId, intent.latitude, intent.longitude)
                 } else {
-                    _mapUiState.value = MapUiState.Normal
+                    changeState(if (intent.bikeId != null) MapUiState.ShowQrScan else MapUiState.Normal)
+                }
+            }
+            is MapIntent.QrScanTap -> {
+                changeState(MapUiState.ShowQrScan)
+            }
+            is MapIntent.CloseQrScan -> {
+                if (prevMapUiState is MapUiState.ShowBikeDetail && intent.bikeId != null) {
+                    startRent(intent.bikeId, intent.latitude, intent.longitude)
+                } else if (intent.bikeId != null) {
+                    getBike(intent.bikeId)?.let { bike ->
+                        changeState(MapUiState.ShowBikeDetail(bike))
+                    } // ?: вела нет на карте, но мы должны начать аренду
+                } else {
+                    changeState(MapUiState.Normal)
                 }
             }
             is MapIntent.CloseError -> {
-                _mapUiState.value = MapUiState.Normal
+                changeState(MapUiState.Normal)
             }
         }
     }
 
-    private var rentStatus: MainRentStatus? = null
+    private fun changeState(uiState: MapUiState) {
+        prevMapUiState = _mapUiState.value
+        _mapUiState.value = uiState
+    }
 
     private fun startRent(bikeId: String, latitude: Double?, longitude: Double?) {
         processNetworkCall(
@@ -77,20 +88,16 @@ class MapViewModel @Inject constructor(
                     delay(CHECK_RENT_STATUS_DELAY)
                 }
                 Logg.d("!!!! startRent end, status $rentStatus")
-                _mapUiState.value = if (rentStatus == MainRentStatus.IN_PROGRESS) MapUiState.Normal
-                                     else MapUiState.ShowError(getRentError(it.failedReason, true))
+                changeState(
+                    if (rentStatus == MainRentStatus.IN_PROGRESS) MapUiState.Normal
+                    else MapUiState.ShowError(getRentError(it.failedReason, true))
+                )
             },
             onError = {
                 Logg.d("!!!! ERROR startRent()")
-                _mapUiState.value = MapUiState.ShowError(getRentError(null, true))
+                changeState(MapUiState.ShowError(getRentError(null, true)))
             },
         )
-    }
-
-    private fun getRentError(failedReason: FailedReason?, startRent: Boolean) : String {
-        return failedReason?.let {
-            context.getString( if (startRent) it.messageIdStart else it.messageIdFinish)
-        } ?: context.getString(R.string.start_omni_failed_default)
     }
 
     private fun checkRentStatus(rentId: Int, deviceId: String) {
@@ -107,11 +114,21 @@ class MapViewModel @Inject constructor(
         )
     }
 
+    private fun getRentError(failedReason: FailedReason?, startRent: Boolean) : String {
+        return failedReason?.let {
+            context.getString( if (startRent) it.messageIdStart else it.messageIdFinish)
+        } ?: context.getString(R.string.start_omni_failed_default)
+    }
+
     private fun onBikeClick(bikeId: String) {
         println("!!! onBikeClick $bikeId")
-        val bike = mapContentRepository.getData().bikes?.find { it.id == bikeId } ?: return
-        _mapUiState.value = MapUiState.ShowBikeDetail(bike)
+        getBike(bikeId)?.let { bike ->
+            changeState(MapUiState.ShowBikeDetail(bike))
+        }
     }
+
+    private fun getBike(bikeId: String) : Bike? =
+        mapContentRepository.getData().bikes?.find { it.id == bikeId }
 
     private fun onParkingClick(id: String) {
         println("!!! onParkingClick $id")
@@ -126,7 +143,7 @@ class MapViewModel @Inject constructor(
                 mapContentRepository.saveData(mapContentRepository.getData().copy(
                     bikes = it
                 ))
-                _mapUiState.value = MapUiState.BikesUpdated(it)
+                changeState(MapUiState.BikesUpdated(it))
             },
             onError = { Logg.d("!!! ERROR getBikes()") },
             force = true,
@@ -139,7 +156,7 @@ class MapViewModel @Inject constructor(
                 mapContentRepository.saveData(mapContentRepository.getData().copy(
                     parkings = it
                 ))
-                _mapUiState.value = MapUiState.ParkingsUpdated(it)
+                changeState(MapUiState.ParkingsUpdated(it))
             },
             onError = { Logg.d("!!! ERROR getParkings() ${it.message}") },
             force = true,
