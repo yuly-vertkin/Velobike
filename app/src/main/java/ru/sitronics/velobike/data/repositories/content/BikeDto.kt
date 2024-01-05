@@ -51,9 +51,8 @@ data class BikeDto(
     val maintenance: Maintenance?,
     @SerializedName("description")
     val description: String?,
-// ???
     @SerializedName("parking")
-    val parking: String?,
+    val parking: Parking?,
     @SerializedName("isBlockingTag")
     val isBlockingTag: Boolean?,
 ) : Parcelable, ResponseDto<Bike> {
@@ -151,4 +150,12 @@ data class Maintenance(
     val totalRentTime: Long?,
     @SerializedName("rentTimeAfterLastMaintenance")
     val rentTimeAfterLastMaintenance: Long?,
+) : Parcelable
+
+@Parcelize
+data class Parking(
+    @SerializedName("parkingId")
+    val parkingId: String?,
+    @SerializedName("externalParkingId")
+    val externalParkingId: String?,
 ) : Parcelable

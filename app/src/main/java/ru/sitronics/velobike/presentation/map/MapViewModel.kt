@@ -57,9 +57,9 @@ class MapViewModel @Inject constructor(
                 if (prevMapUiState is MapUiState.ShowBikeDetail && intent.bikeId != null) {
                     startRent(intent.bikeId, intent.latitude, intent.longitude)
                 } else if (intent.bikeId != null) {
-                    getBike(intent.bikeId)?.let { bike ->
+                    runWithBike(intent.bikeId) { bike ->
                         changeState(MapUiState.ShowBikeDetail(bike))
-                    } // ?: вела нет на карте, но мы должны начать аренду
+                    }
                 } else {
                     changeState(MapUiState.Normal)
                 }
@@ -129,6 +129,26 @@ class MapViewModel @Inject constructor(
 
     private fun getBike(bikeId: String) : Bike? =
         mapContentRepository.getData().bikes?.find { it.id == bikeId }
+
+    private fun runWithBike(bikeId: String, action: (Bike) -> Unit) {
+        println("!!!! runWithBike: $bikeId")
+//        val bike = mapContentRepository.getData().bikes?.find { it.id == bikeId }
+        val bike = getBike(bikeId)
+        if (bike != null) {
+            println("!!!! found Bike: $bikeId")
+            action(bike)
+        } else {
+            println("!!!! runWithBike processNetworkCall $bikeId")
+            processNetworkCall(
+                action = { mapContentRepository.getBike(bikeId) },
+                onSuccess = {
+                    Logg.d("!!!! getBike ${it.id}")
+                    action(it)
+                },
+                onError = { Logg.d("!!!! ERROR getBike") },
+            )
+        }
+    }
 
     private fun onParkingClick(id: String) {
         println("!!! onParkingClick $id")

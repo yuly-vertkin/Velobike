@@ -48,6 +48,9 @@ class MapContentRepositoryImp @Inject constructor(
         return callAction { service.getBikes(params) }
     }
 
+    override fun getBike(bikeId: String) : Flow<Result<Bike>> =
+        callAction { service.getBike(bikeId) }
+
     override fun getParkings(mapRect: MapRect) : Flow<Result<List<Parking>>> {
         return callAction {
             service.getParkings("gt.${mapRect.startLat}", "lt.${mapRect.endLat}",
