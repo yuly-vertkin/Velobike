@@ -8,7 +8,7 @@ import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.domain.auth.LoginData
 import ru.sitronics.velobike.domain.auth.LoginRepository
-import ru.sitronics.velobike.domain.auth.Login
+import ru.sitronics.velobike.domain.auth.UserToken
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,7 +31,7 @@ class LoginRepositoryImp @Inject constructor(
         setStringPreference(PASSWORD_KEY, data.password)
     }
 
-    override fun login(login: String, password: String) : Flow<Result<Login>> =
+    override fun login(login: String, password: String) : Flow<Result<UserToken>> =
         callAction { service.login(LoginDto(login, password)) }
 
     companion object {

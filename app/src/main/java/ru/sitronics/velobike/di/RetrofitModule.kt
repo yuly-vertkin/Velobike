@@ -16,6 +16,7 @@ import ru.sitronics.velobike.data.network.AuthInterceptor
 import ru.sitronics.velobike.data.network.DebugOkHttpHelper
 import ru.sitronics.velobike.data.network.LoginService
 import ru.sitronics.velobike.data.network.MapContentService
+import ru.sitronics.velobike.data.network.ProfileService
 import ru.sitronics.velobike.data.network.RentService
 import ru.sitronics.velobike.data.network.SecureInterceptor
 import ru.sitronics.velobike.data.network.TestInterceptor
@@ -69,4 +70,9 @@ object RetrofitModule {
     @Provides
     fun provideRentService(retrofit: Retrofit): RentService =
         retrofit.create(RentService::class.java)
+
+    @Singleton
+    @Provides
+    fun provideProfileService(retrofit: Retrofit): ProfileService =
+        retrofit.create(ProfileService::class.java)
 }

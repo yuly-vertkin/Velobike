@@ -58,6 +58,7 @@ android {
         create("development") {
             dimension = "environment"
             buildConfigField("String", "BASE_URL", "\"https://dev-velobike.sitronics-it.com\"")
+            buildConfigField("String", "BASE_URL_OLD", "\"https://apivelobike.legacy.sitronics-it.com\"")
             buildConfigField("String", "QRATOR_SECRET", "\"\"")
             applicationIdSuffix = ".dev"
         }
@@ -113,6 +114,9 @@ dependencies {
 
     // QR code
     implementation("com.github.yuriy-budiyev:code-scanner:2.3.2")
+
+    // Coil
+    implementation("io.coil-kt:coil-compose:2.5.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

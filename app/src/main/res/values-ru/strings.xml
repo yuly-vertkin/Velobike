@@ -11,7 +11,7 @@
     <string name="error_no_network">Нет сети</string>
     <string name="error_unknown">Неизвестная ошибка</string>
 
-    <!--    Login-->
+<!-- Login-->
     <string name="login">Логин</string>
     <string name="password">Пароль</string>
 
@@ -48,5 +48,10 @@
     <string name="finish_omni_failed_restarted">Ошибка. Поездка возобновлена</string>
     <string name="finish_omni_failed_default">Ошибка</string>
     <string name="omni_ride_not_found_error">Аренда не найдена</string>
+
+<!-- Profile -->
+    <string name="profile_title">Кабинет</string>
+    <string name="profile_login">Логин\n%s</string>
+    <string name="profile_password">Пароль\n%s</string>
 
 </resources>

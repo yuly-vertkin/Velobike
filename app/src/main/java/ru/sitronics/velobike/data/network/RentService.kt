@@ -7,7 +7,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import ru.sitronics.velobike.data.repositories.auth.LoginDto
 import ru.sitronics.velobike.data.repositories.rent.StartRentParams
-import ru.sitronics.velobike.domain.auth.Login
+import ru.sitronics.velobike.domain.auth.UserToken
 import ru.sitronics.velobike.domain.rent.RentStatus
 
 interface RentService {
@@ -18,5 +18,5 @@ interface RentService {
     suspend fun checkStatus(@Path("rentId") rentId: Int, @Query("deviceId") deviceId: String) : RentStatus
 
     @GET("api/rent/rents/not-finished/user")
-    suspend fun activeRents(@Body loginDto: LoginDto) : Login
+    suspend fun activeRents(@Body loginDto: LoginDto) : UserToken
 }

@@ -2,9 +2,11 @@ package ru.sitronics.velobike.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.google.android.gms.common.util.Base64Utils
+import com.google.gson.GsonBuilder
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ru.sitronics.velobike.SHARED_PREFERENCES_NAME
-import ru.sitronics.velobike.tools.Logg
+import ru.sitronics.velobike.domain.auth.UserToken
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -12,32 +14,31 @@ import javax.inject.Singleton
 class AuthManager @Inject constructor(@ApplicationContext context: Context) {
     private val sharedPreferences: SharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
 
-    var token: String? = null
+    var accessToken: String? = null
         get() = field ?: getStringPreference(AUTH_TOKEN_KEY)
         set(value) {
-            field = value/*?.let {
-                val b64payload = it.split(".")[1]
-                String(Base64Utils.decode(b64payload))
-            }*/
-            Logg.d("!!! $field")
+            field = value
             setStringPreference(AUTH_TOKEN_KEY, field)
+            value?.let { saveOtherTokens(it) }
+        }
+
+    var accessTokenOldApi: String? = null
+        get() = field ?: getStringPreference(AUTH_TOKEN_OLD_KEY)
+        private set(value) {
+            field = value
+            setStringPreference(AUTH_TOKEN_OLD_KEY, field)
         }
 
     val isLogged: Boolean
-        get() = token != null
+        get() = accessToken != null
 
-/*
-    fun getAuthToken() : String? =
-        token ?: getStringPreference(AUTH_TOKEN_KEY)
-
-    fun saveAuthToken(rawToken: String) {
-        val b64payload = rawToken.split(".")[1]
-        token = String(Base64Utils.decode(b64payload))
-        Log.d("!!! $token")
-
-        setStringPreference(AUTH_TOKEN_KEY, token)
+    private fun saveOtherTokens(token: String) {
+        val gson = GsonBuilder().create()
+        val b64payload = token.split(".")[1]
+        val jsonString = String(Base64Utils.decode(b64payload))//.replaceFirst("{","{\"token\":$token,")
+        val tokens = gson.fromJson(jsonString, UserToken::class.java)
+        accessTokenOldApi = tokens.accessTokenOldApi
     }
-*/
 
     private fun getStringPreference(key: String) =
         sharedPreferences.getString(key, null)
@@ -53,5 +54,6 @@ class AuthManager @Inject constructor(@ApplicationContext context: Context) {
 
     companion object {
         private const val AUTH_TOKEN_KEY = "AUTH_TOKEN_KEY"
+        private const val AUTH_TOKEN_OLD_KEY = "AUTH_TOKEN_KEY"
     }
 }

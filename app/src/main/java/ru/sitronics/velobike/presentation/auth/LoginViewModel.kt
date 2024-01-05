@@ -9,7 +9,7 @@ import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.ResponseException
 import ru.sitronics.velobike.domain.auth.LoginData
 import ru.sitronics.velobike.domain.auth.LoginRepository
-import ru.sitronics.velobike.domain.auth.Login
+import ru.sitronics.velobike.domain.auth.UserToken
 import ru.sitronics.velobike.presentation.BaseViewModel
 import ru.sitronics.velobike.tools.Logg
 import javax.inject.Inject
@@ -52,9 +52,9 @@ class LoginViewModel @Inject constructor(
         )
     }
 
-    private fun onLoginSuccess(response: Login) {
+    private fun onLoginSuccess(response: UserToken) {
         Logg.d("!!! Login success")
-        authManager.token = response.token
+        authManager.accessToken = response.accessToken
         _loginUiState.value = LoginUiState.Close
     }
 

@@ -6,5 +6,5 @@ import ru.sitronics.velobike.data.Result
 interface LoginRepository {
     fun getData(): LoginData
     fun saveData(data: LoginData)
-    fun login(login: String, password: String) : Flow<Result<Login>>
+    fun login(login: String, password: String) : Flow<Result<UserToken>>
 }

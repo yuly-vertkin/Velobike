@@ -47,7 +47,8 @@ class SecureInterceptor @Inject constructor() : Interceptor {
 class AuthInterceptor(private val authManager: AuthManager): Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         var request: Request = chain.request()
-        val token = authManager.token
+        val token = if (request.url.toString().startsWith(BuildConfig.BASE_URL))
+            authManager.accessToken else authManager.accessTokenOldApi
 
         if (token != null) {
             val headers = request.headers

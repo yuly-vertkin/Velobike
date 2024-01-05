@@ -11,7 +11,7 @@
     <string name="error_no_network">No network</string>
     <string name="error_unknown">Unknown error</string>
 
-<!--    Login-->
+<!-- Login-->
     <string name="login">Login</string>
     <string name="password">Password</string>
 
@@ -48,5 +48,10 @@
     <string name="finish_omni_failed_restarted">Error. Ride resumed</string>
     <string name="finish_omni_failed_default">Error</string>
     <string name="omni_ride_not_found_error">Ride not found</string>
+
+    <!-- Profile -->
+    <string name="profile_title">Profile</string>
+    <string name="profile_login">Login\n%s</string>
+    <string name="profile_password">Password\n%s</string>
 
 </resources>
