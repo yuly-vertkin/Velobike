@@ -19,6 +19,9 @@
     <string name="bike_detail_title">Electric bike 2.0 №%s</string>
     <string name="start_ride_btn">Start ride</string>
 
+<!-- Slow, Move zones -->
+    <string name="speed_limit">%1$d km/h</string>
+
 <!-- QR-code scan -->
     <string name="qr_scan_text">Start your ride by scanning the QR code. It is located on the handlebars of the bike</string>
     <string name="qr_scan_btn">Scan</string>

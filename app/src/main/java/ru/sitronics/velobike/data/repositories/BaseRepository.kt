@@ -59,6 +59,7 @@ open class BaseRepository<T>(
                 e is HttpException -> {
                     val error = try {
                         val errorStr = e.response()?.errorBody()?.string()
+                        if (errorStr.isNullOrEmpty()) throw Exception()
                         gson.fromJson(errorStr, ErrorResponse::class.java)
                     } catch (_: Exception) {
                         ErrorResponse(context.getString(R.string.error_unknown))

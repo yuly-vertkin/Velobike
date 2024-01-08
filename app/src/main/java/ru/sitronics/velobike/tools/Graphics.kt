@@ -10,16 +10,24 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 
-fun Context.getBitmapFromVectorDrawable(@DrawableRes drawableId: Int): Bitmap? {
-    val drawable = ContextCompat.getDrawable(this, drawableId) ?: return null
+private const val EMPTY_BITMAP_WIDTH = 28
+private const val EMPTY_BITMAP_HEIGHT = 18
+
+fun Context.getBitmapFromVectorDrawable(
+    @DrawableRes drawableId: Int,
+    emptyWidth: Int = EMPTY_BITMAP_WIDTH,
+    emptyHeight: Int = EMPTY_BITMAP_HEIGHT,
+): Bitmap {
+    val scale = resources.displayMetrics.density.toInt()
+    val drawable = try { ContextCompat.getDrawable(this, drawableId) } catch (_: Exception) { null }
 
     val bitmap = Bitmap.createBitmap(
-        drawable.intrinsicWidth,
-        drawable.intrinsicHeight,
+        drawable?.intrinsicWidth ?: (emptyWidth * scale),
+        drawable?.intrinsicHeight ?: (emptyHeight * scale),
         Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bitmap)
-    drawable.setBounds(0, 0, canvas.width, canvas.height)
-    drawable.draw(canvas)
+    drawable?.setBounds(0, 0, canvas.width, canvas.height)
+    drawable?.draw(canvas)
 
     return bitmap
 }

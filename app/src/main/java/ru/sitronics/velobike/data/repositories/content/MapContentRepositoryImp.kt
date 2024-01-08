@@ -13,6 +13,7 @@ import ru.sitronics.velobike.domain.content.BikeOperativeStatus
 import ru.sitronics.velobike.domain.content.MapContentData
 import ru.sitronics.velobike.domain.content.MapContentRepository
 import ru.sitronics.velobike.domain.content.Parking
+import ru.sitronics.velobike.domain.content.SlowZone
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -57,4 +58,7 @@ class MapContentRepositoryImp @Inject constructor(
                                "gt.${mapRect.startLong}", "lt.${mapRect.endLong}")
         }
     }
+
+    override fun getSlowZones(): Flow<Result<List<SlowZone>>> =
+        callAction { service.getSlowZones() }
 }

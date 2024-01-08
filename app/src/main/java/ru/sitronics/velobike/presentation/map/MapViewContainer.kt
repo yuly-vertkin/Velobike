@@ -2,6 +2,7 @@ package ru.sitronics.velobike.presentation.map
 
 import android.content.Context
 import android.graphics.Color
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -9,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.yandex.mapkit.MapKitFactory
@@ -19,8 +21,10 @@ import com.yandex.mapkit.map.CameraListener
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.ClusterListener
 import com.yandex.mapkit.map.ClusterizedPlacemarkCollection
+import com.yandex.mapkit.map.MapObjectCollection
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.map.PlacemarkMapObject
+import com.yandex.mapkit.map.PolygonMapObject
 import com.yandex.mapkit.mapview.MapView
 import com.yandex.mapkit.user_location.UserLocationObjectListener
 import com.yandex.mapkit.user_location.UserLocationView
@@ -31,6 +35,7 @@ import ru.sitronics.velobike.domain.MapRect
 import ru.sitronics.velobike.tools.ClusterImageProvider
 import ru.sitronics.velobike.tools.Logg
 import ru.sitronics.velobike.tools.RunWithLocation
+import ru.sitronics.velobike.tools.drawText
 import ru.sitronics.velobike.tools.getBitmapFromVectorDrawable
 import ru.sitronics.velobike.tools.rememberLocationPermissionLauncher
 
@@ -40,7 +45,7 @@ fun BoxScope.MapViewContainer(
     onAction: (MapIntent) -> Unit,
 ) {
     val context = LocalContext.current
-    val mapView = rememberMapViewWithLifecycle()
+    val mapView = rememberMapViewWithLifecycle(onAction)
 //    val coroutineScope = rememberCoroutineScope()
     val cameraListener = remember {
         CameraListener { map, cameraPosition, _, finished ->
@@ -96,21 +101,25 @@ fun BoxScope.MapViewContainer(
     val parkingClusterListener = remember { ClusterListener { cluster ->
         cluster.appearance.setIcon(ClusterImageProvider(context, cluster.size, R.drawable.parking_cluster, Color.WHITE))
     }}
-//    val bikeCollection = remember { mapView.mapWindow.map.mapObjects.addCollection() }
     val bikeClusterCollection = remember { mapView.mapWindow.map.mapObjects.addClusterizedPlacemarkCollection(bikeClusterListener) }
     val bikePlacemarks = remember { hashMapOf<String, PlacemarkMapObject>() }
-//    val parkingCollection = remember { mapView.mapWindow.map.mapObjects.addCollection() }
     val parkingClusterCollection = remember { mapView.mapWindow.map.mapObjects.addClusterizedPlacemarkCollection(parkingClusterListener) }
     val parkingPlacemarks = remember { hashMapOf<String, PlacemarkMapObject>() }
 
+    val slowZoneCollection = remember { mapView.mapWindow.map.mapObjects.addCollection() }
+    val slowZonePolygons = remember { mutableListOf<PolygonMapObject>() }
+    val slowZoneMarkerCollection = remember { mapView.mapWindow.map.mapObjects.addCollection() }
+    val slowZoneMarkerPlacemarks = remember { hashMapOf<Int, PlacemarkMapObject>() }
+
     when(uiState) {
         is MapUiState.BikesUpdated -> {
-            val markers = uiState.bikes.map { Marker(it.id, it.latitude, it.longitude, MarkerUserData.Bike(it.id)) }
-            updateMarkers(LocalContext.current, markers, bikeClusterCollection, bikePlacemarks, tapListener, R.drawable.bike)
+            updateMarkers(LocalContext.current, uiState.bikes, bikeClusterCollection, bikePlacemarks, tapListener, R.drawable.bike)
         }
         is MapUiState.ParkingsUpdated -> {
-            val markers = uiState.parkings.map { Marker(it.id, it.latitude, it.longitude, MarkerUserData.Parking(it.id)) }
-            updateMarkers(LocalContext.current, markers, parkingClusterCollection, parkingPlacemarks, tapListener, R.drawable.parking)
+            updateMarkers(LocalContext.current, uiState.parkings, parkingClusterCollection, parkingPlacemarks, tapListener, R.drawable.parking)
+        }
+        is MapUiState.ShowSlowZones -> {
+            updateSlowZones(LocalContext.current, uiState.slowZones, slowZoneCollection, slowZonePolygons, slowZoneMarkerCollection, slowZoneMarkerPlacemarks, tapListener)
         }
         else -> {}
     }
@@ -121,11 +130,10 @@ fun BoxScope.MapViewContainer(
 private fun updateMarkers(
     context: Context,
     markers: List<Marker>,
-//    pinsCollection: MapObjectCollection,
     clusterizedCollection: ClusterizedPlacemarkCollection,
     placemarks: HashMap<String, PlacemarkMapObject>,
     tapListener: MapObjectTapListener,
-    resourceId: Int,
+    @DrawableRes resourceId: Int,
 ) {
     val currentIds = mutableListOf<String>()
     val bitmap = context.getBitmapFromVectorDrawable(resourceId)
@@ -137,7 +145,7 @@ private fun updateMarkers(
         currentIds.add(id)
 
         if (id !in placemarks) {
-            placemarks[id] = /*pinsCollection*/clusterizedCollection.addPlacemark().apply {
+            placemarks[id] = clusterizedCollection.addPlacemark().apply {
                 geometry = Point(marker.latitude, marker.longitude)
                 setIcon(imageProvider)
                 userData = marker.userData
@@ -149,19 +157,61 @@ private fun updateMarkers(
     val removedIds = placemarks.keys.filter { !currentIds.contains(it) }
     removedIds.forEach { key ->
         placemarks.remove(key)?.let {
-            /*pinsCollection*/clusterizedCollection.remove(it)
-            Logg.d("!!! removed!")
+            clusterizedCollection.remove(it)
+//            Logg.d("!!! removed!")
         }
     }
 
     clusterizedCollection.clusterPlacemarks(60.0, 15)
 }
 
+private fun updateSlowZones(
+    context: Context,
+    objects: List<SlowZoneObject>,
+    zoneCollection: MapObjectCollection,
+    polygons: MutableList<PolygonMapObject>,
+    markerCollection: MapObjectCollection,
+    markerPlacemarks: HashMap<Int, PlacemarkMapObject>,
+    tapListener: MapObjectTapListener,
+) {
+    zoneCollection.clear()
+    polygons.clear()
+    markerCollection.clear()
+    markerPlacemarks.clear()
+
+    val slowZoneBitmap = context.getBitmapFromVectorDrawable(R.drawable.slow_zone)
+    val slowZoneTimeBitmap = context.getBitmapFromVectorDrawable(R.drawable.slow_zone_time)
+
+    objects.forEach { obj ->
+        zoneCollection.addPolygon(obj.polygon).apply {
+            zIndex = 1f
+            strokeWidth = 1f
+            strokeColor = ContextCompat.getColor(context, R.color.slow_zone_stroke)
+            fillColor = ContextCompat.getColor(context, R.color.slow_zone_fillcolor)
+            isDraggable = false
+            userData = MarkerUserData.SlowZone(obj.id)
+            addTapListener(tapListener)
+            polygons.add(this)
+        }
+
+        val text = context.getString(R.string.speed_limit, obj.speedLimit)
+        val scheduled = obj.startTime > 0
+        val bitmap = (if (scheduled) slowZoneTimeBitmap else slowZoneBitmap)
+            .drawText(context, text, TEXT_SIZE, Color.BLACK, scheduled)
+        markerCollection.addPlacemark().apply {
+            geometry = obj.markerPoint
+            setIcon(ImageProvider.fromBitmap(bitmap))
+            markerPlacemarks[obj.id] = this
+        }
+
+    }
+}
+
 /**
  * Remembers a MapView and gives it the lifecycle of the current LifecycleOwner
  */
 @Composable
-fun rememberMapViewWithLifecycle(): MapView {
+fun rememberMapViewWithLifecycle(onAction: (MapIntent) -> Unit): MapView {
     val context = LocalContext.current
     val mapView = remember {
         MapView(context).apply {
@@ -177,6 +227,7 @@ fun rememberMapViewWithLifecycle(): MapView {
                 Lifecycle.Event.ON_START -> {
                     MapKitFactory.getInstance().onStart()
                     mapView.onStart()
+                    onAction(MapIntent.MapStart)
                 }
                 Lifecycle.Event.ON_STOP -> {
                     mapView.onStop()

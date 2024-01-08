@@ -9,6 +9,7 @@ import ru.sitronics.velobike.data.repositories.content.BikeDto
 import ru.sitronics.velobike.data.repositories.content.BikeParams
 import ru.sitronics.velobike.data.repositories.content.BikesDto
 import ru.sitronics.velobike.data.repositories.content.ParkingDto
+import ru.sitronics.velobike.domain.content.SlowZone
 
 interface MapContentService {
     @POST("api/iot/vehicles/search")
@@ -21,4 +22,6 @@ interface MapContentService {
     suspend fun getParkings(@Query("latitude") latitudeGt: String, @Query("latitude") latitudeLt: String,
                             @Query("longitude") longitudeGt: String, @Query("longitude") longitudeLt: String) : List<ParkingDto>
 
+    @GET("api/zones/slow-zones")
+    suspend fun getSlowZones(): List<SlowZone>
 }

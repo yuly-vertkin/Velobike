@@ -65,12 +65,14 @@ android {
         create("staging") {
             dimension = "environment"
             buildConfigField("String", "BASE_URL", "\"https://qrator-test-velobike.sitronics-it.com\"")
+            buildConfigField("String", "BASE_URL_OLD", "\"https://apivelobike.legacy-test.sitronics-it.com\"")
             buildConfigField("String", "QRATOR_SECRET", "\"qqsFJjHdpFcQ\"")
             applicationIdSuffix = ".test"
         }
         create("production") {
             dimension = "environment"
             buildConfigField("String", "BASE_URL", "\"https://iot.velobike.ru\"")
+            buildConfigField("String", "BASE_URL_OLD", "\"https://apivelobike.velobike.ru\"")
             buildConfigField("String", "QRATOR_SECRET", "\"qqsFJjHdpFcQ\"")
         }
     }

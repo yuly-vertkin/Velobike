@@ -54,6 +54,6 @@ class AuthManager @Inject constructor(@ApplicationContext context: Context) {
 
     companion object {
         private const val AUTH_TOKEN_KEY = "AUTH_TOKEN_KEY"
-        private const val AUTH_TOKEN_OLD_KEY = "AUTH_TOKEN_KEY"
+        private const val AUTH_TOKEN_OLD_KEY = "AUTH_TOKEN_OLD_KEY"
     }
 }

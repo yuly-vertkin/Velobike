@@ -10,4 +10,5 @@ interface MapContentRepository {
     fun getBikes(mapRect: MapRect) : Flow<Result<List<Bike>>>
     fun getBike(bikeId: String) : Flow<Result<Bike>>
     fun getParkings(mapRect: MapRect) : Flow<Result<List<Parking>>>
+    fun getSlowZones(): Flow<Result<List<SlowZone>>>
 }

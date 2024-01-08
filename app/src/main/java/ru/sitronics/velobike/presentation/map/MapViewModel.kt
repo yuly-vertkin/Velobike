@@ -10,11 +10,15 @@ import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.MapRect
 import ru.sitronics.velobike.domain.content.Bike
 import ru.sitronics.velobike.domain.content.MapContentRepository
+import ru.sitronics.velobike.domain.content.SlowZone
 import ru.sitronics.velobike.domain.rent.FailedReason
 import ru.sitronics.velobike.domain.rent.MainRentStatus
 import ru.sitronics.velobike.domain.rent.RentRepository
 import ru.sitronics.velobike.presentation.BaseViewModel
 import ru.sitronics.velobike.tools.Logg
+import ru.sitronics.velobike.tools.coordinatesToPolygon
+import ru.sitronics.velobike.tools.getSlowZoneMarkerPoint
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,6 +34,9 @@ class MapViewModel @Inject constructor(
 
     fun handleIntent(intent: MapIntent) {
         when (intent) {
+            is MapIntent.MapStart -> {
+                getSlowZones()
+            }
             is MapIntent.ChangeMapPosition -> {
                 if (intent.zoom >= SHOW_CONTENT_ZOOM)
                     updateBikesAndParkings(intent.mapRect)
@@ -158,31 +165,177 @@ class MapViewModel @Inject constructor(
 //        Logg.d("!!! mapRect: ${mapRect.startLat}, ${mapRect.startLong}, ${mapRect.endLat}, ${mapRect.endLong}")
         processNetworkCall(
             action = { mapContentRepository.getBikes(mapRect) },
-            onSuccess = {
-                Logg.d("!!! getBikes() ${it.size}")
+            onSuccess = { bikes ->
+                Logg.d("!!! getBikes() ${bikes.size}")
                 mapContentRepository.saveData(mapContentRepository.getData().copy(
-                    bikes = it
+                    bikes = bikes
                 ))
-                changeState(MapUiState.BikesUpdated(it))
+                val markers = bikes.map { Marker(it.id, it.latitude, it.longitude, MarkerUserData.Bike(it.id)) }
+                changeState(MapUiState.BikesUpdated(markers))
             },
             onError = { Logg.d("!!! ERROR getBikes()") },
             force = true,
+            callName = "getBikes"
         )
 
         processNetworkCall(
             action = { mapContentRepository.getParkings(mapRect) },
-            onSuccess = {
-                Logg.d("!!! getParkings() ${it.size}")
+            onSuccess = { parkings ->
+                Logg.d("!!! getParkings() ${parkings.size}")
                 mapContentRepository.saveData(mapContentRepository.getData().copy(
-                    parkings = it
+                    parkings = parkings
                 ))
-                changeState(MapUiState.ParkingsUpdated(it))
+                val markers = parkings.map { Marker(it.id, it.latitude, it.longitude, MarkerUserData.Parking(it.id)) }
+                changeState(MapUiState.ParkingsUpdated(markers))
             },
             onError = { Logg.d("!!! ERROR getParkings() ${it.message}") },
             force = true,
-            callName = DEFAULT_CALL_NAME + "2",
+            callName = "getParkings"
         )
     }
+
+    private fun getSlowZones() {
+        if (mapContentRepository.getData().slowZones == null) {
+            processNetworkCall(
+                action = { mapContentRepository.getSlowZones() },
+                onSuccess = {
+                    Logg.d("!!! getSlowZones() ${it.size}")
+                    mapContentRepository.saveData(
+                        mapContentRepository.getData().copy(
+                            slowZones = it
+                        )
+                    )
+                    changeState(MapUiState.ShowSlowZones(filterSlowZones(it)))
+                },
+                onError = { Logg.d("!!! ERROR getSlowZones()") },
+                callName = "getSlowZones"
+            )
+        } else {
+            mapContentRepository.getData().slowZones?.let {
+                changeState(MapUiState.ShowSlowZones(filterSlowZones(it)))
+            }
+        }
+    }
+
+    private fun filterSlowZones(zones: List<SlowZone>) : List<SlowZoneObject> {
+        val calendar = Calendar.getInstance()
+        val currentDay = calendar[Calendar.DAY_OF_WEEK]
+        val currentSecconds = calendar.get(Calendar.SECOND)
+        val result = mutableListOf<SlowZoneObject>()
+
+        zones.forEach {
+            val polygon = coordinatesToPolygon(it.geomGeo.coordinates)
+            val markerPoint = getSlowZoneMarkerPoint(polygon.outerRing.points)
+            when (currentDay) {
+                Calendar.MONDAY -> {
+                    if (currentSecconds > it.mondayStart && currentSecconds < it.mondayEnd) {
+                        result.add(SlowZoneObject(
+                            id = it.groupId,
+                            speedLimit = it.speedLimit,
+                            startTime = it.mondayStart,
+                            endTime = it.mondayEnd,
+                            polygon = polygon,
+                            markerPoint = markerPoint,
+                        ))
+                    }
+                }
+                Calendar.TUESDAY -> {
+                    if (currentSecconds > it.tuesdayStart && currentSecconds < it.tuesdayEnd) {
+                        result.add(SlowZoneObject(
+                            id = it.groupId,
+                            speedLimit = it.speedLimit,
+                            startTime = it.tuesdayStart,
+                            endTime = it.tuesdayEnd,
+                            polygon = polygon,
+                            markerPoint = markerPoint,
+                        ))
+                    }
+                }
+                Calendar.WEDNESDAY -> {
+                    if (currentSecconds > it.wednesdayStart && currentSecconds < it.wednesdayEnd) {
+                        result.add(SlowZoneObject(
+                            id = it.groupId,
+                            speedLimit = it.speedLimit,
+                            startTime = it.wednesdayStart,
+                            endTime = it.wednesdayEnd,
+                            polygon = polygon,
+                            markerPoint = markerPoint,
+                        ))
+                    }
+                }
+                Calendar.THURSDAY -> {
+                    if (currentSecconds > it.thursdayStart && currentSecconds < it.thursdayEnd) {
+                        result.add(SlowZoneObject(
+                            id = it.groupId,
+                            speedLimit = it.speedLimit,
+                            startTime = it.thursdayStart,
+                            endTime = it.thursdayEnd,
+                            polygon = polygon,
+                            markerPoint = markerPoint,
+                        ))
+                    }
+                }
+                Calendar.FRIDAY -> {
+                    if (currentSecconds > it.fridayStart && currentSecconds < it.fridayEnd) {
+                        result.add(SlowZoneObject(
+                            id = it.groupId,
+                            speedLimit = it.speedLimit,
+                            startTime = it.fridayStart,
+                            endTime = it.fridayEnd,
+                            polygon = polygon,
+                            markerPoint = markerPoint,
+                        ))
+                    }
+                }
+                Calendar.SATURDAY -> {
+                    if (currentSecconds > it.saturdayStart && currentSecconds < it.saturdayEnd) {
+                        result.add(SlowZoneObject(
+                            id = it.groupId,
+                            speedLimit = it.speedLimit,
+                            startTime = it.saturdayStart,
+                            endTime = it.saturdayEnd,
+                            polygon = polygon,
+                            markerPoint = markerPoint,
+                        ))
+                    }
+                }
+                Calendar.SUNDAY -> {
+                    if (currentSecconds > it.sundayStart && currentSecconds < it.sundayEnd) {
+                        result.add(SlowZoneObject(
+                            id = it.groupId,
+                            speedLimit = it.speedLimit,
+                            startTime = it.sundayStart,
+                            endTime = it.sundayEnd,
+                            polygon = polygon,
+                            markerPoint = markerPoint,
+                        ))
+                    }
+                }
+            }
+        }
+        return result
+    }
+
+/*
+    private fun filterSlowZones(zones: List<SlowZone>) : List<SlowZone> {
+        val calendar = Calendar.getInstance()
+        val currentDay = calendar[Calendar.DAY_OF_WEEK]
+        val currentSecconds = calendar.get(Calendar.SECOND)
+
+        return zones.filter {
+            when (currentDay) {
+                Calendar.MONDAY -> currentSecconds > it.mondayStart && currentSecconds < it.mondayEnd
+                Calendar.TUESDAY -> currentSecconds > it.tuesdayStart && currentSecconds < it.tuesdayEnd
+                Calendar.WEDNESDAY -> currentSecconds > it.wednesdayStart && currentSecconds < it.wednesdayEnd
+                Calendar.THURSDAY -> currentSecconds > it.thursdayStart && currentSecconds < it.thursdayEnd
+                Calendar.FRIDAY -> currentSecconds > it.fridayStart && currentSecconds < it.fridayEnd
+                Calendar.SATURDAY -> currentSecconds > it.saturdayStart && currentSecconds < it.saturdayEnd
+                Calendar.SUNDAY -> currentSecconds > it.sundayStart && currentSecconds < it.sundayEnd
+                else -> false
+            }
+        }
+    }
+*/
 
     companion object {
         private const val SHOW_CONTENT_ZOOM = 5f
