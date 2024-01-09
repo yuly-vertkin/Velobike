@@ -25,6 +25,11 @@ data class SlowZone(
     val flagElasticSchedule: Int,
 )
 
+data class MoveZone (
+    val id: Int,
+    val geomGeo: GeomGeo,
+)
+
 @Parcelize
 data class GeomGeo(
     @SerializedName("coordinates")

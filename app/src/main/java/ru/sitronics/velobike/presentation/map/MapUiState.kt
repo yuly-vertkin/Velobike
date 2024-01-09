@@ -6,8 +6,9 @@ import ru.sitronics.velobike.domain.content.Bike
 sealed class MapUiState {
     object Normal : MapUiState()
     data class BikesUpdated(val bikes: List<Marker>) : MapUiState()
-    data class ParkingsUpdated(val parkings: List<Marker>) : MapUiState()
-    data class ShowSlowZones(val slowZones: List<SlowZoneObject>) : MapUiState()
+    data class ParkingsUpdated(val stations: List<Marker>, val parkings: List<Marker>) : MapUiState()
+    data class ShowSlowZones(val slowZones: List<SlowZoneObject>, val showMarkers: Boolean) : MapUiState()
+    data class ShowMoveZones(val moveZone: MoveZoneObject) : MapUiState()
     data class ShowBikeDetail(val bike: Bike) : MapUiState()
     object ShowQrScan : MapUiState()
     data class ShowError(val error: String): MapUiState()

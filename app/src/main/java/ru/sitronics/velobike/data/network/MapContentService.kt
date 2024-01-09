@@ -8,8 +8,11 @@ import retrofit2.http.Query
 import ru.sitronics.velobike.data.repositories.content.BikeDto
 import ru.sitronics.velobike.data.repositories.content.BikeParams
 import ru.sitronics.velobike.data.repositories.content.BikesDto
+import ru.sitronics.velobike.data.repositories.content.MoveZonesDto
 import ru.sitronics.velobike.data.repositories.content.ParkingDto
 import ru.sitronics.velobike.domain.content.SlowZone
+
+const val ZONE_TYPE = "MOVE_ZONE"
 
 interface MapContentService {
     @POST("api/iot/vehicles/search")
@@ -24,4 +27,11 @@ interface MapContentService {
 
     @GET("api/zones/slow-zones")
     suspend fun getSlowZones(): List<SlowZone>
+
+    @GET("api/zones/zones-by-zone-type")
+    suspend fun getMoveZones(
+        @Query("zoneTypeCodes") zoneType: String = ZONE_TYPE,
+        @Query("includeGeoData") includeGeoData: Boolean = true
+    ): MoveZonesDto
+
 }

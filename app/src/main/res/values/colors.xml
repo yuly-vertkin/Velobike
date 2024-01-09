@@ -10,5 +10,7 @@
 
     <color name="slow_zone_fillcolor">#33D86666</color>
     <color name="slow_zone_stroke">#B2D86666</color>
+    <color name="move_zone_fillcolor">#66D86666</color>
+    <color name="move_zone_stroke">#B2D86666</color>
 
 </resources>

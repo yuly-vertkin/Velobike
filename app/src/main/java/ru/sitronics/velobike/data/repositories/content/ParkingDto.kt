@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 import ru.sitronics.velobike.data.repositories.ResponseDto
 import ru.sitronics.velobike.domain.content.Parking
+import ru.sitronics.velobike.domain.content.StationType
 
 @Parcelize
 data class ParkingDto(
@@ -55,10 +56,12 @@ data class ParkingDto(
     @SerializedName("station_status")
     val stationStatus: Int?,
 ) : Parcelable, ResponseDto<Parking> {
-    override fun toModel(): Parking =
-        Parking(
+    override fun toModel(): Parking {
+        val stType = StationType.values().firstOrNull { st -> st.type == type } ?: StationType.Ordinary
+
+        return Parking(
             id = staticFirestoreId ?: "",
-            type = type ?: 0,
+            type = stType,
             latitude = latitude ?: 0.0,
             longitude = longitude ?: 0.0,
             address = address ?: "",
@@ -70,4 +73,5 @@ data class ParkingDto(
             freeOmniSlots = numOfFreeOmniSlots ?: 0,
             status = stationStatus ?: 0,
         )
+    }
 }

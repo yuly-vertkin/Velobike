@@ -12,6 +12,7 @@ import ru.sitronics.velobike.domain.content.BikeInventoryStatus
 import ru.sitronics.velobike.domain.content.BikeOperativeStatus
 import ru.sitronics.velobike.domain.content.MapContentData
 import ru.sitronics.velobike.domain.content.MapContentRepository
+import ru.sitronics.velobike.domain.content.MoveZone
 import ru.sitronics.velobike.domain.content.Parking
 import ru.sitronics.velobike.domain.content.SlowZone
 import javax.inject.Inject
@@ -61,4 +62,7 @@ class MapContentRepositoryImp @Inject constructor(
 
     override fun getSlowZones(): Flow<Result<List<SlowZone>>> =
         callAction { service.getSlowZones() }
+
+    override fun getMoveZones(): Flow<Result<List<MoveZone>>> =
+        callAction { service.getMoveZones() }
 }

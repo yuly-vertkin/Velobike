@@ -23,8 +23,14 @@ data class SlowZoneObject(
     val markerPoint: Point,
 )
 
+data class MoveZoneObject(
+    val id: Int,
+    val polygon: Polygon,
+)
+
 sealed class MarkerUserData {
     data class Bike(val id: String) : MarkerUserData()
+    data class Station(val id: String) : MarkerUserData()
     data class Parking(val id: String) : MarkerUserData()
     data class SlowZone(val id: Int) : MarkerUserData()
     data class MoveZone(val id: Int) : MarkerUserData()
