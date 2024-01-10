@@ -71,6 +71,9 @@ data class ParkingDto(
             freeNonElectricSlots = numOfFreeNonElectricSlots ?: 0,
             freeElectricSlots = numOfFreeElectricSlots ?: 0,
             freeOmniSlots = numOfFreeOmniSlots ?: 0,
+            availableNonElectricBikes = numOfAvailableNonElectricBikes ?: 0,
+            availableElectricBikes = numOfAvailableElectricBikes ?: 0,
+            availableOmniBikes = numOfAvailableOmniBikes ?: 0,
             status = stationStatus ?: 0,
         )
     }

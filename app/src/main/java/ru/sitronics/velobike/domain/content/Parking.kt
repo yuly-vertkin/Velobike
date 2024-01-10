@@ -12,6 +12,9 @@ data class Parking(
     val freeNonElectricSlots: Int,
     val freeElectricSlots: Int,
     val freeOmniSlots: Int,
+    val availableNonElectricBikes: Int,
+    val availableElectricBikes: Int,
+    val availableOmniBikes: Int,
     val status: Int,
 )
 
@@ -21,11 +24,13 @@ enum class StationType(val type: Int) {
     OrdinaryAndElectro(2),
     Omni(3);
 
-    fun isParking(): Boolean {
-        return this == Omni
-    }
+    fun isParking() : Boolean =
+        this == Omni
 
-    fun isStation(): Boolean {
-        return this == Ordinary || this == Electro || this == OrdinaryAndElectro
-    }
+    fun isStation() : Boolean =
+        this == Ordinary || this == Electro || this == OrdinaryAndElectro
+
+    fun isElectro() : Boolean =
+        this == Electro || this == OrdinaryAndElectro
+
 }

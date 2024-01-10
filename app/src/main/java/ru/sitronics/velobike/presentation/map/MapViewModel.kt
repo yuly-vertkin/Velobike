@@ -164,7 +164,6 @@ class MapViewModel @Inject constructor(
 
     private fun updateBikesAndParkings(mapRect: MapRect, zoom: Float) {
         if (zoom < SHOW_CONTENT_ZOOM) return
-//        Logg.d("!!! mapRect: ${mapRect.startLat}, ${mapRect.startLong}, ${mapRect.endLat}, ${mapRect.endLong}")
 
         processNetworkCall(
             action = { mapContentRepository.getBikes(mapRect) },
@@ -173,8 +172,7 @@ class MapViewModel @Inject constructor(
                 mapContentRepository.saveData(mapContentRepository.getData().copy(
                     bikes = bikes
                 ))
-                val markers = bikes.map { Marker(it.id, it.latitude, it.longitude, MarkerUserData.Bike(it.id)) }
-                changeState(MapUiState.BikesUpdated(markers))
+                changeState(MapUiState.BikesUpdated(bikes))
             },
             onError = { Logg.d("!!! ERROR getBikes()") },
             force = true,
@@ -191,11 +189,10 @@ class MapViewModel @Inject constructor(
                     stations = stations,
                     parkings = parkings,
                 ))
-                val stationMarkers = stations.map { Marker(it.id, it.latitude, it.longitude, MarkerUserData.Station(it.id)) }
-                val parkingMarkers = if (zoom >= SHOW_PARKINGS_ZOOM)
-                        parkings.map { Marker(it.id, it.latitude, it.longitude, MarkerUserData.Parking(it.id)) }
-                    else emptyList()
-                changeState(MapUiState.ParkingsUpdated(stationMarkers, parkingMarkers))
+                changeState(MapUiState.ParkingsUpdated(
+                    stations,
+                    if (zoom >= SHOW_PARKINGS_ZOOM) parkings else emptyList()
+                ))
             },
             onError = { Logg.d("!!! ERROR getParkings() ${it.message}") },
             force = true,

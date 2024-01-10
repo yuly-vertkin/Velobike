@@ -33,6 +33,8 @@ import com.yandex.runtime.image.ImageProvider
 import ru.sitronics.velobike.INITIAL_ZOOM
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.MapRect
+import ru.sitronics.velobike.domain.content.Bike
+import ru.sitronics.velobike.domain.content.Parking
 import ru.sitronics.velobike.tools.ClusterImageProvider
 import ru.sitronics.velobike.tools.Logg
 import ru.sitronics.velobike.tools.RunWithLocation
@@ -118,11 +120,11 @@ fun BoxScope.MapViewContainer(
 
     when(uiState) {
         is MapUiState.BikesUpdated -> {
-            updateMarkers(LocalContext.current, uiState.bikes, bikeClusterCollection, bikePlacemarks, tapListener, R.drawable.bike)
+            updateBikes(LocalContext.current, uiState.bikes, bikeClusterCollection, bikePlacemarks, tapListener)
         }
         is MapUiState.ParkingsUpdated -> {
-            updateMarkers(LocalContext.current, uiState.stations, stationClusterCollection, stationPlacemarks, tapListener, R.drawable.station)
-            updateMarkers(LocalContext.current, uiState.parkings, parkingCollection, parkingPlacemarks, tapListener, R.drawable.parking)
+            updateStations(LocalContext.current, uiState.stations, stationClusterCollection, stationPlacemarks, tapListener)
+            updateParkings(LocalContext.current, uiState.parkings, parkingCollection, parkingPlacemarks, tapListener)
         }
         is MapUiState.ShowSlowZones -> {
             updateSlowZones(LocalContext.current, uiState.slowZones, uiState.showMarkers, slowZoneCollection, slowZonePolygons, slowZoneMarkerCollection, slowZoneMarkerPlacemarks, tapListener)
@@ -136,37 +138,33 @@ fun BoxScope.MapViewContainer(
     MapTopLayerContainer(mapView, uiState, onAction)
 }
 
-private fun updateMarkers(
+private fun updateBikes(
     context: Context,
-    markers: List<Marker>,
-    mapCollection: BaseMapObjectCollection,
+    bikes: List<Bike>,
+    mapCollection: ClusterizedPlacemarkCollection,
     placemarks: HashMap<String, PlacemarkMapObject>,
     tapListener: MapObjectTapListener,
-    @DrawableRes resourceId: Int,
 ) {
-    if (markers.isEmpty()) {
+    if (bikes.isEmpty()) {
         mapCollection.clear()
         placemarks.clear()
         return
     }
 
     val currentIds = mutableListOf<String>()
-    val bitmap = context.getBitmapFromVectorDrawable(resourceId)
+    val bitmap = context.getBitmapFromVectorDrawable(R.drawable.bike)
     val imageProvider = ImageProvider.fromBitmap(bitmap)
 
-//    Logg.d("!!! update $name: ${markers.size}")
-    markers.forEach { marker ->
-        val id = marker.id
+    bikes.forEach { bike ->
+        val id = bike.id
         currentIds.add(id)
 
         if (id !in placemarks) {
-            (if (mapCollection is ClusterizedPlacemarkCollection) mapCollection.addPlacemark()
-            else (mapCollection as MapObjectCollection).addPlacemark()).apply {
-                geometry = Point(marker.latitude, marker.longitude)
+            placemarks[id] = mapCollection.addPlacemark().apply {
+                geometry = Point(bike.latitude, bike.longitude)
                 setIcon(imageProvider)
-                userData = marker.userData
+                userData = MarkerUserData.Bike(id)
                 addTapListener(tapListener)
-                placemarks[id] = this
             }
         }
     }
@@ -175,12 +173,93 @@ private fun updateMarkers(
     removedIds.forEach { key ->
         placemarks.remove(key)?.let {
             mapCollection.remove(it)
-//            Logg.d("!!! removed!")
         }
     }
 
-    if (mapCollection is ClusterizedPlacemarkCollection)
-        mapCollection.clusterPlacemarks(60.0, 15)
+    mapCollection.clusterPlacemarks(60.0, 15)
+}
+
+private fun updateStations(
+    context: Context,
+    parkings: List<Parking>,
+    mapCollection: ClusterizedPlacemarkCollection,
+    placemarks: HashMap<String, PlacemarkMapObject>,
+    tapListener: MapObjectTapListener,
+) {
+    if (parkings.isEmpty()) {
+        mapCollection.clear()
+        placemarks.clear()
+        return
+    }
+
+    val currentIds = mutableListOf<String>()
+    val stationBitmap = context.getBitmapFromVectorDrawable(R.drawable.station)
+    val stationElectroBitmap = context.getBitmapFromVectorDrawable(R.drawable.station_electro)
+
+    parkings.forEach { parking ->
+        val id = parking.id
+        currentIds.add(id)
+
+        if (id !in placemarks) {
+            placemarks[id] = mapCollection.addPlacemark().apply {
+                geometry = Point(parking.latitude, parking.longitude)
+                val text = (parking.availableNonElectricBikes + parking.availableElectricBikes).toString()
+                val bitmap = if (parking.type.isElectro()) stationElectroBitmap.drawText(context, text, TEXT_SIZE, textOnRight = true)
+                             else stationBitmap.drawText(context, text, TEXT_SIZE)
+                setIcon(ImageProvider.fromBitmap(bitmap))
+                userData = MarkerUserData.Station(id)
+                addTapListener(tapListener)
+            }
+        }
+    }
+
+    val removedIds = placemarks.keys.filter { !currentIds.contains(it) }
+    removedIds.forEach { key ->
+        placemarks.remove(key)?.let {
+            mapCollection.remove(it)
+        }
+    }
+
+    mapCollection.clusterPlacemarks(60.0, 15)
+}
+
+private fun updateParkings(
+    context: Context,
+    parkings: List<Parking>,
+    mapCollection: MapObjectCollection,
+    placemarks: HashMap<String, PlacemarkMapObject>,
+    tapListener: MapObjectTapListener,
+) {
+    if (parkings.isEmpty()) {
+        mapCollection.clear()
+        placemarks.clear()
+        return
+    }
+
+    val currentIds = mutableListOf<String>()
+    val bitmap = context.getBitmapFromVectorDrawable(R.drawable.parking)
+    val imageProvider = ImageProvider.fromBitmap(bitmap)
+
+    parkings.forEach { parking ->
+        val id = parking.id
+        currentIds.add(id)
+
+        if (id !in placemarks) {
+            placemarks[id] = mapCollection.addPlacemark().apply {
+                geometry = Point(parking.latitude, parking.longitude)
+                setIcon(imageProvider)
+                userData = MarkerUserData.Parking(id)
+                addTapListener(tapListener)
+            }
+        }
+    }
+
+    val removedIds = placemarks.keys.filter { !currentIds.contains(it) }
+    removedIds.forEach { key ->
+        placemarks.remove(key)?.let {
+            mapCollection.remove(it)
+        }
+    }
 }
 
 private fun updateSlowZones(
