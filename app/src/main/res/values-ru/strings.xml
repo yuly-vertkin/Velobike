@@ -11,9 +11,21 @@
     <string name="error_no_network">Нет сети</string>
     <string name="error_unknown">Неизвестная ошибка</string>
 
-<!-- Login-->
+<!-- Login -->
+    <string name="entrance">Вход</string>
+    <string name="enter">Войти</string>
     <string name="login">Логин</string>
     <string name="password">Пароль</string>
+    <string name="warning">Внимание</string>
+
+<!-- Register -->
+    <string name="registration">Регистрация</string>
+    <string name="register">Зарегистрироваться</string>
+    <string name="name">Имя</string>
+    <string name="surname">Фамилия</string>
+    <string name="phone">Телефон</string>
+    <string name="email">Электронная почта</string>
+    <string name="agree">Я принимаю условия соглашения об обработке персональной информации</string>
 
 <!-- Bike detail -->
     <string name="bike_detail_title">Электровелосипед 2.0 №%s</string>

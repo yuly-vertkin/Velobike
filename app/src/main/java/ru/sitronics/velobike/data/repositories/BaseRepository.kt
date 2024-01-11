@@ -10,10 +10,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
+import retrofit2.Response
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.SHARED_PREFERENCES_NAME
 import ru.sitronics.velobike.data.network.isNetworkAvailable
 import ru.sitronics.velobike.data.AppContextProvider
+import ru.sitronics.velobike.data.BusinessErrorResponse
 import ru.sitronics.velobike.data.ERROR_NO_NETWORK
 import ru.sitronics.velobike.data.ErrorResponse
 import ru.sitronics.velobike.data.ERROR_UNKNOWN
@@ -49,6 +51,11 @@ open class BaseRepository<T>(
                 resDto is ResponseDto<*> -> resDto.toModel()
                 resDto is List<*> && resDto.firstOrNull() is ResponseDto<*> ->
                     resDto.map { (it as ResponseDto<*>).toModel() }
+                resDto is Response<*> && !resDto.isSuccessful -> {
+                    val body = resDto.errorBody()?.string()
+                    val error = gson.fromJson(body, BusinessErrorResponse::class.java)
+                    throw ResponseException(ERROR_UNKNOWN, error.message)
+                }
                 else -> resDto
             } ?: throw ResponseException(ERROR_UNKNOWN, context.getString(R.string.error_unknown))
 

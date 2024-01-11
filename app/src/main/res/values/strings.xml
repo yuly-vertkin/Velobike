@@ -11,9 +11,21 @@
     <string name="error_no_network">No network</string>
     <string name="error_unknown">Unknown error</string>
 
-<!-- Login-->
+<!-- Login -->
+    <string name="entrance">Entrance</string>
+    <string name="enter">Enter</string>
     <string name="login">Login</string>
     <string name="password">Password</string>
+    <string name="warning">Warning</string>
+
+<!-- Register -->
+    <string name="registration">Registration</string>
+    <string name="register">Register</string>
+    <string name="name">Name</string>
+    <string name="surname">Surname</string>
+    <string name="phone">Phone</string>
+    <string name="email">Email</string>
+    <string name="agree">I accept the terms of the agreement on the processing of personal information</string>
 
 <!-- Bike detail -->
     <string name="bike_detail_title">Electric bike 2.0 №%s</string>

@@ -4,11 +4,11 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import ru.sitronics.velobike.data.repositories.auth.LoginRepositoryImp
+import ru.sitronics.velobike.data.repositories.auth.AuthRepositoryImp
 import ru.sitronics.velobike.data.repositories.content.MapContentRepositoryImp
 import ru.sitronics.velobike.data.repositories.profile.ProfileRepositoryImp
 import ru.sitronics.velobike.data.repositories.rent.RentRepositoryImp
-import ru.sitronics.velobike.domain.auth.LoginRepository
+import ru.sitronics.velobike.domain.auth.AuthRepository
 import ru.sitronics.velobike.domain.content.MapContentRepository
 import ru.sitronics.velobike.domain.profile.ProfileRepository
 import ru.sitronics.velobike.domain.rent.RentRepository
@@ -19,7 +19,7 @@ import javax.inject.Singleton
 abstract class RepositoryModule {
     @Singleton
     @Binds
-    abstract fun bindLoginRepository(repositoryImpl: LoginRepositoryImp): LoginRepository
+    abstract fun bindAuthRepository(repositoryImpl: AuthRepositoryImp): AuthRepository
 
     @Singleton
     @Binds

@@ -13,7 +13,8 @@ sealed class Result<out T> {
 
 //open class BaseResponse(val errorCode: Int? = null, val errorTitle: String? = null, val errorMessage: String? = null)
 
-class ErrorResponse(val errorMsg: String? = null)
+class ErrorResponse(val errorMsg: String?)
+class BusinessErrorResponse(val message : String?)
 
 class ResponseException(val errorCode: Int, val errorMessage: String? = null) : Exception()
 

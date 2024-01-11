@@ -25,10 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.sitronics.velobike.R
@@ -45,14 +47,19 @@ fun LoginScreen(
     when (loginUiState) {
         is LoginUiState.Normal -> {
             val uiState = loginUiState as LoginUiState.Normal
-            LoginScreenInt(uiState.login, uiState.password) { login, password ->
-                loginViewModel.handleIntent(LoginIntent.OnLogin(login, password))
+            LoginScreenInt(uiState.login, uiState.password) { intent ->
+                loginViewModel.handleIntent(intent)
             }
         }
-        is LoginUiState.Error -> {
-            val uiState = loginUiState as LoginUiState.Error
-            ShowErrorDialog(uiState.error) {
-                loginViewModel.handleIntent(LoginIntent.OnLoginError)
+        is LoginUiState.ShowMessage -> {
+            val uiState = loginUiState as LoginUiState.ShowMessage
+            ShowMessageDialog(uiState.msg) {
+                loginViewModel.handleIntent(LoginIntent.OnMessage)
+            }
+        }
+        is LoginUiState.ShowRegister -> {
+            RegisterScreen {
+                loginViewModel.handleIntent(LoginIntent.OnRegister(it))
             }
         }
         is LoginUiState.Close -> onLoginClosed()
@@ -62,7 +69,7 @@ fun LoginScreen(
 @Composable
 fun LoginScreenInt(
     loginStr: String, passwordStr: String,
-    onButtonClick: (String, String) -> Unit
+    onAction: (LoginIntent) -> Unit
 ) {
     val context = LocalContext.current
     var login by remember { mutableStateOf(loginStr) }
@@ -83,6 +90,15 @@ fun LoginScreenInt(
                 .padding(top = 100.dp)
                 .background(Color.White)
         ) {
+            Text(
+                text = context.getString(R.string.entrance),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 12.dp, bottom = 16.dp)
+            )
+
             OutlinedTextField(
                 value = login,
                 onValueChange = { login = it },
@@ -107,14 +123,31 @@ fun LoginScreenInt(
             )
         }
 
-        Button(
-            onClick = { loading = true; onButtonClick(login, password) },
-            enabled = !loading,
+        Column (
             modifier = Modifier
-                .width(300.dp)
+                .fillMaxWidth()
                 .align(Alignment.BottomCenter)
+                .padding(bottom = 16.dp)
+                .background(Color.White)
         ) {
-            Text(text = "Enter")
+            Button(
+                onClick = { loading = true; onAction(LoginIntent.OnLogin(login, password)) },
+                enabled = !loading,
+                modifier = Modifier
+                    .width(300.dp)
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                Text(text = context.getString(R.string.enter))
+            }
+
+            Button(
+                onClick = { onAction(LoginIntent.ShowRegister) },
+                modifier = Modifier
+                    .width(300.dp)
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                Text(text = context.getString(R.string.register))
+            }
         }
 
         if (loading) {
@@ -130,12 +163,14 @@ fun LoginScreenInt(
 }
 
 @Composable
-fun ShowErrorDialog(error: String?, onClick: () -> Unit) {
+fun ShowMessageDialog(msg: String?, onClick: () -> Unit) {
+    val context = LocalContext.current
+
     SimpleDialog(
         onDismissRequest = { onClick() },
         onConfirmation = { onClick() },
-        dialogTitle = "Error",
-        dialogText = error ?: "Error",
+        dialogTitle = context.getString(R.string.warning),
+        dialogText = msg ?: context.getString(R.string.warning),
         icon = Icons.Default.Warning
     )
 
@@ -145,57 +180,6 @@ fun ShowErrorDialog(error: String?, onClick: () -> Unit) {
 @Composable
 fun LoginScreenPreview() {
     VelobikeTheme {
-        LoginScreenInt("", "") { _, _ -> }
+        LoginScreenInt("", "") { _ -> }
     }
 }
-
-/*
-Box(Modifier.imePadding()) {
-//        Text(
-//            text = "Title",
-//            modifier = Modifier.align(Alignment.TopCenter)
-//        )
-
-    Column {
-        Image(
-            painter = painterResource(id = R.drawable.login_image),
-            contentDescription = "",
-        )
-
-        OutlinedTextField(
-            value = login,
-            onValueChange = { login = it },
-            label = { Text("Login") },
-            singleLine = true,
-            modifier = Modifier
-                .width(300.dp)
-                .padding(top = 32.dp)
-//                    .align(Alignment.Center)
-//                    .offset(y = (-30).dp),
-        )
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier
-                .width(300.dp)
-                .padding(top = 16.dp)
-//                    .align(Alignment.Center)
-//                    .offset(y = 30.dp),
-        )
-
-        Button(
-            onClick = { loading = true; onButtonClick(login, password) },
-            enabled = !loading,
-            modifier = Modifier
-                .width(300.dp)
-                .padding(top = 32.dp)
-//                    .align(Alignment.BottomCenter)
-        ) {
-            Text(text = "Enter")
-        }
-    }
-*/

@@ -14,7 +14,7 @@ import ru.sitronics.velobike.BuildConfig
 import ru.sitronics.velobike.data.AuthManager
 import ru.sitronics.velobike.data.network.AuthInterceptor
 import ru.sitronics.velobike.data.network.DebugOkHttpHelper
-import ru.sitronics.velobike.data.network.LoginService
+import ru.sitronics.velobike.data.network.AuthService
 import ru.sitronics.velobike.data.network.MapContentService
 import ru.sitronics.velobike.data.network.ProfileService
 import ru.sitronics.velobike.data.network.RentService
@@ -58,8 +58,8 @@ object RetrofitModule {
 
     @Singleton
     @Provides
-    fun provideLoginService(retrofit: Retrofit): LoginService =
-        retrofit.create(LoginService::class.java)
+    fun provideAuthService(retrofit: Retrofit): AuthService =
+        retrofit.create(AuthService::class.java)
 
     @Singleton
     @Provides
