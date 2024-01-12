@@ -69,4 +69,26 @@
     <string name="profile_login">Login\n%s</string>
     <string name="profile_password">Password\n%s</string>
 
+    <!-- Help -->
+    <string name="help">Help</string>
+    <string name="how_to_use">How to use?</string>
+    <string name="version">Version %s</string>
+
+    <!-- How to use -->
+    <string name="first_trip">First trip</string>
+    <string name="first_trip_desc">Find out how to start using rental services</string>
+    <string name="bike_safety">Bicycle Safety</string>
+    <string name="bike_safety_desc">Read the rules before you start your trip</string>
+
+    <!-- First trip -->
+    <string name="first_trip_slide1">Choose a bike</string>
+    <string name="first_trip_slide1_desc">Station bikes</string>
+    <string name="first_trip_slide2">Renting a station bike</string>
+    <string name="first_trip_slide2_desc">Start the ride</string>
+    <string name="first_trip_slide3_4_5_6">Renting an electro bike 2.0</string>
+    <string name="first_trip_slide3_desc">Start the ride in the app</string>
+    <string name="first_trip_slide4_desc">Unlock your bike</string>
+    <string name="first_trip_slide5_desc">Park your bike</string>
+    <string name="first_trip_slide6_desc">Complete the ride</string>
+
 </resources>

@@ -2,7 +2,6 @@ package ru.sitronics.velobike.presentation.map
 
 import android.content.Context
 import android.graphics.Color
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -17,7 +16,6 @@ import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.ScreenPoint
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.layers.ObjectEvent
-import com.yandex.mapkit.map.BaseMapObjectCollection
 import com.yandex.mapkit.map.CameraListener
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.ClusterListener
@@ -68,7 +66,7 @@ fun BoxScope.MapViewContainer(
     val userLocationObjectListener = remember {
         object : UserLocationObjectListener {
             override fun onObjectAdded(userLocationView: UserLocationView) {
-                userLocationView.arrow.setIcon(ImageProvider.fromResource(context, R.drawable.ic_user_place))
+                userLocationView.arrow.setIcon(ImageProvider.fromResource(context, R.drawable.user_place))
             }
             override fun onObjectRemoved(p0: UserLocationView) {}
             override fun onObjectUpdated(p0: UserLocationView, p1: ObjectEvent) {}

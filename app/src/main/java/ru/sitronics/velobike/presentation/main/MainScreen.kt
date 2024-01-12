@@ -69,16 +69,16 @@ fun MainBottomBar(onAction: (AppScreen) -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = { onAction(AppScreen.Map) }) {
-                Icon(painterResource(R.drawable.ic_map), contentDescription = "")
+                Icon(painterResource(R.drawable.map), contentDescription = "")
             }
             IconButton(onClick = { onAction(AppScreen.History) }) {
-                Icon(painterResource(R.drawable.ic_bicycle), contentDescription = "")
+                Icon(painterResource(R.drawable.bicycle), contentDescription = "")
             }
             IconButton(onClick = { onAction(AppScreen.Profile) }) {
-                Icon(painterResource(R.drawable.ic_profile), contentDescription = "")
+                Icon(painterResource(R.drawable.profile), contentDescription = "")
             }
             IconButton(onClick = { onAction(AppScreen.Help) }) {
-                Icon(painterResource(R.drawable.ic_dots_menu), contentDescription = "")
+                Icon(painterResource(R.drawable.dots_menu), contentDescription = "")
             }
         }
     }

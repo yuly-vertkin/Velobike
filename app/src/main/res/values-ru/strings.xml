@@ -69,4 +69,26 @@
     <string name="profile_login">Логин\n%s</string>
     <string name="profile_password">Пароль\n%s</string>
 
+    <!-- Help -->
+    <string name="help">Помощь</string>
+    <string name="how_to_use">Как пользоваться?</string>
+    <string name="version">Версия %s</string>
+
+    <!-- How to use -->
+    <string name="first_trip">Первая поездка</string>
+    <string name="first_trip_desc">Узнайте как начать пользоваться прокатом</string>
+    <string name="bike_safety">Безопасность на велосипеде</string>
+    <string name="bike_safety_desc">Изучите правила перед началом поездки</string>
+
+    <!-- First trip -->
+    <string name="first_trip_slide1">Выбери велосипед</string>
+    <string name="first_trip_slide1_desc">Станционные велосипеды</string>
+    <string name="first_trip_slide2">Аренда станционного велосипеда</string>
+    <string name="first_trip_slide2_desc">Начни поездку</string>
+    <string name="first_trip_slide3_4_5_6">Аренда электровелосипеда 2.0</string>
+    <string name="first_trip_slide3_desc">Начни поездку в приложении</string>
+    <string name="first_trip_slide4_desc">Разблокируй велосипед</string>
+    <string name="first_trip_slide5_desc">Припаркуй велосипед</string>
+    <string name="first_trip_slide6_desc">Заверши поездку</string>
+
 </resources>

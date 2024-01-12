@@ -39,7 +39,7 @@ fun BoxScope.MapTopLayerContainer(
         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
     ) {
         Icon(
-            painter = painterResource(R.drawable.ic_chat),
+            painter = painterResource(R.drawable.chat),
             contentDescription = "",
             tint = Color.Unspecified,
         )
@@ -54,7 +54,7 @@ fun BoxScope.MapTopLayerContainer(
         containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
     ) {
-        Icon(painterResource(R.drawable.ic_search), "")
+        Icon(painterResource(R.drawable.search), "")
     }
 
     FloatingActionButton(
@@ -66,7 +66,7 @@ fun BoxScope.MapTopLayerContainer(
         containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
     ) {
-        Icon(painterResource(R.drawable.ic_layers), "")
+        Icon(painterResource(R.drawable.layers), "")
     }
 
     FloatingActionButton(
@@ -78,7 +78,7 @@ fun BoxScope.MapTopLayerContainer(
         containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
     ) {
-        Icon(painterResource(R.drawable.ic_plus), "")
+        Icon(painterResource(R.drawable.plus), "")
     }
 
     FloatingActionButton(
@@ -90,7 +90,7 @@ fun BoxScope.MapTopLayerContainer(
         containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
     ) {
-        Icon(painterResource(R.drawable.ic_minus), "")
+        Icon(painterResource(R.drawable.minus), "")
     }
 
     FloatingActionButton(
@@ -103,7 +103,7 @@ fun BoxScope.MapTopLayerContainer(
         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
     ) {
         Icon(
-            painter = painterResource(R.drawable.ic_qr),
+            painter = painterResource(R.drawable.qr),
             contentDescription = "",
             tint = Color.Unspecified,
         )
@@ -122,7 +122,7 @@ fun BoxScope.MapTopLayerContainer(
         containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
     ) {
-        Icon(painterResource(R.drawable.ic_to_user_position), "")
+        Icon(painterResource(R.drawable.to_user_position), "")
     }
 }
 
