@@ -72,6 +72,7 @@
     <!-- Help -->
     <string name="help">Помощь</string>
     <string name="how_to_use">Как пользоваться?</string>
+    <string name="support">Поддержка</string>
     <string name="version">Версия %s</string>
 
     <!-- How to use -->
@@ -90,5 +91,8 @@
     <string name="first_trip_slide4_desc">Разблокируй велосипед</string>
     <string name="first_trip_slide5_desc">Припаркуй велосипед</string>
     <string name="first_trip_slide6_desc">Заверши поездку</string>
+
+    <!-- Support -->
+    <string name="call_us">Позвонить нам</string>
 
 </resources>

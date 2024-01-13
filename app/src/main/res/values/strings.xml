@@ -72,6 +72,7 @@
     <!-- Help -->
     <string name="help">Help</string>
     <string name="how_to_use">How to use?</string>
+    <string name="support">Support</string>
     <string name="version">Version %s</string>
 
     <!-- How to use -->
@@ -90,5 +91,9 @@
     <string name="first_trip_slide4_desc">Unlock your bike</string>
     <string name="first_trip_slide5_desc">Park your bike</string>
     <string name="first_trip_slide6_desc">Complete the ride</string>
+
+    <!-- Support -->
+    <string name="call_us">Call us</string>
+    <string name="support_phone" translatable="false">+7 (495) 966 4 669</string>
 
 </resources>
