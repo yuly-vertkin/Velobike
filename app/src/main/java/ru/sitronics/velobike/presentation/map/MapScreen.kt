@@ -12,6 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.sitronics.velobike.R
+import ru.sitronics.velobike.presentation.SimpleBottomSheet
 import ru.sitronics.velobike.presentation.SimpleDialog
 import ru.sitronics.velobike.presentation.bike_detail.BikeDetailDialog
 import ru.sitronics.velobike.presentation.rent.ScanQrCodeDialog
@@ -36,8 +37,22 @@ fun MapScreen(
                 val uiState = mapUiState as MapUiState.ShowBikeDetail
                 BikeDetailDialog(
                     bike = uiState.bike,
-                    onDismissRequest = { onAction(MapIntent.CloseBikeDetail()) },
+                    onDismiss = { onAction(MapIntent.CloseBikeDetail()) },
                     onClick = { onAction(MapIntent.CloseBikeDetail(uiState.bike.id)) }
+                )
+            }
+            is MapUiState.ShowStationDetail -> {
+                val uiState = mapUiState as MapUiState.ShowStationDetail
+                SimpleBottomSheet(
+                    onDismiss = { onAction(MapIntent.CloseParkingDetail()) },
+                    onClick = { onAction(MapIntent.CloseParkingDetail(uiState.station.id)) }
+                )
+            }
+            is MapUiState.ShowParkingDetail -> {
+                val uiState = mapUiState as MapUiState.ShowParkingDetail
+                SimpleBottomSheet(
+                    onDismiss = { onAction(MapIntent.CloseParkingDetail()) },
+                    onClick = { onAction(MapIntent.CloseParkingDetail(uiState.parking.id)) }
                 )
             }
             is MapUiState.ShowQrScan -> {

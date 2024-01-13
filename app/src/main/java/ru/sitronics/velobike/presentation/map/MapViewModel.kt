@@ -10,6 +10,7 @@ import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.MapRect
 import ru.sitronics.velobike.domain.content.Bike
 import ru.sitronics.velobike.domain.content.MapContentRepository
+import ru.sitronics.velobike.domain.content.Parking
 import ru.sitronics.velobike.domain.rent.FailedReason
 import ru.sitronics.velobike.domain.rent.MainRentStatus
 import ru.sitronics.velobike.domain.rent.RentRepository
@@ -44,28 +45,31 @@ class MapViewModel @Inject constructor(
             is MapIntent.MapObjectTap -> {
                 when (intent.userData) {
                     is MarkerUserData.Bike -> onBikeClick(intent.userData.id)
-                    is MarkerUserData.Station -> onParkingClick(intent.userData.id)
+                    is MarkerUserData.Station -> onStationClick(intent.userData.id)
                     is MarkerUserData.Parking -> onParkingClick(intent.userData.id)
                     is MarkerUserData.SlowZone -> {}//onSlowZoneClick(data)
                     is MarkerUserData.MoveZone -> {}//onNotMoveZoneClick()
                     null -> {}
                 }
             }
+            is MapIntent.CloseParkingDetail -> {
+                changeState(MapUiState.Normal)
+            }
             is MapIntent.CloseBikeDetail -> {
-                if (prevMapUiState is MapUiState.ShowQrScan && intent.bikeId != null) {
-                    startRent(intent.bikeId, intent.latitude, intent.longitude)
+                if (prevMapUiState is MapUiState.ShowQrScan && intent.id != null) {
+                    startRent(intent.id, intent.latitude, intent.longitude)
                 } else {
-                    changeState(if (intent.bikeId != null) MapUiState.ShowQrScan else MapUiState.Normal)
+                    changeState(if (intent.id != null) MapUiState.ShowQrScan else MapUiState.Normal)
                 }
             }
             is MapIntent.QrScanTap -> {
                 changeState(MapUiState.ShowQrScan)
             }
             is MapIntent.CloseQrScan -> {
-                if (prevMapUiState is MapUiState.ShowBikeDetail && intent.bikeId != null) {
-                    startRent(intent.bikeId, intent.latitude, intent.longitude)
-                } else if (intent.bikeId != null) {
-                    runWithBike(intent.bikeId) { bike ->
+                if (prevMapUiState is MapUiState.ShowBikeDetail && intent.id != null) {
+                    startRent(intent.id, intent.latitude, intent.longitude)
+                } else if (intent.id != null) {
+                    runWithBike(intent.id) { bike ->
                         changeState(MapUiState.ShowBikeDetail(bike))
                     }
                 } else {
@@ -128,27 +132,26 @@ class MapViewModel @Inject constructor(
         } ?: context.getString(R.string.start_omni_failed_default)
     }
 
-    private fun onBikeClick(bikeId: String) {
-        println("!!! onBikeClick $bikeId")
-        getBike(bikeId)?.let { bike ->
+    private fun onBikeClick(id: String) {
+        Logg.d("!!! onBikeClick $id")
+        getBike(id)?.let { bike ->
             changeState(MapUiState.ShowBikeDetail(bike))
         }
     }
 
-    private fun getBike(bikeId: String) : Bike? =
-        mapContentRepository.getData().bikes?.find { it.id == bikeId }
+    private fun getBike(id: String) : Bike? =
+        mapContentRepository.getData().bikes?.find { it.id == id }
 
-    private fun runWithBike(bikeId: String, action: (Bike) -> Unit) {
-        println("!!!! runWithBike: $bikeId")
-//        val bike = mapContentRepository.getData().bikes?.find { it.id == bikeId }
-        val bike = getBike(bikeId)
+    private fun runWithBike(id: String, action: (Bike) -> Unit) {
+        Logg.d("!!!! runWithBike: $id")
+        val bike = getBike(id)
         if (bike != null) {
-            println("!!!! found Bike: $bikeId")
+            Logg.d("!!!! found Bike: $id")
             action(bike)
         } else {
-            println("!!!! runWithBike processNetworkCall $bikeId")
+            Logg.d("!!!! runWithBike processNetworkCall $id")
             processNetworkCall(
-                action = { mapContentRepository.getBike(bikeId) },
+                action = { mapContentRepository.getBike(id) },
                 onSuccess = {
                     Logg.d("!!!! getBike ${it.id}")
                     action(it)
@@ -158,9 +161,25 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    private fun onParkingClick(id: String) {
-        println("!!! onParkingClick $id")
+    private fun onStationClick(id: String) {
+        Logg.d("!!! onStationClick $id")
+        getStation(id)?.let { station ->
+            changeState(MapUiState.ShowStationDetail(station))
+        }
     }
+
+    private fun getStation(id: String) : Parking? =
+        mapContentRepository.getData().stations?.find { it.id == id }
+
+    private fun onParkingClick(id: String) {
+        Logg.d("!!! onParkingClick $id")
+        getParking(id)?.let { parking ->
+            changeState(MapUiState.ShowParkingDetail(parking))
+        }
+    }
+
+    private fun getParking(id: String) : Parking? =
+        mapContentRepository.getData().parkings?.find { it.id == id }
 
     private fun updateBikesAndParkings(mapRect: MapRect, zoom: Float) {
         if (zoom < SHOW_CONTENT_ZOOM) return

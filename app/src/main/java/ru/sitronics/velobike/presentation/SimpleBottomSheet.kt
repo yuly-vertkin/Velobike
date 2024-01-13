@@ -11,12 +11,12 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SimpleBottomSheet(onDismissRequest: () -> Unit, onClick: () -> Unit,) {
+fun SimpleBottomSheet(onDismiss: () -> Unit, onClick: () -> Unit,) {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
 
     ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
+        onDismissRequest = onDismiss,
         sheetState = sheetState
     ) {
         // Sheet content

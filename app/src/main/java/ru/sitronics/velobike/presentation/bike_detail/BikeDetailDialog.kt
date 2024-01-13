@@ -25,13 +25,13 @@ import ru.sitronics.velobike.domain.content.Bike
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BikeDetailDialog(bike: Bike, onDismissRequest: () -> Unit, onClick: () -> Unit) {
+fun BikeDetailDialog(bike: Bike, onDismiss: () -> Unit, onClick: () -> Unit) {
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
 
     ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
+        onDismissRequest = onDismiss,
         sheetState = sheetState
     ) {
         // Sheet content
