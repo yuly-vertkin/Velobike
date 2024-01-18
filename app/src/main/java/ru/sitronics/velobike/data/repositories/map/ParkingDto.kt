@@ -1,11 +1,11 @@
-package ru.sitronics.velobike.data.repositories.content
+package ru.sitronics.velobike.data.repositories.map
 
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 import ru.sitronics.velobike.data.repositories.ResponseDto
-import ru.sitronics.velobike.domain.content.Parking
-import ru.sitronics.velobike.domain.content.StationType
+import ru.sitronics.velobike.domain.map.Parking
+import ru.sitronics.velobike.domain.map.StationType
 
 @Parcelize
 data class ParkingDto(

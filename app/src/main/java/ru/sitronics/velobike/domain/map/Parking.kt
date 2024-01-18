@@ -1,4 +1,4 @@
-package ru.sitronics.velobike.domain.content
+package ru.sitronics.velobike.domain.map
 
 data class Parking(
     val id: String,

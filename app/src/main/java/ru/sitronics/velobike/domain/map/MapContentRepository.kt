@@ -1,4 +1,4 @@
-package ru.sitronics.velobike.domain.content
+package ru.sitronics.velobike.domain.map
 
 import kotlinx.coroutines.flow.Flow
 import ru.sitronics.velobike.data.Result

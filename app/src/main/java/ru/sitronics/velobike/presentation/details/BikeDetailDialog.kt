@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
-import ru.sitronics.velobike.domain.content.Bike
+import ru.sitronics.velobike.domain.map.Bike
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.minutes
 

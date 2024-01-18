@@ -1,8 +1,8 @@
-package ru.sitronics.velobike.data.repositories.content
+package ru.sitronics.velobike.data.repositories.map
 
 import ru.sitronics.velobike.data.repositories.ResponseDto
-import ru.sitronics.velobike.domain.content.GeomGeo
-import ru.sitronics.velobike.domain.content.MoveZone
+import ru.sitronics.velobike.domain.map.GeomGeo
+import ru.sitronics.velobike.domain.map.MoveZone
 
 data class MoveZonesDto(
     val pageMetadata: PageMetadata,

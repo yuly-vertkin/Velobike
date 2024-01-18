@@ -3,8 +3,8 @@ package ru.sitronics.velobike.tools
 import com.yandex.mapkit.geometry.LinearRing
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.geometry.Polygon
-import ru.sitronics.velobike.domain.content.MoveZone
-import ru.sitronics.velobike.domain.content.SlowZone
+import ru.sitronics.velobike.domain.map.MoveZone
+import ru.sitronics.velobike.domain.map.SlowZone
 import ru.sitronics.velobike.presentation.map.MoveZoneObject
 import ru.sitronics.velobike.presentation.map.SlowZoneObject
 import java.util.Calendar

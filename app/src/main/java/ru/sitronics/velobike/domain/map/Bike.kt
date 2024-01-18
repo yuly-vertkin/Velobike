@@ -1,4 +1,4 @@
-package ru.sitronics.velobike.domain.content
+package ru.sitronics.velobike.domain.map
 
 import com.google.gson.annotations.SerializedName
 import java.util.UUID

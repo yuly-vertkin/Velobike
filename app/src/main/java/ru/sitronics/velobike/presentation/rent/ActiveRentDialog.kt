@@ -35,7 +35,7 @@ import ru.sitronics.velobike.presentation.map.MapUiState
 import ru.sitronics.velobike.ui.theme.HeaderBackgroundColor
 
 @Composable
-fun ActiveRentDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: () -> Unit) {
+fun ActiveRentDialog(uiState: MapUiState, onShow: () -> Unit, onDismiss: () -> Unit, onClick: () -> Unit) {
     var showActiveRent by remember { mutableStateOf(false) }
     var isDialogClosed by remember { mutableStateOf(false) }
 
@@ -52,7 +52,7 @@ fun ActiveRentDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: () -> 
             })
         } else {
             ActiveRentBar {
-                isDialogClosed = false
+                isDialogClosed = false; onShow()
             }
         }
     }

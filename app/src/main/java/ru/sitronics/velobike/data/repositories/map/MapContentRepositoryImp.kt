@@ -1,4 +1,4 @@
-package ru.sitronics.velobike.data.repositories.content
+package ru.sitronics.velobike.data.repositories.map
 
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
@@ -7,14 +7,14 @@ import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.data.network.MapContentService
 import ru.sitronics.velobike.data.repositories.BaseRepository
 import ru.sitronics.velobike.domain.MapRect
-import ru.sitronics.velobike.domain.content.Bike
-import ru.sitronics.velobike.domain.content.BikeInventoryStatus
-import ru.sitronics.velobike.domain.content.BikeOperativeStatus
-import ru.sitronics.velobike.domain.content.MapContentData
-import ru.sitronics.velobike.domain.content.MapContentRepository
-import ru.sitronics.velobike.domain.content.MoveZone
-import ru.sitronics.velobike.domain.content.Parking
-import ru.sitronics.velobike.domain.content.SlowZone
+import ru.sitronics.velobike.domain.map.Bike
+import ru.sitronics.velobike.domain.map.BikeInventoryStatus
+import ru.sitronics.velobike.domain.map.BikeOperativeStatus
+import ru.sitronics.velobike.domain.map.MapContentData
+import ru.sitronics.velobike.domain.map.MapContentRepository
+import ru.sitronics.velobike.domain.map.MoveZone
+import ru.sitronics.velobike.domain.map.Parking
+import ru.sitronics.velobike.domain.map.SlowZone
 import javax.inject.Inject
 import javax.inject.Singleton
 

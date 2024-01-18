@@ -85,12 +85,11 @@ fun MapScreen(
 
         ActiveRentDialog(
             uiState = mapUiState,
-            onDismiss = { onAction(MapIntent.CloseActiveRent(false)) },
-            onClick = {
-                locationPermissionLauncher.runWithLocation(context) { lat, lon ->
-                    onAction(MapIntent.CloseActiveRent(true, lat, lon))
-                }
-            }
+            onShow = { onAction(MapIntent.ActiveRentAction(finishRent = false, isClosed = false)) },
+            onDismiss = { onAction(MapIntent.ActiveRentAction(finishRent = false, isClosed = true)) },
+            onClick = { locationPermissionLauncher.runWithLocation(context) { lat, lon ->
+                    onAction(MapIntent.ActiveRentAction(finishRent = true, isClosed = true, latitude = lat, longitude = lon))
+            }}
         )
 
         /*

@@ -1,12 +1,12 @@
-package ru.sitronics.velobike.data.repositories.content
+package ru.sitronics.velobike.data.repositories.map
 
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 import ru.sitronics.velobike.data.repositories.ResponseDto
-import ru.sitronics.velobike.domain.content.Bike
-import ru.sitronics.velobike.domain.content.BikeInventoryStatus
-import ru.sitronics.velobike.domain.content.BikeOperativeStatus
+import ru.sitronics.velobike.domain.map.Bike
+import ru.sitronics.velobike.domain.map.BikeInventoryStatus
+import ru.sitronics.velobike.domain.map.BikeOperativeStatus
 
 @Parcelize
 data class BikeParams(

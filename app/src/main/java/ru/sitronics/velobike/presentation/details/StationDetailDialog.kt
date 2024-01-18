@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.sitronics.velobike.R
-import ru.sitronics.velobike.domain.content.Parking
+import ru.sitronics.velobike.domain.map.Parking
 import ru.sitronics.velobike.ui.theme.HeaderBackgroundColor
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -1,8 +1,8 @@
 package ru.sitronics.velobike.presentation.map
 
 import ru.sitronics.velobike.domain.MapRect
-import ru.sitronics.velobike.domain.content.Bike
-import ru.sitronics.velobike.domain.content.Parking
+import ru.sitronics.velobike.domain.map.Bike
+import ru.sitronics.velobike.domain.map.Parking
 import ru.sitronics.velobike.domain.rent.ActiveRent
 
 sealed class MapUiState {
@@ -29,5 +29,5 @@ sealed class MapIntent {
     data class CloseQrScan(val id: String? = null, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
     data class CloseParkingDetail(val id: String? = null) : MapIntent()
     object CloseError : MapIntent()
-    data class CloseActiveRent(val close: Boolean, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
+    data class ActiveRentAction(val finishRent: Boolean, val isClosed: Boolean, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
 }

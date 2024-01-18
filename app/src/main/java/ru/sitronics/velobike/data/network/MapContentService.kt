@@ -5,12 +5,12 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
-import ru.sitronics.velobike.data.repositories.content.BikeDto
-import ru.sitronics.velobike.data.repositories.content.BikeParams
-import ru.sitronics.velobike.data.repositories.content.BikesDto
-import ru.sitronics.velobike.data.repositories.content.MoveZonesDto
-import ru.sitronics.velobike.data.repositories.content.ParkingDto
-import ru.sitronics.velobike.domain.content.SlowZone
+import ru.sitronics.velobike.data.repositories.map.BikeDto
+import ru.sitronics.velobike.data.repositories.map.BikeParams
+import ru.sitronics.velobike.data.repositories.map.BikesDto
+import ru.sitronics.velobike.data.repositories.map.MoveZonesDto
+import ru.sitronics.velobike.data.repositories.map.ParkingDto
+import ru.sitronics.velobike.domain.map.SlowZone
 
 const val ZONE_TYPE = "MOVE_ZONE"
 

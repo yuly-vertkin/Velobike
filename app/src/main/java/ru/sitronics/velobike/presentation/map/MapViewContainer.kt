@@ -31,8 +31,8 @@ import com.yandex.runtime.image.ImageProvider
 import ru.sitronics.velobike.INITIAL_ZOOM
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.MapRect
-import ru.sitronics.velobike.domain.content.Bike
-import ru.sitronics.velobike.domain.content.Parking
+import ru.sitronics.velobike.domain.map.Bike
+import ru.sitronics.velobike.domain.map.Parking
 import ru.sitronics.velobike.tools.ClusterImageProvider
 import ru.sitronics.velobike.tools.Logg
 import ru.sitronics.velobike.tools.RunWithLocation
