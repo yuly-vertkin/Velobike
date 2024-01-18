@@ -30,6 +30,12 @@
 <!-- Bike detail -->
     <string name="bike_detail_title">Электровелосипед 2.0 №%s</string>
     <string name="start_ride_btn">Начать поездку</string>
+    <string name="battery_power_percent">Заряд: %d\%%</string>
+    <string name="remaining_mileage_km_time">%1$.1f км (%2$s)</string>
+
+<!-- Station detail -->
+    <string name="bikes_available">доступно</string>
+    <string name="free_places">портов свободно</string>
 
 <!-- Slow, Move zones -->
     <string name="speed_limit">%1$d км/ч</string>
@@ -41,7 +47,10 @@
 
     <string name="qr_scan_missing_camera_permission">Нужно разрешение на использование камеры</string>
 
-    <!-- Rent error -->
+<!-- Rent -->
+    <string name="return_to_active_ride">Вернуться к активной поездке</string>
+
+<!-- Rent errors -->
     <string name="start_omni_failed_open_chain_error">Ошибка замка велосипеда. Выберите другой велосипед</string>
     <string name="start_omni_failed_open_lock_error">Ошибка замка велосипеда. Выберите другой велосипед</string>
     <string name="start_omni_failed_bike_is_offline">Велосипед недоступен для аренды</string>

@@ -14,7 +14,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.presentation.SimpleBottomSheet
 import ru.sitronics.velobike.presentation.SimpleDialog
-import ru.sitronics.velobike.presentation.bike_detail.BikeDetailDialog
+import ru.sitronics.velobike.presentation.details.BikeDetailDialog
+import ru.sitronics.velobike.presentation.details.StationDetailDialog
+import ru.sitronics.velobike.presentation.rent.ActiveRentDialog
 import ru.sitronics.velobike.presentation.rent.ScanQrCodeDialog
 import ru.sitronics.velobike.tools.rememberLocationPermissionLauncher
 import ru.sitronics.velobike.tools.runWithLocation
@@ -38,15 +40,18 @@ fun MapScreen(
                 BikeDetailDialog(
                     bike = uiState.bike,
                     onDismiss = { onAction(MapIntent.CloseBikeDetail()) },
-                    onClick = { onAction(MapIntent.CloseBikeDetail(uiState.bike.id)) }
+                    onClick = {
+                        locationPermissionLauncher.runWithLocation(context) { lat, lon ->
+                            onAction(MapIntent.CloseBikeDetail(uiState.bike.id, lat, lon))
+                        }
+                    }
                 )
             }
             is MapUiState.ShowStationDetail -> {
                 val uiState = mapUiState as MapUiState.ShowStationDetail
-                SimpleBottomSheet(
-                    onDismiss = { onAction(MapIntent.CloseParkingDetail()) },
-                    onClick = { onAction(MapIntent.CloseParkingDetail(uiState.station.id)) }
-                )
+                StationDetailDialog(uiState.station) {
+                    onAction(MapIntent.CloseParkingDetail())
+                }
             }
             is MapUiState.ShowParkingDetail -> {
                 val uiState = mapUiState as MapUiState.ShowParkingDetail
@@ -57,12 +62,12 @@ fun MapScreen(
             }
             is MapUiState.ShowQrScan -> {
                 ScanQrCodeDialog(
+                    onCancel = { onAction(MapIntent.CloseQrScan()) },
                     onAction = { bikeNumber ->
                         locationPermissionLauncher.runWithLocation(context) { lat, lon ->
                             onAction(MapIntent.CloseQrScan(bikeNumber, lat, lon))
                         }
                     },
-                    onCancel = { onAction(MapIntent.CloseQrScan()) },
                 )
             }
             is MapUiState.ShowError -> {
@@ -77,6 +82,17 @@ fun MapScreen(
             }
             else -> {}
         }
+
+        ActiveRentDialog(
+            uiState = mapUiState,
+            onDismiss = { onAction(MapIntent.CloseActiveRent(false)) },
+            onClick = {
+                locationPermissionLauncher.runWithLocation(context) { lat, lon ->
+                    onAction(MapIntent.CloseActiveRent(true, lat, lon))
+                }
+            }
+        )
+
         /*
                     if (uiState.dialogState) {
                         SimpleDialog(

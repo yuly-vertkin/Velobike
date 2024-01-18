@@ -3,6 +3,7 @@ package ru.sitronics.velobike.presentation.map
 import ru.sitronics.velobike.domain.MapRect
 import ru.sitronics.velobike.domain.content.Bike
 import ru.sitronics.velobike.domain.content.Parking
+import ru.sitronics.velobike.domain.rent.ActiveRent
 
 sealed class MapUiState {
     object Normal : MapUiState()
@@ -15,10 +16,12 @@ sealed class MapUiState {
     data class ShowParkingDetail(val parking: Parking) : MapUiState()
     object ShowQrScan : MapUiState()
     data class ShowError(val error: String): MapUiState()
+    data class ShowActiveRent(val activeRent: ActiveRent? = null) : MapUiState()
 }
 
 sealed class MapIntent {
     object MapStart : MapIntent()
+    object MapStop : MapIntent()
     data class ChangeMapPosition(val mapRect: MapRect, val zoom: Float) : MapIntent()
     data class MapObjectTap(val userData: MarkerUserData?) : MapIntent()
     object QrScanTap : MapIntent()
@@ -26,4 +29,5 @@ sealed class MapIntent {
     data class CloseQrScan(val id: String? = null, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
     data class CloseParkingDetail(val id: String? = null) : MapIntent()
     object CloseError : MapIntent()
+    data class CloseActiveRent(val close: Boolean, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
 }

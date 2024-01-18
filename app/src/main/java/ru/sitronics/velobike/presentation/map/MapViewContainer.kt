@@ -355,6 +355,7 @@ fun rememberMapViewWithLifecycle(onAction: (MapIntent) -> Unit): MapView {
                 Lifecycle.Event.ON_STOP -> {
                     mapView.onStop()
                     MapKitFactory.getInstance().onStop()
+                    onAction(MapIntent.MapStop)
                 }
                 else -> {}
             }

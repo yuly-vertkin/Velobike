@@ -10,6 +10,37 @@ data class RentData(
     val someData: Boolean = false,
 )
 
+data class StartRentParams(
+    val bikeSerialNumber: String,
+    val isUsedQr: Boolean,
+    val clientGeoPosition: ClientGeoPosition,
+)
+
+data class FinishRentParams(
+    val id: Int,
+    val bikeSerialNumber: String,
+    val deviceId: String,
+    val clientGeoPosition: ClientGeoPosition,
+)
+
+data class ClientGeoPosition(
+    val lat: Double,
+    val lon: Double
+)
+
+data class ActiveRent(
+    val rentId: Int,
+    val externalClientId: String?,
+    val frameNumber: String,
+    val startParkingId: String,
+    val rentStatus: MainRentStatus? = null,
+    val failedReason: FailedReason? = null,
+    val startTime: Long,
+    val updateTime: Long? = null,
+    val startPortNumber: Int,
+    val deviceId: String,
+)
+
 @Parcelize
 data class RentStatus(
     val id: Int,

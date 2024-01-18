@@ -1,6 +1,9 @@
-package ru.sitronics.velobike.presentation.bike_detail
+package ru.sitronics.velobike.presentation.details
 
+import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -22,7 +25,10 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.content.Bike
+import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.minutes
 
+@SuppressLint("StringFormatInvalid")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BikeDetailDialog(bike: Bike, onDismiss: () -> Unit, onClick: () -> Unit) {
@@ -34,7 +40,6 @@ fun BikeDetailDialog(bike: Bike, onDismiss: () -> Unit, onClick: () -> Unit) {
         onDismissRequest = onDismiss,
         sheetState = sheetState
     ) {
-        // Sheet content
         Text(
             text = context.getString(R.string.bike_detail_title, bike.id),
             fontSize = 16.sp,
@@ -42,7 +47,7 @@ fun BikeDetailDialog(bike: Bike, onDismiss: () -> Unit, onClick: () -> Unit) {
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(horizontal = 32.dp)
-                .offset(y = -12.dp)
+                .offset(y = (-12).dp)
         )
 
         Image(
@@ -53,6 +58,26 @@ fun BikeDetailDialog(bike: Bike, onDismiss: () -> Unit, onClick: () -> Unit) {
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp)
         )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
+            Text(
+                text = context.getString(R.string.battery_power_percent, bike.batteryPower),
+                modifier = Modifier
+                    .padding(start = 32.dp)
+                    .weight(1f)
+            )
+
+            Text(
+                text = getPowerReserveText(context, bike),
+                modifier = Modifier
+                    .padding(start = 32.dp)
+            )
+        }
 
         Button(
             onClick = {
@@ -69,3 +94,19 @@ fun BikeDetailDialog(bike: Bike, onDismiss: () -> Unit, onClick: () -> Unit) {
         }
     }
 }
+
+private fun getPowerReserveText(context: Context, bike: Bike) : String {
+    val remainingKm = (bike.batteryPower.toFloat() / 100) * MAX_BATTERY_KM
+    val remainingMinutes = (remainingKm * 60 / BIKE_AVG_SPEED_KM_H).roundToInt().minutes
+    val hours = remainingMinutes.inWholeHours
+    val minutes = remainingMinutes.inWholeMinutes % 60
+
+    val timeText = context.getString(R.string.remaining_mileage_time_h_m,
+        if(hours < 10) String.format("%02d", hours) else hours,
+        if(minutes < 10) String.format("%02d", minutes) else minutes)
+    return context.getString(R.string.remaining_mileage_km_time, remainingKm, timeText)
+}
+
+private const val MAX_BATTERY_KM = 52.0f
+const val BIKE_AVG_SPEED_KM_H = 25.0f
+

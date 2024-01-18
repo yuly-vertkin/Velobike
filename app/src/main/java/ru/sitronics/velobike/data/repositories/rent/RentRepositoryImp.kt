@@ -6,9 +6,12 @@ import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.data.network.RentService
 import ru.sitronics.velobike.data.repositories.BaseRepository
+import ru.sitronics.velobike.domain.rent.ActiveRent
+import ru.sitronics.velobike.domain.rent.FinishRentParams
 import ru.sitronics.velobike.domain.rent.RentData
 import ru.sitronics.velobike.domain.rent.RentRepository
 import ru.sitronics.velobike.domain.rent.RentStatus
+import ru.sitronics.velobike.domain.rent.StartRentParams
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,19 +29,15 @@ class RentRepositoryImp @Inject constructor(
         super.saveData(data)
     }
 
-    override fun startRent(bikeId: String, latitude: Double, longitude: Double) : Flow<Result<RentStatus>> {
-        val params = StartRentParams(
-            bikeSerialNumber = bikeId,
-            isUsedQr = true,
-            clientGeoPosition = ClientGeoPosition(
-                lat = latitude,
-                lon = longitude,
-            ),
-        )
-        return callAction { service.startRent(params) }
-    }
+    override fun startRent(params: StartRentParams) : Flow<Result<RentStatus>> =
+        callAction { service.startRent(params) }
 
-    override fun checkStatus(rentId: Int, deviceId: String) : Flow<Result<RentStatus>> {
-        return callAction { service.checkStatus(rentId, deviceId) }
-    }
+    override fun checkStatus(rentId: Int, deviceId: String) : Flow<Result<RentStatus>> =
+        callAction { service.checkStatus(rentId, deviceId) }
+
+    override fun checkActiveRent() : Flow<Result<List<ActiveRent>>> =
+        callAction { service.checkActiveRent() }
+
+    override fun finishRent(params: FinishRentParams) : Flow<Result<RentStatus>> =
+        callAction { service.finishRent(params.id, params) }
 }

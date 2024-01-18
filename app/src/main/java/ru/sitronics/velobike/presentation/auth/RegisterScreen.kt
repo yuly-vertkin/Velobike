@@ -109,11 +109,11 @@ fun RegisterScreen(
             )
 
             Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .padding(bottom = 64.dp),
-                verticalAlignment = Alignment.CenterVertically
             ) {
                 Checkbox(
                     checked = agree,
