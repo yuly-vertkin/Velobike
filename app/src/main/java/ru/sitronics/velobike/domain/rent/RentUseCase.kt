@@ -3,6 +3,8 @@ package ru.sitronics.velobike.domain.rent
 import kotlinx.coroutines.delay
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
+import ru.sitronics.velobike.domain.map.Bike
+import ru.sitronics.velobike.domain.map.MapContentRepository
 import ru.sitronics.velobike.presentation.BaseUseCase
 import ru.sitronics.velobike.tools.Logg
 import java.util.Timer
@@ -14,6 +16,7 @@ import kotlin.concurrent.schedule
 @Singleton
 class RentUseCase @Inject constructor(
     private val rentRepository: RentRepository,
+    private val mapContentRepository: MapContentRepository,
     appContextProvider: AppContextProvider,
 ) : BaseUseCase(appContextProvider) {
     private var rentStatus: RentStatus? = null
@@ -123,7 +126,7 @@ class RentUseCase @Inject constructor(
 
     fun updateActiveRent(
         isStart: Boolean,
-        onSuccess: (ActiveRent?) -> Unit, onError: (String?) -> Unit
+        onSuccess: suspend (ActiveRent?) -> Unit, onError: (String?) -> Unit
     ) {
         if (isStart && activeRentUpdateTask == null) {
             activeRentUpdateTask = Timer().schedule(0, CHECK_ACTIVE_RENT_DELAY) {
@@ -136,15 +139,21 @@ class RentUseCase @Inject constructor(
     }
 
     private fun checkActiveRent(
-        onSuccess: (ActiveRent?) -> Unit, onError: (String?) -> Unit
+        onSuccess: suspend (ActiveRent?) -> Unit, onError: (String?) -> Unit
     ) {
         processNetworkCall(
             action = { rentRepository.checkActiveRent() },
             onSuccess = {
                 Logg.d("!!! checkActiveRent found ${it.size}")
                 // update rent only if !isActiveRentClosed and state changed
-                if ((it.isNotEmpty() || isActiveRent) && !isActiveRentClosed) {
-                    onSuccess(it.firstOrNull())
+                if (it.isNotEmpty() && !isActiveRentClosed) {
+                    val activeRent = it[0]
+                    runWithBike(activeRent.frameNumber) { bike ->
+                        activeRent.bike = bike
+                        onSuccess(activeRent)
+                    }
+                } else if (isActiveRent && !isActiveRentClosed) {
+                    onSuccess(null)
                 }
                 isActiveRent = it.isNotEmpty()
             },
@@ -155,6 +164,31 @@ class RentUseCase @Inject constructor(
             callName = "checkActiveRent"
         )
     }
+
+    private suspend fun runWithBike(id: String, action: suspend (Bike) -> Unit) {
+        var bike = rentRepository.getData().activeRentBike
+        if (bike != null) {
+            action(bike)
+        } else {
+            bike = mapContentRepository.getData().bikes?.find { it.id == id }
+            if (bike != null) {
+                rentRepository.saveData(rentRepository.getData().copy(activeRentBike = bike))
+                action(bike)
+            } else {
+                Logg.d("!!!! runWithBike processNetworkCall $id")
+                processNetworkCall(
+                    action = { mapContentRepository.getBike(id) },
+                    onSuccess = {
+                        Logg.d("!!!! getBike ${it.id}")
+                        rentRepository.saveData(rentRepository.getData().copy(activeRentBike = it))
+                        action(it)
+                    },
+                    onError = { Logg.d("!!!! ERROR getBike") },
+                )
+            }
+        }
+    }
+
 
     companion object {
         private const val CHECK_RENT_STATUS_DELAY = 3000L

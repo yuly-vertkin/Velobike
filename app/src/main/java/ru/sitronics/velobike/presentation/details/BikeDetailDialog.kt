@@ -59,25 +59,7 @@ fun BikeDetailDialog(bike: Bike, onDismiss: () -> Unit, onClick: () -> Unit) {
                 .padding(horizontal = 32.dp)
         )
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            Text(
-                text = context.getString(R.string.battery_power_percent, bike.batteryPower),
-                modifier = Modifier
-                    .padding(start = 32.dp)
-                    .weight(1f)
-            )
-
-            Text(
-                text = getPowerReserveText(context, bike),
-                modifier = Modifier
-                    .padding(start = 32.dp)
-            )
-        }
+        BikeChargeSection(bike)
 
         Button(
             onClick = {
@@ -92,6 +74,32 @@ fun BikeDetailDialog(bike: Bike, onDismiss: () -> Unit, onClick: () -> Unit) {
         ) {
             Text(context.getString(R.string.start_ride_btn))
         }
+    }
+}
+
+@SuppressLint("StringFormatInvalid")
+@Composable
+fun BikeChargeSection(bike: Bike) {
+    val context = LocalContext.current
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
+        Text(
+            text = context.getString(R.string.battery_power_percent, bike.batteryPower),
+            modifier = Modifier
+                .padding(start = 32.dp)
+                .weight(1f)
+        )
+
+        Text(
+            text = getPowerReserveText(context, bike),
+            modifier = Modifier
+                .padding(start = 32.dp)
+        )
     }
 }
 

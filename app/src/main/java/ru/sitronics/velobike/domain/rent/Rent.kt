@@ -5,9 +5,10 @@ import androidx.annotation.StringRes
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 import ru.sitronics.velobike.R
+import ru.sitronics.velobike.domain.map.Bike
 
 data class RentData(
-    val someData: Boolean = false,
+    val activeRentBike: Bike? = null,
 )
 
 data class StartRentParams(
@@ -39,6 +40,7 @@ data class ActiveRent(
     val updateTime: Long? = null,
     val startPortNumber: Int,
     val deviceId: String,
+    var bike: Bike? = null,
 )
 
 @Parcelize

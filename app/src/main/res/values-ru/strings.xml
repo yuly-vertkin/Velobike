@@ -49,6 +49,7 @@
 
 <!-- Rent -->
     <string name="return_to_active_ride">Вернуться к активной поездке</string>
+    <string name="finish_rent">Завершить</string>
 
 <!-- Rent errors -->
     <string name="start_omni_failed_open_chain_error">Ошибка замка велосипеда. Выберите другой велосипед</string>

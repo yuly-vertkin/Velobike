@@ -2,6 +2,7 @@ package ru.sitronics.velobike.presentation.map
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,7 +39,13 @@ class MapViewModel @Inject constructor(
                 )
 
                 rentUseCase.updateActiveRent(true,
-                    { changeState(MapUiState.ShowActiveRent(it)) },
+                    { activeRent ->
+                        changeState(MapUiState.ShowActiveRent(activeRent))
+                        activeRent?.let {
+                            delay(1000)
+                            changeState(MapUiState.Normal)
+                        }
+                    },
                     { showError(it) }
                 )
             }

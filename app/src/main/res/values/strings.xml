@@ -50,6 +50,7 @@
 
 <!-- Rent -->
     <string name="return_to_active_ride">Return to active ride</string>
+    <string name="finish_rent">Complete</string>
 
 <!-- Rent errors -->
     <string name="start_omni_failed_open_chain_error">Bicycle lock failed. Choose another bike</string>
