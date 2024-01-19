@@ -7,9 +7,10 @@ import ru.sitronics.velobike.domain.rent.ActiveRent
 
 sealed class MapUiState {
     object Normal : MapUiState()
-    data class BikesUpdated(val bikes: List<Bike>) : MapUiState()
-    data class ParkingsUpdated(val stations: List<Parking>, val parkings: List<Parking>) : MapUiState()
-    data class ShowSlowZones(val slowZones: List<SlowZoneObject>, val showMarkers: Boolean) : MapUiState()
+    data class MapContentUpdate(val bikes: List<Bike>?, val stations: List<Parking>?, val parkings: List<Parking>?, val slowZones: List<SlowZoneObject>?, val showMarkers: Boolean) : MapUiState()
+//    data class BikesUpdated(val bikes: List<Bike>) : MapUiState()
+//    data class ParkingsUpdated(val stations: List<Parking>, val parkings: List<Parking>) : MapUiState()
+//    data class ShowSlowZones(val slowZones: List<SlowZoneObject>, val showMarkers: Boolean) : MapUiState()
     data class ShowMoveZones(val moveZone: MoveZoneObject) : MapUiState()
     data class ShowBikeDetail(val bike: Bike) : MapUiState()
     data class ShowStationDetail(val station: Parking) : MapUiState()

@@ -7,3 +7,11 @@ data class MapContentData(
     val slowZones: List<SlowZone>? = null,
     val moveZones: List<MoveZone>? = null,
 )
+
+data class MapContent(
+    var bikes: List<Bike>? = null,
+    var stations: List<Parking>? = null,
+    var parkings: List<Parking>? = null,
+    var slowZones: List<SlowZone>? = null,
+    var showMarkers: Boolean = false,
+)

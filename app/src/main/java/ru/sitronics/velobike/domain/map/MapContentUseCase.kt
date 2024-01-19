@@ -12,8 +12,52 @@ class MapContentUseCase @Inject constructor(
     private val mapContentRepository: MapContentRepository,
     appContextProvider: AppContextProvider,
 ) : BaseUseCase(appContextProvider) {
+    private var mapContentCounter = 0
 //    private var showSlowZones: Boolean = false
 //    private var showSlowZoneMarkers: Boolean = false
+
+    fun updateMapContent(
+        mapRect: MapRect, zoom: Float,
+        onReady: (MapContent) -> Unit
+    ) {
+        val mapContent = MapContent()
+        mapContentCounter = MAP_CONTENT_ITEM_NUM
+
+        updateBikes(
+            mapRect, zoom,
+            {
+                mapContent.bikes = it
+                checkResult { onReady(mapContent) }
+            },
+            { checkResult { onReady(mapContent) }}
+        )
+
+        updateParkings(
+            mapRect, zoom,
+            { stations, parkings ->
+                mapContent.stations = stations
+                mapContent.parkings = parkings
+                checkResult { onReady(mapContent) }
+            },
+            { checkResult { onReady(mapContent) }}
+        )
+
+        updateSlowZones(
+            zoom,
+            { slowZones, showMarkers ->
+                mapContent.slowZones = slowZones
+                mapContent.showMarkers = showMarkers
+                checkResult { onReady(mapContent) }
+            },
+            { checkResult { onReady(mapContent) }}
+        )
+    }
+
+    private fun checkResult(onReady: () -> Unit) {
+        mapContentCounter--
+        if (mapContentCounter == 0)
+            onReady()
+    }
 
     fun getBike(id: String) : Bike? =
         mapContentRepository.getData().bikes?.find { it.id == id }
@@ -157,6 +201,7 @@ class MapContentUseCase @Inject constructor(
     }
 
     companion object {
+        private const val MAP_CONTENT_ITEM_NUM = 3
         private const val SHOW_CONTENT_ZOOM = 5f
         private const val SHOW_PARKINGS_ZOOM = 16f
         private const val SHOW_SLOW_ZONE_ZOOM = 11f

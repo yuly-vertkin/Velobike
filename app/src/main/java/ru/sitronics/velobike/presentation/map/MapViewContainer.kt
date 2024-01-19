@@ -117,6 +117,13 @@ fun BoxScope.MapViewContainer(
     val moveZonePolygons = remember { mutableListOf<PolygonMapObject>() }
 
     when(uiState) {
+        is MapUiState.MapContentUpdate -> {
+            updateBikes(LocalContext.current, uiState.bikes, bikeClusterCollection, bikePlacemarks, tapListener)
+            updateStations(LocalContext.current, uiState.stations, stationClusterCollection, stationPlacemarks, tapListener)
+            updateParkings(LocalContext.current, uiState.parkings, parkingCollection, parkingPlacemarks, tapListener)
+            updateSlowZones(LocalContext.current, uiState.slowZones, uiState.showMarkers, slowZoneCollection, slowZonePolygons, slowZoneMarkerCollection, slowZoneMarkerPlacemarks, tapListener)
+        }
+/*
         is MapUiState.BikesUpdated -> {
             updateBikes(LocalContext.current, uiState.bikes, bikeClusterCollection, bikePlacemarks, tapListener)
         }
@@ -127,6 +134,7 @@ fun BoxScope.MapViewContainer(
         is MapUiState.ShowSlowZones -> {
             updateSlowZones(LocalContext.current, uiState.slowZones, uiState.showMarkers, slowZoneCollection, slowZonePolygons, slowZoneMarkerCollection, slowZoneMarkerPlacemarks, tapListener)
         }
+*/
         is MapUiState.ShowMoveZones -> {
             updateMoveZones(LocalContext.current, uiState.moveZone, moveZoneCollection, moveZonePolygons, tapListener)
         }
@@ -138,12 +146,12 @@ fun BoxScope.MapViewContainer(
 
 private fun updateBikes(
     context: Context,
-    bikes: List<Bike>,
+    bikes: List<Bike>?,
     mapCollection: ClusterizedPlacemarkCollection,
     placemarks: HashMap<String, PlacemarkMapObject>,
     tapListener: MapObjectTapListener,
 ) {
-    if (bikes.isEmpty()) {
+    if (bikes.isNullOrEmpty()) {
         mapCollection.clear()
         placemarks.clear()
         return
@@ -179,12 +187,12 @@ private fun updateBikes(
 
 private fun updateStations(
     context: Context,
-    parkings: List<Parking>,
+    parkings: List<Parking>?,
     mapCollection: ClusterizedPlacemarkCollection,
     placemarks: HashMap<String, PlacemarkMapObject>,
     tapListener: MapObjectTapListener,
 ) {
-    if (parkings.isEmpty()) {
+    if (parkings.isNullOrEmpty()) {
         mapCollection.clear()
         placemarks.clear()
         return
@@ -223,12 +231,12 @@ private fun updateStations(
 
 private fun updateParkings(
     context: Context,
-    parkings: List<Parking>,
+    parkings: List<Parking>?,
     mapCollection: MapObjectCollection,
     placemarks: HashMap<String, PlacemarkMapObject>,
     tapListener: MapObjectTapListener,
 ) {
-    if (parkings.isEmpty()) {
+    if (parkings.isNullOrEmpty()) {
         mapCollection.clear()
         placemarks.clear()
         return
@@ -262,7 +270,7 @@ private fun updateParkings(
 
 private fun updateSlowZones(
     context: Context,
-    objects: List<SlowZoneObject>,
+    objects: List<SlowZoneObject>?,
     showMarkers: Boolean,
     zoneCollection: MapObjectCollection,
     polygons: MutableList<PolygonMapObject>,
@@ -270,8 +278,8 @@ private fun updateSlowZones(
     markerPlacemarks: MutableList<PlacemarkMapObject>,
     tapListener: MapObjectTapListener,
 ) {
-    if (objects.isEmpty() || polygons.size == objects.size) {
-        val visible = objects.isNotEmpty()
+    if (objects.isNullOrEmpty() || polygons.size == objects.size) {
+        val visible = !objects.isNullOrEmpty()
         polygons.forEach { it.isVisible = visible }
         markerPlacemarks.forEach { it.isVisible = showMarkers }
     } else {
