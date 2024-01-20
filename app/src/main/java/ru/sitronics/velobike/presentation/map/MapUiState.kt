@@ -18,6 +18,7 @@ sealed class MapUiState {
     object ShowQrScan : MapUiState()
     data class ShowError(val error: String): MapUiState()
     data class ShowActiveRent(val activeRent: ActiveRent? = null) : MapUiState()
+    object ShowWheelLock : MapUiState()
 }
 
 sealed class MapIntent {
@@ -31,4 +32,5 @@ sealed class MapIntent {
     data class CloseParkingDetail(val id: String? = null) : MapIntent()
     object CloseError : MapIntent()
     data class ActiveRentAction(val finishRent: Boolean, val isClosed: Boolean, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
+    object CloseWheelLock : MapIntent()
 }

@@ -59,20 +59,23 @@ class RentUseCase @Inject constructor(
                 Logg.d("!!!! ERROR startRent()")
                 onError(context.getString(R.string.error_unknown))
             },
+            callName = "startRent"
         )
     }
 
     private fun checkRentStatus(rentId: Int, deviceId: String) {
+        Logg.d("!1 checkRentStatus start")
         processNetworkCall(
             action = { rentRepository.checkStatus(rentId, deviceId) },
             onSuccess = {
-                Logg.d("!!!! checkRentStatus success, status ${it.status}")
+                Logg.d("!1 checkRentStatus success, status ${it.status} , ${it.processStatus}")
                 rentStatus = it
             },
             onError = {
-                Logg.d("!!! ERROR checkRentStatus()")
+                Logg.d("!1 checkRentStatus ERROR")
                 rentStatus = rentStatus?.copy(status = MainRentStatus.ERROR_START)
             },
+            callName = "checkRentStatus"
         )
     }
 
@@ -98,25 +101,27 @@ class RentUseCase @Inject constructor(
             ),
         )
 
+        Logg.d("!1 finishRent start")
         processNetworkCall(
             action = { rentRepository.finishRent(params) },
             onSuccess = {
-                Logg.d("!!!! finishRent success, status ${it.status}")
+                Logg.d("!1 finishRent success, status ${it.status}, ${it.processStatus}")
                 rentStatus = it
                 delay(CHECK_RENT_STATUS_DELAY)
 
+// TODO: consider the case when the lock is already closed !
                 while (rentStatus?.processStatus != ProgressStatus.WAIT_CLOSE_LOCK) {
                     checkRentStatus(it.id, it.deviceId ?: "")
                     delay(CHECK_RENT_STATUS_DELAY)
                 }
 
-// TODO: continue finish rent
                 onSuccess()
             },
             onError = {
-                Logg.d("!!!! ERROR finishRent()")
+                Logg.d("!1 finishRent ERROR")
                 onError(context.getString(R.string.error_unknown))
             },
+            callName = "finishRent"
         )
     }
 
@@ -140,7 +145,7 @@ class RentUseCase @Inject constructor(
         processNetworkCall(
             action = { rentRepository.checkActiveRent() },
             onSuccess = {
-                Logg.d("!!! checkActiveRent found ${it.size}")
+                Logg.d("!1 checkActiveRent found ${it.size}")
                 // update rent only if !isActiveRentClosed and state changed
                 if (it.isNotEmpty() && !isActiveRentClosed) {
                     activeRent = it[0]
@@ -154,7 +159,7 @@ class RentUseCase @Inject constructor(
                 }
             },
             onError = {
-                Logg.d("!!! ERROR checkActiveRent()")
+                Logg.d("!1 ERROR checkActiveRent()")
                 onError(null)
             },
             callName = "checkActiveRent"
@@ -171,15 +176,15 @@ class RentUseCase @Inject constructor(
                 rentRepository.saveData(rentRepository.getData().copy(activeRentBike = bike))
                 action(bike)
             } else {
-                Logg.d("!!!! runWithBike processNetworkCall $id")
+                Logg.d("!1 runWithBike processNetworkCall $id")
                 processNetworkCall(
                     action = { mapContentRepository.getBike(id) },
                     onSuccess = {
-                        Logg.d("!!!! getBike ${it.id}")
+                        Logg.d("!1 runWithBike success ${it.id}")
                         rentRepository.saveData(rentRepository.getData().copy(activeRentBike = it))
                         action(it)
                     },
-                    onError = { Logg.d("!!!! ERROR getBike") },
+                    onError = { Logg.d("!1 runWithBike ERROR") },
                 )
             }
         }

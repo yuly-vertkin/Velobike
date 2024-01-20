@@ -41,10 +41,11 @@ class MapViewModel @Inject constructor(
                 rentUseCase.updateActiveRent(true,
                     { activeRent ->
                         changeState(MapUiState.ShowActiveRent(activeRent))
-                        activeRent?.let {
-                            delay(1000)
-                            changeState(MapUiState.Normal)
-                        }
+// TODO: не знаю надо ли это
+//                        activeRent?.let {
+//                            delay(1000)
+//                            changeState(MapUiState.Normal)
+//                        }
                     },
                     { showError(it) }
                 )
@@ -130,10 +131,10 @@ class MapViewModel @Inject constructor(
             is MapIntent.ActiveRentAction -> {
                 if (intent.finishRent) {
                     // TODO: temp
-                    rentUseCase.updateActiveRent(false, {}, {})
+//                    rentUseCase.updateActiveRent(false, {}, {})
 
                     rentUseCase.finishRent(intent.latitude, intent.longitude,
-                        { changeState(MapUiState.Normal) },
+                        { changeState(MapUiState.ShowWheelLock) },
                         { showError(it) }
                     )
                     // TODO: continue finish rent
@@ -141,6 +142,9 @@ class MapViewModel @Inject constructor(
                     changeState(MapUiState.Normal)
                 }
                 rentUseCase.isActiveRentClosed = intent.isClosed
+            }
+            is MapIntent.CloseWheelLock -> {
+                changeState(MapUiState.Normal)
             }
         }
     }

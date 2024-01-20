@@ -79,6 +79,16 @@ fun MapScreen(
                     icon = Icons.Default.Info
                 )
             }
+            is MapUiState.ShowWheelLock -> {
+                val uiState = mapUiState as MapUiState.ShowWheelLock
+                SimpleDialog(
+                    onDismissRequest = { onAction(MapIntent.CloseWheelLock) },
+                    onConfirmation = { onAction(MapIntent.CloseWheelLock) },
+                    dialogTitle = "Warning",
+                    dialogText = "Close Wheel Lock!",
+                    icon = Icons.Default.Info
+                )
+            }
             else -> {}
         }
 
