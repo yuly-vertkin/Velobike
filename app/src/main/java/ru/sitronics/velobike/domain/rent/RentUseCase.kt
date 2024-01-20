@@ -21,7 +21,7 @@ class RentUseCase @Inject constructor(
 ) : BaseUseCase(appContextProvider) {
     private var rentStatus: RentStatus? = null
     private var activeRentUpdateTask: TimerTask? = null
-    private var isActiveRent: Boolean = false
+    private var activeRent: ActiveRent? = null
     var isActiveRentClosed: Boolean = false
 
     fun startRent(
@@ -86,12 +86,12 @@ class RentUseCase @Inject constructor(
         latitude: Double?, longitude: Double?,
         onSuccess: () -> Unit, onError: (String?) -> Unit
     ) {
-        if (rentStatus == null) return
+        if (activeRent == null) return
 
         val params = FinishRentParams(
-            id = rentStatus!!.id,
-            deviceId = rentStatus!!.deviceId ?: "",
-            bikeSerialNumber = rentStatus!!.bikeSerialNumber ?: "",
+            id = activeRent?.rentId ?: 0,
+            deviceId = activeRent?.frameNumber ?: "",
+            bikeSerialNumber = activeRent?.bike?.bikeSerialNumber ?: "",
             clientGeoPosition = ClientGeoPosition(
                 lat = latitude ?: 0.0,
                 lon = longitude ?: 0.0,
@@ -105,17 +105,13 @@ class RentUseCase @Inject constructor(
                 rentStatus = it
                 delay(CHECK_RENT_STATUS_DELAY)
 
-                while (rentStatus?.status == MainRentStatus.CHECK_END) {
+                while (rentStatus?.processStatus != ProgressStatus.WAIT_CLOSE_LOCK) {
                     checkRentStatus(it.id, it.deviceId ?: "")
                     delay(CHECK_RENT_STATUS_DELAY)
                 }
 
-                Logg.d("!!!! finishRent end, status $rentStatus")
 // TODO: continue finish rent
-                if (rentStatus?.status == MainRentStatus.IN_PROGRESS)
-                    onSuccess()
-                else
-                    onError(getRentError(it.failedReason, true))
+                onSuccess()
             },
             onError = {
                 Logg.d("!!!! ERROR finishRent()")
@@ -147,15 +143,15 @@ class RentUseCase @Inject constructor(
                 Logg.d("!!! checkActiveRent found ${it.size}")
                 // update rent only if !isActiveRentClosed and state changed
                 if (it.isNotEmpty() && !isActiveRentClosed) {
-                    val activeRent = it[0]
-                    runWithBike(activeRent.frameNumber) { bike ->
-                        activeRent.bike = bike
+                    activeRent = it[0]
+                    runWithBike(activeRent!!.frameNumber) { bike ->
+                        activeRent!!.bike = bike
                         onSuccess(activeRent)
                     }
-                } else if (isActiveRent && !isActiveRentClosed) {
+                } else if (activeRent != null && !isActiveRentClosed) {
+                    activeRent = null
                     onSuccess(null)
                 }
-                isActiveRent = it.isNotEmpty()
             },
             onError = {
                 Logg.d("!!! ERROR checkActiveRent()")

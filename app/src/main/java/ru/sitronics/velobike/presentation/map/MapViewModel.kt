@@ -128,15 +128,18 @@ class MapViewModel @Inject constructor(
                 changeState(MapUiState.Normal)
             }
             is MapIntent.ActiveRentAction -> {
-                if (intent.finishRent)
+                if (intent.finishRent) {
+                    // TODO: temp
+                    rentUseCase.updateActiveRent(false, {}, {})
+
                     rentUseCase.finishRent(intent.latitude, intent.longitude,
                         { changeState(MapUiState.Normal) },
                         { showError(it) }
                     )
-                // TODO: continue finish rent
-                else
+                    // TODO: continue finish rent
+                } else {
                     changeState(MapUiState.Normal)
-
+                }
                 rentUseCase.isActiveRentClosed = intent.isClosed
             }
         }
