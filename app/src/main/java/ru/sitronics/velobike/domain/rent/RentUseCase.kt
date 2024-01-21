@@ -22,11 +22,10 @@ class RentUseCase @Inject constructor(
     private var rentStatus: RentStatus? = null
     private var activeRentUpdateTask: TimerTask? = null
     private var activeRent: ActiveRent? = null
-    var isActiveRentClosed: Boolean = false
 
     fun startRent(
         bikeId: String, latitude: Double?, longitude: Double?,
-        onSuccess: (ActiveRent?) -> Unit, onError: (String?) -> Unit
+        onError: (String?) -> Unit, onSuccess: (ActiveRent?, Boolean) -> Unit
     ) {
         val params = StartRentParams(
             bikeSerialNumber = bikeId,
@@ -51,7 +50,7 @@ class RentUseCase @Inject constructor(
                 Logg.d("!!!! startRent end, status $rentStatus")
 
                 if (rentStatus?.status == MainRentStatus.IN_PROGRESS)
-                    checkActiveRent(onSuccess, onError)
+                    checkActiveRent(onError, onSuccess)
                 else
                     onError(getRentError(it.failedReason, true))
             },
@@ -87,7 +86,7 @@ class RentUseCase @Inject constructor(
 
     fun finishRent(
         latitude: Double?, longitude: Double?,
-        onSuccess: () -> Unit, onError: (String?) -> Unit
+        onError: (String?) -> Unit, onSuccess: suspend (ActiveRent?, Boolean) -> Unit
     ) {
         if (activeRent == null) return
 
@@ -115,7 +114,7 @@ class RentUseCase @Inject constructor(
                     delay(CHECK_RENT_STATUS_DELAY)
                 }
 
-                onSuccess()
+                checkActiveRent(onError, onSuccess)
             },
             onError = {
                 Logg.d("!1 finishRent ERROR")
@@ -127,11 +126,12 @@ class RentUseCase @Inject constructor(
 
     fun updateActiveRent(
         isStart: Boolean,
-        onSuccess: suspend (ActiveRent?) -> Unit, onError: (String?) -> Unit
+        onError: (String?) -> Unit,
+        onSuccess: suspend (ActiveRent?, Boolean) -> Unit,
     ) {
         if (isStart && activeRentUpdateTask == null) {
             activeRentUpdateTask = Timer().schedule(0, CHECK_ACTIVE_RENT_DELAY) {
-                checkActiveRent(onSuccess, onError)
+                checkActiveRent(onError, onSuccess)
             }
         } else if (!isStart) {
             activeRentUpdateTask?.cancel()
@@ -140,12 +140,21 @@ class RentUseCase @Inject constructor(
     }
 
     private fun checkActiveRent(
-        onSuccess: suspend (ActiveRent?) -> Unit, onError: (String?) -> Unit
+        onError: (String?) -> Unit, onSuccess: suspend (ActiveRent?, Boolean) -> Unit
     ) {
         processNetworkCall(
             action = { rentRepository.checkActiveRent() },
             onSuccess = {
                 Logg.d("!1 checkActiveRent found ${it.size}")
+
+                val isChanged = activeRent?.rentStatus != it.firstOrNull()?.rentStatus
+                Logg.d("!!!! checkActiveRent ${activeRent?.rentStatus?.name} ${it.firstOrNull()?.rentStatus?.name} $isChanged")
+                activeRent = it.firstOrNull()
+                runWithBike(activeRent?.frameNumber) { bike ->
+                    activeRent?.bike = bike
+                    onSuccess(activeRent, isChanged)
+                }
+/*
                 // update rent only if !isActiveRentClosed and state changed
                 if (it.isNotEmpty() && !isActiveRentClosed) {
                     activeRent = it[0]
@@ -157,6 +166,7 @@ class RentUseCase @Inject constructor(
                     activeRent = null
                     onSuccess(null)
                 }
+*/
             },
             onError = {
                 Logg.d("!1 ERROR checkActiveRent()")
@@ -166,7 +176,11 @@ class RentUseCase @Inject constructor(
         )
     }
 
-    private suspend fun runWithBike(id: String, action: suspend (Bike) -> Unit) {
+    private suspend fun runWithBike(id: String?, action: suspend (Bike?) -> Unit) {
+        if (id == null) {
+            action(null)
+            return
+        }
         var bike = rentRepository.getData().activeRentBike
         if (bike != null) {
             action(bike)
@@ -189,7 +203,6 @@ class RentUseCase @Inject constructor(
             }
         }
     }
-
 
     companion object {
         private const val CHECK_RENT_STATUS_DELAY = 3000L

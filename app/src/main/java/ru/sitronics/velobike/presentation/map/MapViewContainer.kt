@@ -87,8 +87,6 @@ fun BoxScope.MapViewContainer(
         } catch (ignored: Exception) {}
     }
 
-    Logg.d("!!! MapViewContainer called")
-
     AndroidView({
         moveMap(mapView, MOSCOW_LAT, MOSCOW_LON)
         changeZoom(mapView, initZoom = INITIAL_ZOOM)

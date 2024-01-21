@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.map.MapContentUseCase
+import ru.sitronics.velobike.domain.rent.MainRentStatus
 import ru.sitronics.velobike.domain.rent.RentUseCase
 import ru.sitronics.velobike.presentation.BaseViewModel
 import ru.sitronics.velobike.tools.Logg
@@ -24,6 +25,7 @@ class MapViewModel @Inject constructor(
     private val _mapUiState: MutableStateFlow<MapUiState> = MutableStateFlow(MapUiState.Normal)
     val mapUiState: StateFlow<MapUiState> = _mapUiState.asStateFlow()
     private var prevMapUiState: MapUiState = MapUiState.Normal
+    private var isActiveRentClosed: Boolean = false
 
     init {
         rentUseCase.scope = viewModelScope
@@ -38,20 +40,24 @@ class MapViewModel @Inject constructor(
                     { showError(it) }
                 )
 
-                rentUseCase.updateActiveRent(true,
-                    { activeRent ->
-                        changeState(MapUiState.ShowActiveRent(activeRent))
-// TODO: не знаю надо ли это
-//                        activeRent?.let {
-//                            delay(1000)
-//                            changeState(MapUiState.Normal)
-//                        }
-                    },
-                    { showError(it) }
-                )
+                rentUseCase.updateActiveRent(
+                    true,
+                    { showError(it) },
+                ) { activeRent, isChanged ->
+                    if (isChanged || !isActiveRentClosed) {
+                        val show = activeRent?.rentStatus == MainRentStatus.IN_PROGRESS
+                        changeState(MapUiState.ShowActiveRent(activeRent, show))
+// it's needed to ActiveRentDialog update for each ShowActiveRent action
+                        if (show) {
+                            delay(1000)
+                            if (!isActiveRentClosed)
+                                changeState(MapUiState.Normal)
+                        }
+                    }
+                }
             }
             is MapIntent.MapStop -> {
-                rentUseCase.updateActiveRent(false, {}, {})
+                rentUseCase.updateActiveRent(false, {}) { _, _ -> }
             }
             is MapIntent.ChangeMapPosition -> {
                 mapContentUseCase.updateMapContent(intent.mapRect, intent.zoom) {
@@ -100,9 +106,10 @@ class MapViewModel @Inject constructor(
                 if (prevMapUiState is MapUiState.ShowQrScan && intent.id != null) {
                     rentUseCase.startRent(
                         intent.id, intent.latitude, intent.longitude,
-                        { changeState(MapUiState.ShowActiveRent(it)) },
                         { showError(it) }
-                    )
+                    ) { activeRent, _ ->
+                        changeState(MapUiState.ShowActiveRent(activeRent, true))
+                    }
                 } else {
                     changeState(if (intent.id != null) MapUiState.ShowQrScan else MapUiState.Normal)
                 }
@@ -114,9 +121,10 @@ class MapViewModel @Inject constructor(
                 if (prevMapUiState is MapUiState.ShowBikeDetail && intent.id != null) {
                     rentUseCase.startRent(
                         intent.id, intent.latitude, intent.longitude,
-                        { changeState(MapUiState.ShowActiveRent(it)) },
                         { showError(it) }
-                    )
+                    ) { activeRent, _ ->
+                        changeState(MapUiState.ShowActiveRent(activeRent, true))
+                    }
                 } else if (intent.id != null) {
                     mapContentUseCase.runWithBike(intent.id) { bike ->
                         changeState(MapUiState.ShowBikeDetail(bike))
@@ -129,19 +137,19 @@ class MapViewModel @Inject constructor(
                 changeState(MapUiState.Normal)
             }
             is MapIntent.ActiveRentAction -> {
-                if (intent.finishRent) {
-                    // TODO: temp
-//                    rentUseCase.updateActiveRent(false, {}, {})
+                isActiveRentClosed = intent.state == ActiveRentState.DISMISS
 
-                    rentUseCase.finishRent(intent.latitude, intent.longitude,
-                        { changeState(MapUiState.ShowWheelLock) },
+                if (intent.state == ActiveRentState.CLICK) {
+                    rentUseCase.finishRent(
+                        intent.latitude, intent.longitude,
                         { showError(it) }
-                    )
-                    // TODO: continue finish rent
-                } else {
-                    changeState(MapUiState.Normal)
+                    ) { activeRent, _ ->
+                        isActiveRentClosed = true
+                        changeState(MapUiState.ShowActiveRent(activeRent, false))
+                        delay(1000)
+                        changeState(MapUiState.ShowWheelLock)
+                    }
                 }
-                rentUseCase.isActiveRentClosed = intent.isClosed
             }
             is MapIntent.CloseWheelLock -> {
                 changeState(MapUiState.Normal)

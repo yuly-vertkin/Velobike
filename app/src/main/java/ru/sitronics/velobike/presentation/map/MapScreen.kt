@@ -17,7 +17,9 @@ import ru.sitronics.velobike.presentation.details.BikeDetailDialog
 import ru.sitronics.velobike.presentation.details.ParkingDetailDialog
 import ru.sitronics.velobike.presentation.details.StationDetailDialog
 import ru.sitronics.velobike.presentation.rent.ActiveRentDialog
+import ru.sitronics.velobike.presentation.rent.CloseWheelLock
 import ru.sitronics.velobike.presentation.rent.ScanQrCodeDialog
+import ru.sitronics.velobike.tools.Logg
 import ru.sitronics.velobike.tools.rememberLocationPermissionLauncher
 import ru.sitronics.velobike.tools.runWithLocation
 
@@ -32,6 +34,7 @@ fun MapScreen(
     val locationPermissionLauncher = rememberLocationPermissionLauncher()
 
     Box(modifier = Modifier.padding(contentPadding)) {
+        Logg.d("!!!! MapScreen ${mapUiState.javaClass.name}")
         MapViewContainer(mapUiState, onAction)
 
         when (mapUiState) {
@@ -81,6 +84,8 @@ fun MapScreen(
             }
             is MapUiState.ShowWheelLock -> {
                 val uiState = mapUiState as MapUiState.ShowWheelLock
+                CloseWheelLock()
+/*
                 SimpleDialog(
                     onDismissRequest = { onAction(MapIntent.CloseWheelLock) },
                     onConfirmation = { onAction(MapIntent.CloseWheelLock) },
@@ -88,16 +93,17 @@ fun MapScreen(
                     dialogText = "Close Wheel Lock!",
                     icon = Icons.Default.Info
                 )
+*/
             }
             else -> {}
         }
 
         ActiveRentDialog(
             uiState = mapUiState,
-            onShow = { onAction(MapIntent.ActiveRentAction(finishRent = false, isClosed = false)) },
-            onDismiss = { onAction(MapIntent.ActiveRentAction(finishRent = false, isClosed = true)) },
+            onShow = { onAction(MapIntent.ActiveRentAction(ActiveRentState.SHOW)) },
+            onDismiss = { onAction(MapIntent.ActiveRentAction(ActiveRentState.DISMISS)) },
             onClick = { locationPermissionLauncher.runWithLocation(context) { lat, lon ->
-                    onAction(MapIntent.ActiveRentAction(finishRent = true, isClosed = true, latitude = lat, longitude = lon))
+                    onAction(MapIntent.ActiveRentAction(ActiveRentState.CLICK, latitude = lat, longitude = lon))
             }}
         )
 

@@ -1,11 +1,16 @@
 package ru.sitronics.velobike.presentation.rent
 
+import android.os.Build.VERSION.SDK_INT
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,11 +32,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
+import coil.ImageLoader
+import coil.compose.rememberAsyncImagePainter
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.rent.ActiveRent
 import ru.sitronics.velobike.presentation.details.BikeChargeSection
 import ru.sitronics.velobike.presentation.map.MapUiState
+import ru.sitronics.velobike.tools.Logg
 import ru.sitronics.velobike.ui.theme.HeaderBackgroundColor
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -40,18 +49,22 @@ import java.util.Locale
 @Composable
 fun ActiveRentDialog(uiState: MapUiState, onShow: () -> Unit, onDismiss: () -> Unit, onClick: () -> Unit) {
     var activeRent by remember { mutableStateOf<ActiveRent?>(null) }
+    var show by remember { mutableStateOf(false) }
     var isDialogClosed by remember { mutableStateOf(false) }
 
     if (uiState is MapUiState.ShowActiveRent) {
         activeRent = uiState.activeRent
+        show = uiState.show
     }
 
-    if (activeRent != null) {
+    Logg.d("!!!! ActiveRentDialog called: show $show isDialogClosed $isDialogClosed")
+
+    if (show) {
         if (!isDialogClosed) {
             ActiveRentDialogInt(
-                activeRent!!,
+                activeRent,
                 { isDialogClosed = true; onDismiss() },
-                { isDialogClosed = true; onClick() }
+                { isDialogClosed = false; onClick() }
             )
         } else {
             ActiveRentBar {
@@ -63,7 +76,7 @@ fun ActiveRentDialog(uiState: MapUiState, onShow: () -> Unit, onDismiss: () -> U
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ActiveRentDialogInt(activeRent: ActiveRent, onDismiss: () -> Unit, onClick: () -> Unit) {
+private fun ActiveRentDialogInt(activeRent: ActiveRent?, onDismiss: () -> Unit, onClick: () -> Unit) {
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
@@ -87,29 +100,25 @@ private fun ActiveRentDialogInt(activeRent: ActiveRent, onDismiss: () -> Unit, o
             )
 
             Text(
-                text = getTimeStr(activeRent.startTime),
+                text = getTimeStr(activeRent?.startTime ?: 0),
                 modifier = Modifier
                     .padding(start = 16.dp)
                     .weight(1f)
             )
 
             Text(
-                text = "№" + activeRent.frameNumber,
+                text = "№" + activeRent?.frameNumber,
                 modifier = Modifier
                     .padding(start = 16.dp)
             )
         }
 
-        activeRent.bike?.let {
+        activeRent?.bike?.let {
             BikeChargeSection(it)
         }
 
         Button(
-            onClick = {
-                scope.launch { sheetState.hide() }.invokeOnCompletion {
-                    if (!sheetState.isVisible) onClick()
-                }
-            },
+            onClick = { onClick() },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(horizontal = 32.dp)
@@ -169,4 +178,27 @@ private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 private fun getTimeStr(startTime: Long) : String {
     val time = System.currentTimeMillis() - startTime
     return timeFormat.format(Date(time))
+}
+
+@Composable
+fun BoxScope.CloseWheelLock() {
+    val imageLoader = ImageLoader.Builder(LocalContext.current)
+        .components {
+            if (SDK_INT >= 28)
+                add(ImageDecoderDecoder.Factory())
+            else
+                add(GifDecoder.Factory())
+        }
+        .build()
+
+    Image(
+        painter = rememberAsyncImagePainter(R.drawable.close_wheel_lock, imageLoader),
+        contentDescription = null,
+        modifier = Modifier
+            .width(350.dp)
+            .height(350.dp)
+            .align(Alignment.Center)
+            .background(Color.White)
+            .padding(all = 12.dp)
+    )
 }

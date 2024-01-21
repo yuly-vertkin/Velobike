@@ -28,3 +28,7 @@ sealed class MarkerUserData {
     data class SlowZone(val id: Int) : MarkerUserData()
     data class MoveZone(val id: Int) : MarkerUserData()
 }
+
+enum class ActiveRentState {
+    SHOW, DISMISS, CLICK
+}
