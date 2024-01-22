@@ -5,6 +5,8 @@ import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.map.Bike
 import ru.sitronics.velobike.domain.map.MapContentRepository
+import ru.sitronics.velobike.domain.profile.ProfileData
+import ru.sitronics.velobike.domain.profile.ProfileRepository
 import ru.sitronics.velobike.presentation.BaseUseCase
 import ru.sitronics.velobike.tools.Logg
 import java.util.Timer
@@ -17,11 +19,17 @@ import kotlin.concurrent.schedule
 class RentUseCase @Inject constructor(
     private val rentRepository: RentRepository,
     private val mapContentRepository: MapContentRepository,
+    private val profileRepository: ProfileRepository,
     appContextProvider: AppContextProvider,
 ) : BaseUseCase(appContextProvider) {
     private var rentStatus: RentStatus? = null
     private var activeRentUpdateTask: TimerTask? = null
     private var activeRent: ActiveRent? = null
+    private var userId: String? = null
+
+    fun onMapStart() {
+        getProfile()
+    }
 
     fun startRent(
         bikeId: String, latitude: Double?, longitude: Double?,
@@ -145,35 +153,50 @@ class RentUseCase @Inject constructor(
         processNetworkCall(
             action = { rentRepository.checkActiveRent() },
             onSuccess = {
-                Logg.d("!1 checkActiveRent found ${it.size}")
+                Logg.d("!!!! checkActiveRent found ${it.size}")
 
-                val isChanged = activeRent?.rentStatus != it.firstOrNull()?.rentStatus
-                Logg.d("!!!! checkActiveRent ${activeRent?.rentStatus?.name} ${it.firstOrNull()?.rentStatus?.name} $isChanged")
-                activeRent = it.firstOrNull()
-                runWithBike(activeRent?.frameNumber) { bike ->
-                    activeRent?.bike = bike
-                    onSuccess(activeRent, isChanged)
-                }
-/*
-                // update rent only if !isActiveRentClosed and state changed
-                if (it.isNotEmpty() && !isActiveRentClosed) {
-                    activeRent = it[0]
-                    runWithBike(activeRent!!.frameNumber) { bike ->
-                        activeRent!!.bike = bike
-                        onSuccess(activeRent)
-                    }
-                } else if (activeRent != null && !isActiveRentClosed) {
-                    activeRent = null
-                    onSuccess(null)
-                }
-*/
+                it.firstOrNull()?.let { rent ->
+                    onCheckActiveRentSuccess(rent, onSuccess)
+                } ?: checkActiveRentOld(onError, onSuccess)
             },
             onError = {
-                Logg.d("!1 ERROR checkActiveRent()")
+                Logg.d("!!!! ERROR checkActiveRent()")
                 onError(null)
             },
             callName = "checkActiveRent"
         )
+    }
+
+    private fun checkActiveRentOld(
+        onError: (String?) -> Unit, onSuccess: suspend (ActiveRent?, Boolean) -> Unit
+    ) {
+        userId?.let {
+            processNetworkCall(
+                action = { rentRepository.checkActiveRentOld(it) }, //"4002600"
+                onSuccess = {
+                    Logg.d("!!!! checkActiveRentOld found ${it.size}")
+                    onCheckActiveRentSuccess(it.firstOrNull(), onSuccess)
+                },
+                onError = {
+                    Logg.d("!!!! ERROR checkActiveRentOld()")
+                    onError(null)
+                },
+                callName = "checkActiveRentOld"
+            )
+        } ?: {
+            Logg.d("!!!! no user error")
+            onError(null)
+        }
+    }
+
+    private suspend fun onCheckActiveRentSuccess(rent: ActiveRent?, onSuccess: suspend (ActiveRent?, Boolean) -> Unit) {
+        val isChanged = activeRent?.rentStatus != rent?.rentStatus
+        Logg.d("!!!! checkActiveRent ${activeRent?.rentStatus?.name} ${rent?.rentStatus?.name} $isChanged")
+        activeRent = rent
+        runWithBike(activeRent?.frameNumber) { bike ->
+            activeRent?.bike = bike
+            onSuccess(activeRent, isChanged)
+        }
     }
 
     private suspend fun runWithBike(id: String?, action: suspend (Bike?) -> Unit) {
@@ -201,6 +224,23 @@ class RentUseCase @Inject constructor(
                     onError = { Logg.d("!1 runWithBike ERROR") },
                 )
             }
+        }
+    }
+
+    private fun getProfile() {
+        userId = profileRepository.getData().profile?.userId
+        if (userId == null) {
+            processNetworkCall(
+                action = { profileRepository.getProfile() },
+                onSuccess = {
+                    val profileData = ProfileData(it)
+                    profileRepository.saveData(profileData)
+                    userId = it.userId
+                    Logg.d("!!!! getProfile success")
+                },
+                onError = { },
+                callName = "getProfile"
+            )
         }
     }
 

@@ -31,7 +31,7 @@ data class ClientGeoPosition(
 
 data class ActiveRent(
     val rentId: Int,
-    val externalClientId: String?,
+    val externalClientId: String? = null,
     val frameNumber: String,
     val startParkingId: String,
     val rentStatus: MainRentStatus? = null,

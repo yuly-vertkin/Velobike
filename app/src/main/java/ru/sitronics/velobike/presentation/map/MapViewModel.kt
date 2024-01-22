@@ -35,6 +35,7 @@ class MapViewModel @Inject constructor(
     fun handleIntent(intent: MapIntent) {
         when (intent) {
             is MapIntent.MapStart -> {
+                rentUseCase.onMapStart()
                 mapContentUseCase.updateMoveZones(
                     { moveZones -> changeState(MapUiState.ShowMoveZones(filterMoveZones(moveZones))) },
                     { showError(it) }

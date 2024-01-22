@@ -10,4 +10,5 @@ interface RentRepository {
     fun finishRent(params: FinishRentParams) : Flow<Result<RentStatus>>
     fun checkStatus(rentId: Int, deviceId: String) : Flow<Result<RentStatus>>
     fun checkActiveRent() : Flow<Result<List<ActiveRent>>>
+    fun checkActiveRentOld(uid: String) : Flow<Result<List<ActiveRent>>>
 }

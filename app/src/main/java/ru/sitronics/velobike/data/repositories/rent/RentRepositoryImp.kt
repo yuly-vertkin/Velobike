@@ -32,12 +32,15 @@ class RentRepositoryImp @Inject constructor(
     override fun startRent(params: StartRentParams) : Flow<Result<RentStatus>> =
         callAction { service.startRent(params) }
 
+    override fun finishRent(params: FinishRentParams) : Flow<Result<RentStatus>> =
+        callAction { service.finishRent(params.id, params) }
+
     override fun checkStatus(rentId: Int, deviceId: String) : Flow<Result<RentStatus>> =
         callAction { service.checkStatus(rentId, deviceId) }
 
     override fun checkActiveRent() : Flow<Result<List<ActiveRent>>> =
         callAction { service.checkActiveRent() }
 
-    override fun finishRent(params: FinishRentParams) : Flow<Result<RentStatus>> =
-        callAction { service.finishRent(params.id, params) }
+    override fun checkActiveRentOld(uid: String) : Flow<Result<List<ActiveRent>>> =
+        callAction { service.checkActiveRentOld("eq.$uid") }
 }
