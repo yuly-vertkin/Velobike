@@ -16,10 +16,10 @@ sealed class MapUiState {
     data class StationDetail(val station: Parking) : MapUiState()
     data class ParkingDetail(val parking: Parking) : MapUiState()
     data class QrScan(val show: Boolean, val fromBikeDetail: Boolean = false) : MapUiState()
-    data class Error(val title: String, val text: String): MapUiState()
-    data class Show(val activeRent: ActiveRent?, val show: Boolean) : MapUiState()
+    data class CurrentRent(val activeRent: ActiveRent?, val show: Boolean) : MapUiState()
     data class ActiveRentBar(val show: Boolean) : MapUiState()
     object WheelLock : MapUiState()
+    data class Error(val title: String, val text: String): MapUiState()
 }
 
 sealed class MapIntent {

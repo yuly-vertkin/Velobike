@@ -100,7 +100,7 @@ class MapViewModel @Inject constructor(
                             id, intent.latitude, intent.longitude,
                             { showError(it) }
                         ) { activeRent ->
-                            changeState(MapUiState.Show(activeRent, true))
+                            changeState(MapUiState.CurrentRent(activeRent, true))
                         }
                     } else {
                         changeState(MapUiState.QrScan(show = true, fromBikeDetail = true))
@@ -120,7 +120,7 @@ class MapViewModel @Inject constructor(
                                 id, intent.latitude, intent.longitude,
                                 { showError(it) }
                             ) { activeRent ->
-                                changeState(MapUiState.Show(activeRent, true))
+                                changeState(MapUiState.CurrentRent(activeRent, true))
                             }
                         } else {
                             mapContentUseCase.runWithBike(id) { bike ->
@@ -166,13 +166,14 @@ class MapViewModel @Inject constructor(
     }
 
     private suspend fun handleActiveRent(activeRent: ActiveRent?) {
+        if (activeRent == null) showActiveRentBar = false
         var show = !showActiveRentBar && activeRent?.rentStatus == MainRentStatus.IN_PROGRESS
-        changeState(MapUiState.Show(activeRent, show))
+        changeState(MapUiState.CurrentRent(activeRent, show))
         delay(500)
 //        show = !showActiveRentBar && activeRent?.rentStatus == MainRentStatus.CHECK_END
 //        changeState(MapUiState.ShowFinishRent(activeRent, show))
 //        delay(500)
-        changeState(MapUiState.Normal)
+        changeState(MapUiState.ActiveRentBar(showActiveRentBar))
     }
 
     private fun onBikeClick(id: String) {

@@ -33,14 +33,14 @@ fun ActiveRentDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: () -> 
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
 
-    if (uiState is MapUiState.Show) {
+    if (uiState is MapUiState.CurrentRent) {
         activeRent = uiState.activeRent
         show = uiState.show
     }
 
     if (show) {
         ModalBottomSheet(
-            onDismissRequest = { show = false; onDismiss() },
+            onDismissRequest = { onDismiss(); show = false },
             sheetState = sheetState
         ) {
             Row(

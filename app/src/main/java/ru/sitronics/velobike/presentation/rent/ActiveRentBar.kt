@@ -42,7 +42,7 @@ fun ActiveRentBar(uiState: MapUiState, onClick: () -> Unit) {
                 .fillMaxWidth()
                 .padding(top = 64.dp)
                 .padding(horizontal = 16.dp)
-                .clickable { show = false; onClick() }
+                .clickable { onClick(); show = false }
                 .clip(RoundedCornerShape(16.dp))
                 .background(HeaderBackgroundColor)
                 .padding(vertical = 16.dp)
