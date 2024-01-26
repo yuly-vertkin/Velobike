@@ -10,6 +10,10 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,55 +23,65 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.map.Parking
+import ru.sitronics.velobike.presentation.map.MapUiState
 import ru.sitronics.velobike.ui.theme.HeaderBackgroundColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ParkingDetailDialog(parking: Parking, onDismiss: () -> Unit) {
+fun ParkingDetailDialog(uiState: MapUiState, onDismiss: () -> Unit) {
+    var parking by remember { mutableStateOf<Parking?>(null) }
+    var show by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
 
-    val freePlaces = parking.freeNonElectricSlots + parking.freeElectricSlots + parking.freeOmniSlots
+    val freePlaces = parking?.let { it.freeNonElectricSlots + it.freeElectricSlots + it.freeOmniSlots }
 
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .offset(y = (-48).dp)
-                .background(HeaderBackgroundColor)
-                .padding(all = 12.dp)
+    if (uiState is MapUiState.ParkingDetail) {
+        parking = uiState.parking
+        show = true
+    }
+
+    if (show) {
+        ModalBottomSheet(
+            onDismissRequest = { onDismiss(); show = false },
+            sheetState = sheetState
         ) {
-            Text(
-                text = "№ ${parking.id}",
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = parking.address,
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-            )
-        }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(y = (-48).dp)
+                    .background(HeaderBackgroundColor)
+                    .padding(all = 12.dp)
+            ) {
+                Text(
+                    text = "№ ${parking?.id}",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = parking?.address ?: "",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
 
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp)
-                .padding(bottom = 32.dp)
-        ) {
-            Text(
-                text = freePlaces.toString(),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp)
+                    .padding(bottom = 32.dp)
+            ) {
+                Text(
+                    text = freePlaces.toString(),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                )
 
-            Text(text = context.getString(R.string.free_places))
+                Text(text = context.getString(R.string.free_places))
+            }
         }
     }
 }

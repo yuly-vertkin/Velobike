@@ -22,9 +22,10 @@ class RentUseCase @Inject constructor(
     private val profileRepository: ProfileRepository,
     appContextProvider: AppContextProvider,
 ) : BaseUseCase(appContextProvider) {
+    var activeRent: ActiveRent? = null
+        private set
     private var rentStatus: RentStatus? = null
     private var activeRentUpdateTask: TimerTask? = null
-    private var activeRent: ActiveRent? = null
     private var userId: String? = null
 
     fun onMapStart() {
@@ -33,7 +34,7 @@ class RentUseCase @Inject constructor(
 
     fun startRent(
         bikeId: String, latitude: Double?, longitude: Double?,
-        onError: (String?) -> Unit, onSuccess: (ActiveRent?, Boolean) -> Unit
+        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit
     ) {
         val params = StartRentParams(
             bikeSerialNumber = bikeId,
@@ -70,6 +71,45 @@ class RentUseCase @Inject constructor(
         )
     }
 
+    fun finishRent(
+        latitude: Double?, longitude: Double?,
+        onError: (String?) -> Unit, onSuccess: suspend (ActiveRent?) -> Unit
+    ) {
+        if (activeRent == null) return
+
+        val params = FinishRentParams(
+            id = activeRent?.rentId ?: 0,
+            deviceId = activeRent?.frameNumber ?: "",
+            bikeSerialNumber = activeRent?.bike?.bikeSerialNumber ?: "",
+            clientGeoPosition = ClientGeoPosition(
+                lat = latitude ?: 0.0,
+                lon = longitude ?: 0.0,
+            ),
+        )
+
+        Logg.d("!1 finishRent start")
+        processNetworkCall(
+            action = { rentRepository.finishRent(params) },
+            onSuccess = {
+                Logg.d("!1 finishRent success, status ${it.status}, ${it.processStatus}")
+                rentStatus = it
+                delay(CHECK_RENT_STATUS_DELAY)
+
+                while (rentStatus?.processStatus == ProgressStatus.S5_OBTAIN_LOCK_INFO) {
+                    checkRentStatus(it.id, it.deviceId ?: "")
+                    delay(CHECK_RENT_STATUS_DELAY)
+                }
+
+                checkActiveRent(onError, onSuccess)
+            },
+            onError = {
+                Logg.d("!1 finishRent ERROR")
+                onError(context.getString(R.string.error_unknown))
+            },
+            callName = "finishRent"
+        )
+    }
+
     private fun checkRentStatus(rentId: Int, deviceId: String) {
         Logg.d("!1 checkRentStatus start")
         processNetworkCall(
@@ -92,50 +132,10 @@ class RentUseCase @Inject constructor(
         } ?: context.getString(R.string.start_omni_failed_default)
     }
 
-    fun finishRent(
-        latitude: Double?, longitude: Double?,
-        onError: (String?) -> Unit, onSuccess: suspend (ActiveRent?, Boolean) -> Unit
-    ) {
-        if (activeRent == null) return
-
-        val params = FinishRentParams(
-            id = activeRent?.rentId ?: 0,
-            deviceId = activeRent?.frameNumber ?: "",
-            bikeSerialNumber = activeRent?.bike?.bikeSerialNumber ?: "",
-            clientGeoPosition = ClientGeoPosition(
-                lat = latitude ?: 0.0,
-                lon = longitude ?: 0.0,
-            ),
-        )
-
-        Logg.d("!1 finishRent start")
-        processNetworkCall(
-            action = { rentRepository.finishRent(params) },
-            onSuccess = {
-                Logg.d("!1 finishRent success, status ${it.status}, ${it.processStatus}")
-                rentStatus = it
-                delay(CHECK_RENT_STATUS_DELAY)
-
-// TODO: consider the case when the lock is already closed !
-                while (rentStatus?.processStatus != ProgressStatus.WAIT_CLOSE_LOCK) {
-                    checkRentStatus(it.id, it.deviceId ?: "")
-                    delay(CHECK_RENT_STATUS_DELAY)
-                }
-
-                checkActiveRent(onError, onSuccess)
-            },
-            onError = {
-                Logg.d("!1 finishRent ERROR")
-                onError(context.getString(R.string.error_unknown))
-            },
-            callName = "finishRent"
-        )
-    }
-
     fun updateActiveRent(
         isStart: Boolean,
         onError: (String?) -> Unit,
-        onSuccess: suspend (ActiveRent?, Boolean) -> Unit,
+        onSuccess: suspend (ActiveRent?) -> Unit,
     ) {
         if (isStart && activeRentUpdateTask == null) {
             activeRentUpdateTask = Timer().schedule(0, CHECK_ACTIVE_RENT_DELAY) {
@@ -148,7 +148,7 @@ class RentUseCase @Inject constructor(
     }
 
     private fun checkActiveRent(
-        onError: (String?) -> Unit, onSuccess: suspend (ActiveRent?, Boolean) -> Unit
+        onError: (String?) -> Unit, onSuccess: suspend (ActiveRent?) -> Unit
     ) {
         processNetworkCall(
             action = { rentRepository.checkActiveRent() },
@@ -168,7 +168,7 @@ class RentUseCase @Inject constructor(
     }
 
     private fun checkActiveRentOld(
-        onError: (String?) -> Unit, onSuccess: suspend (ActiveRent?, Boolean) -> Unit
+        onError: (String?) -> Unit, onSuccess: suspend (ActiveRent?) -> Unit
     ) {
         userId?.let {
             processNetworkCall(
@@ -189,13 +189,12 @@ class RentUseCase @Inject constructor(
         }
     }
 
-    private suspend fun onCheckActiveRentSuccess(rent: ActiveRent?, onSuccess: suspend (ActiveRent?, Boolean) -> Unit) {
-        val isChanged = activeRent?.rentStatus != rent?.rentStatus
-        Logg.d("!!!! checkActiveRent ${activeRent?.rentStatus?.name} ${rent?.rentStatus?.name} $isChanged")
+    private suspend fun onCheckActiveRentSuccess(rent: ActiveRent?, onSuccess: suspend (ActiveRent?) -> Unit) {
+        Logg.d("!!!! checkActiveRent ${activeRent?.rentStatus?.name} ${rent?.rentStatus?.name}")
         activeRent = rent
         runWithBike(activeRent?.frameNumber) { bike ->
             activeRent?.bike = bike
-            onSuccess(activeRent, isChanged)
+            onSuccess(activeRent)
         }
     }
 

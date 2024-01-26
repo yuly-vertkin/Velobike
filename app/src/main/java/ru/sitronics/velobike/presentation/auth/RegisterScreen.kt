@@ -29,11 +29,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.auth.RegisterData
+import ru.sitronics.velobike.tools.BackPressHandler
 
 @Composable
-fun RegisterScreen(
-    onButtonClick: (RegisterData) -> Unit
-) {
+fun RegisterScreen(onDismiss: () -> Unit, onClick: (RegisterData) -> Unit) {
     val context = LocalContext.current
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
@@ -128,7 +127,7 @@ fun RegisterScreen(
 
         Button(
             onClick = {
-                onButtonClick(RegisterData(
+                onClick(RegisterData(
                     firstName = firstName,
                     lastName = lastName,
                     phoneNumber = phone,
@@ -143,6 +142,8 @@ fun RegisterScreen(
             Text(text = context.getString(R.string.register))
         }
     }
+
+    BackPressHandler(onBackPressed = onDismiss)
 }
 
 private fun checkFilling(name: String, surname: String, phone: String,

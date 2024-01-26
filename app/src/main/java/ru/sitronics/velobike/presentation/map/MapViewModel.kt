@@ -6,8 +6,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.map.MapContentUseCase
+import ru.sitronics.velobike.domain.rent.ActiveRent
 import ru.sitronics.velobike.domain.rent.MainRentStatus
 import ru.sitronics.velobike.domain.rent.RentUseCase
 import ru.sitronics.velobike.presentation.BaseViewModel
@@ -24,8 +27,7 @@ class MapViewModel @Inject constructor(
 ) : BaseViewModel(appContextProvider) {
     private val _mapUiState: MutableStateFlow<MapUiState> = MutableStateFlow(MapUiState.Normal)
     val mapUiState: StateFlow<MapUiState> = _mapUiState.asStateFlow()
-    private var prevMapUiState: MapUiState = MapUiState.Normal
-    private var isActiveRentClosed: Boolean = false
+    private var showActiveRentBar: Boolean = false
 
     init {
         rentUseCase.scope = viewModelScope
@@ -34,35 +36,26 @@ class MapViewModel @Inject constructor(
 
     fun handleIntent(intent: MapIntent) {
         when (intent) {
+            is MapIntent.ResetState -> {
+                changeState(MapUiState.Normal)
+            }
             is MapIntent.MapStart -> {
                 rentUseCase.onMapStart()
-                mapContentUseCase.updateMoveZones(
-                    { moveZones -> changeState(MapUiState.ShowMoveZones(filterMoveZones(moveZones))) },
-                    { showError(it) }
-                )
+                mapContentUseCase.updateMoveZones({ showError(it) }) { moveZones ->
+                    changeState(MapUiState.MoveZones(filterMoveZones(moveZones)))
+                }
 
-                rentUseCase.updateActiveRent(
-                    true,
-                    { showError(it) },
-                ) { activeRent, isChanged ->
-                    if (isChanged || !isActiveRentClosed) {
-                        val show = activeRent?.rentStatus == MainRentStatus.IN_PROGRESS
-                        changeState(MapUiState.ShowActiveRent(activeRent, show))
-// it's needed to ActiveRentDialog update for each ShowActiveRent action
-                        if (show) {
-                            delay(1000)
-                            if (!isActiveRentClosed)
-                                changeState(MapUiState.Normal)
-                        }
-                    }
+                rentUseCase.updateActiveRent(true, { showError(it) }) { activeRent ->
+                    handleActiveRent(activeRent)
                 }
             }
             is MapIntent.MapStop -> {
-                rentUseCase.updateActiveRent(false, {}) { _, _ -> }
+                rentUseCase.updateActiveRent(false, {}) { _ -> }
             }
             is MapIntent.ChangeMapPosition -> {
                 mapContentUseCase.updateMapContent(intent.mapRect, intent.zoom) {
-                    changeState(MapUiState.MapContentUpdate(
+                    Logg.d("!!!! MapIntent.ChangeMapPosition updateMapContent bikes ${it.bikes?.size}")
+                    changeState(MapUiState.MapContent(
                         bikes = it.bikes,
                         stations = it.stations,
                         parkings = it.parkings,
@@ -100,57 +93,67 @@ class MapViewModel @Inject constructor(
                     null -> {}
                 }
             }
-            is MapIntent.CloseParkingDetail -> {
-                changeState(MapUiState.Normal)
-            }
             is MapIntent.CloseBikeDetail -> {
-                if (prevMapUiState is MapUiState.ShowQrScan && intent.id != null) {
-                    rentUseCase.startRent(
-                        intent.id, intent.latitude, intent.longitude,
-                        { showError(it) }
-                    ) { activeRent, _ ->
-                        changeState(MapUiState.ShowActiveRent(activeRent, true))
+                intent.id?.let { id ->
+                    if (intent.fromQrScan) {
+                        rentUseCase.startRent(
+                            id, intent.latitude, intent.longitude,
+                            { showError(it) }
+                        ) { activeRent ->
+                            changeState(MapUiState.Show(activeRent, true))
+                        }
+                    } else {
+                        changeState(MapUiState.QrScan(show = true, fromBikeDetail = true))
                     }
-                } else {
-                    changeState(if (intent.id != null) MapUiState.ShowQrScan else MapUiState.Normal)
                 }
             }
             is MapIntent.QrScanTap -> {
-                changeState(MapUiState.ShowQrScan)
+                changeState(MapUiState.QrScan(true))
             }
             is MapIntent.CloseQrScan -> {
-                if (prevMapUiState is MapUiState.ShowBikeDetail && intent.id != null) {
-                    rentUseCase.startRent(
-                        intent.id, intent.latitude, intent.longitude,
-                        { showError(it) }
-                    ) { activeRent, _ ->
-                        changeState(MapUiState.ShowActiveRent(activeRent, true))
+                viewModelScope.launch {
+                    changeState(MapUiState.QrScan(false))
+                    delay(500)
+                    intent.id?.let { id ->
+                        if (intent.fromBikeDetail) {
+                            rentUseCase.startRent(
+                                id, intent.latitude, intent.longitude,
+                                { showError(it) }
+                            ) { activeRent ->
+                                changeState(MapUiState.Show(activeRent, true))
+                            }
+                        } else {
+                            mapContentUseCase.runWithBike(id) { bike ->
+                                changeState(MapUiState.BikeDetail(bike, fromQrScan = true))
+                            }
+                        }
                     }
-                } else if (intent.id != null) {
-                    mapContentUseCase.runWithBike(intent.id) { bike ->
-                        changeState(MapUiState.ShowBikeDetail(bike))
+                }
+            }
+            is MapIntent.CloseActiveRent -> {
+                showActiveRentBar = !intent.isClicked
+
+                if (intent.isClicked) {
+                    rentUseCase.finishRent(
+                        intent.latitude, intent.longitude,
+                        { showError(it) }
+                    ) { activeRent ->
+                        changeState(MapUiState.WheelLock)
                     }
                 } else {
-                    changeState(MapUiState.Normal)
+                    changeState(MapUiState.ActiveRentBar(true))
+                }
+            }
+            is MapIntent.ClickActiveRentBar -> {
+                rentUseCase.activeRent?.let {
+                    showActiveRentBar = false
+                    viewModelScope.launch {
+                        handleActiveRent(it)
+                    }
                 }
             }
             is MapIntent.CloseError -> {
                 changeState(MapUiState.Normal)
-            }
-            is MapIntent.ActiveRentAction -> {
-                isActiveRentClosed = intent.state == ActiveRentState.DISMISS
-
-                if (intent.state == ActiveRentState.CLICK) {
-                    rentUseCase.finishRent(
-                        intent.latitude, intent.longitude,
-                        { showError(it) }
-                    ) { activeRent, _ ->
-                        isActiveRentClosed = true
-                        changeState(MapUiState.ShowActiveRent(activeRent, false))
-                        delay(1000)
-                        changeState(MapUiState.ShowWheelLock)
-                    }
-                }
             }
             is MapIntent.CloseWheelLock -> {
                 changeState(MapUiState.Normal)
@@ -159,31 +162,40 @@ class MapViewModel @Inject constructor(
     }
 
     private fun changeState(uiState: MapUiState) {
-        prevMapUiState = _mapUiState.value
         _mapUiState.value = uiState
+    }
+
+    private suspend fun handleActiveRent(activeRent: ActiveRent?) {
+        var show = !showActiveRentBar && activeRent?.rentStatus == MainRentStatus.IN_PROGRESS
+        changeState(MapUiState.Show(activeRent, show))
+        delay(500)
+//        show = !showActiveRentBar && activeRent?.rentStatus == MainRentStatus.CHECK_END
+//        changeState(MapUiState.ShowFinishRent(activeRent, show))
+//        delay(500)
+        changeState(MapUiState.Normal)
     }
 
     private fun onBikeClick(id: String) {
         Logg.d("!!! onBikeClick $id")
         mapContentUseCase.getBike(id)?.let { bike ->
-            changeState(MapUiState.ShowBikeDetail(bike))
+            changeState(MapUiState.BikeDetail(bike))
         }
     }
 
     private fun onStationClick(id: String) {
         Logg.d("!!! onStationClick $id")
         mapContentUseCase.getStation(id)?.let { station ->
-            changeState(MapUiState.ShowStationDetail(station))
+            changeState(MapUiState.StationDetail(station))
         }
     }
 
     private fun onParkingClick(id: String) {
         Logg.d("!!! onParkingClick $id")
         mapContentUseCase.getParking(id)?.let { parking ->
-            changeState(MapUiState.ShowParkingDetail(parking))
+            changeState(MapUiState.ParkingDetail(parking))
         }
     }
 
     private fun showError(msg: String?) =
-        msg?.let { changeState(MapUiState.ShowError(it)) }
+        msg?.let { changeState(MapUiState.Error(context.getString(R.string.error_title), it)) }
 }

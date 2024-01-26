@@ -8,6 +8,7 @@
     <string name="cancel_btn">Отменить</string>
 
 <!-- Errors -->
+    <string name="error_title">Ошибка</string>
     <string name="error_no_network">Нет сети</string>
     <string name="error_unknown">Неизвестная ошибка</string>
 

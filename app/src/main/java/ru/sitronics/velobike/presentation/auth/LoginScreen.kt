@@ -43,23 +43,24 @@ fun LoginScreen(
     onLoginClosed: () -> Unit,
 ) {
     val loginUiState by loginViewModel.loginUiState.collectAsStateWithLifecycle()
+    val onAction: (LoginIntent) -> Unit = { intent -> loginViewModel.handleIntent(intent) }
 
     when (loginUiState) {
         is LoginUiState.Normal -> {
             val uiState = loginUiState as LoginUiState.Normal
             LoginScreenInt(uiState.login, uiState.password) { intent ->
-                loginViewModel.handleIntent(intent)
+                onAction(intent)
             }
         }
         is LoginUiState.ShowMessage -> {
             val uiState = loginUiState as LoginUiState.ShowMessage
             ShowMessageDialog(uiState.msg) {
-                loginViewModel.handleIntent(LoginIntent.OnMessage)
+                onAction(LoginIntent.OnMessage)
             }
         }
         is LoginUiState.ShowRegister -> {
-            RegisterScreen {
-                loginViewModel.handleIntent(LoginIntent.OnRegister(it))
+            RegisterScreen(onDismiss = { onAction(LoginIntent.OnMessage) }) {
+                onAction(LoginIntent.OnRegister(it))
             }
         }
         is LoginUiState.Close -> onLoginClosed()
@@ -132,7 +133,7 @@ fun LoginScreenInt(
         ) {
             Button(
                 onClick = { loading = true; onAction(LoginIntent.OnLogin(login, password)) },
-                enabled = !loading,
+                enabled = !loading && login.isNotEmpty() && password.isNotEmpty(),
                 modifier = Modifier
                     .width(300.dp)
                     .align(Alignment.CenterHorizontally)

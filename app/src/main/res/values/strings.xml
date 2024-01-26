@@ -8,6 +8,7 @@
     <string name="cancel_btn">Cancel</string>
 
 <!-- Errors -->
+    <string name="error_title">Error</string>
     <string name="error_no_network">No network</string>
     <string name="error_unknown">Unknown error</string>
 

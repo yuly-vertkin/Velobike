@@ -34,7 +34,6 @@ import ru.sitronics.velobike.domain.MapRect
 import ru.sitronics.velobike.domain.map.Bike
 import ru.sitronics.velobike.domain.map.Parking
 import ru.sitronics.velobike.tools.ClusterImageProvider
-import ru.sitronics.velobike.tools.Logg
 import ru.sitronics.velobike.tools.RunWithLocation
 import ru.sitronics.velobike.tools.drawText
 import ru.sitronics.velobike.tools.getBitmapFromVectorDrawable
@@ -51,7 +50,7 @@ fun BoxScope.MapViewContainer(
     val cameraListener = remember {
         CameraListener { map, cameraPosition, _, finished ->
             if (finished) {
-                println("!!! Camera position changed")
+                println("!!!! Camera position changed")
                 onAction(MapIntent.ChangeMapPosition(getMapRect(mapView), cameraPosition.zoom))
             }
         }
@@ -115,7 +114,7 @@ fun BoxScope.MapViewContainer(
     val moveZonePolygons = remember { mutableListOf<PolygonMapObject>() }
 
     when(uiState) {
-        is MapUiState.MapContentUpdate -> {
+        is MapUiState.MapContent -> {
             updateBikes(LocalContext.current, uiState.bikes, bikeClusterCollection, bikePlacemarks, tapListener)
             updateStations(LocalContext.current, uiState.stations, stationClusterCollection, stationPlacemarks, tapListener)
             updateParkings(LocalContext.current, uiState.parkings, parkingCollection, parkingPlacemarks, tapListener)
@@ -133,7 +132,7 @@ fun BoxScope.MapViewContainer(
             updateSlowZones(LocalContext.current, uiState.slowZones, uiState.showMarkers, slowZoneCollection, slowZonePolygons, slowZoneMarkerCollection, slowZoneMarkerPlacemarks, tapListener)
         }
 */
-        is MapUiState.ShowMoveZones -> {
+        is MapUiState.MoveZones -> {
             updateMoveZones(LocalContext.current, uiState.moveZone, moveZoneCollection, moveZonePolygons, tapListener)
         }
         else -> {}
