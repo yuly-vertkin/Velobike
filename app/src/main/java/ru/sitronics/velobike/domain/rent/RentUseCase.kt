@@ -110,17 +110,22 @@ class RentUseCase @Inject constructor(
         )
     }
 
-    private fun checkRentStatus(rentId: Int, deviceId: String) {
-        Logg.d("!1 checkRentStatus start")
+    fun checkRentStatus(
+        rentId: Int, deviceId: String,
+        onError: ((String?) -> Unit)? = null, onSuccess: (suspend (RentStatus?) -> Unit)? = null
+        ) {
+        Logg.d("!!!! checkRentStatus start")
         processNetworkCall(
             action = { rentRepository.checkStatus(rentId, deviceId) },
             onSuccess = {
-                Logg.d("!1 checkRentStatus success, status ${it.status} , ${it.processStatus}")
+                Logg.d("!!!! checkRentStatus success, status ${it.status} , ${it.processStatus}")
                 rentStatus = it
+                onSuccess?.invoke(it)
             },
             onError = {
-                Logg.d("!1 checkRentStatus ERROR")
+                Logg.d("!!!! checkRentStatus ERROR")
                 rentStatus = rentStatus?.copy(status = MainRentStatus.ERROR_START)
+                onError?.invoke(null)
             },
             callName = "checkRentStatus"
         )

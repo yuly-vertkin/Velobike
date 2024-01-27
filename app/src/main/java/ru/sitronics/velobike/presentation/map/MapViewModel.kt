@@ -12,6 +12,7 @@ import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.map.MapContentUseCase
 import ru.sitronics.velobike.domain.rent.ActiveRent
 import ru.sitronics.velobike.domain.rent.MainRentStatus
+import ru.sitronics.velobike.domain.rent.ProgressStatus
 import ru.sitronics.velobike.domain.rent.RentUseCase
 import ru.sitronics.velobike.presentation.BaseViewModel
 import ru.sitronics.velobike.tools.Logg
@@ -138,7 +139,7 @@ class MapViewModel @Inject constructor(
                         intent.latitude, intent.longitude,
                         { showError(it) }
                     ) { activeRent ->
-                        changeState(MapUiState.WheelLock)
+                        changeState(MapUiState.FinishRent(true))
                     }
                 } else {
                     changeState(MapUiState.ActiveRentBar(true))
@@ -148,12 +149,15 @@ class MapViewModel @Inject constructor(
                 showActiveRentBar = !intent.isClicked
 
                 if (intent.isClicked) {
-//                    rentUseCase.finishRent(
-//                        intent.latitude, intent.longitude,
-//                        { showError(it) }
-//                    ) { activeRent ->
-                          changeState(MapUiState.WheelLock)
-//                    }
+                    rentUseCase.activeRent?.let { rent ->
+                        rentUseCase.checkRentStatus(
+                            rent.rentId, rent.deviceId,
+                            { showError(it) }
+                        ) {
+                            if (it?.processStatus == ProgressStatus.WAIT_CLOSE_LOCK)
+                                changeState(MapUiState.WheelLock)
+                        }
+                    }
                 } else {
                     changeState(MapUiState.ActiveRentBar(true))
                 }
@@ -170,7 +174,7 @@ class MapViewModel @Inject constructor(
                 changeState(MapUiState.Normal)
             }
             is MapIntent.CloseWheelLock -> {
-                changeState(MapUiState.Normal)
+                changeState(MapUiState.FinishRent(true))
             }
         }
     }
@@ -184,9 +188,9 @@ class MapViewModel @Inject constructor(
         var show = !showActiveRentBar && activeRent?.rentStatus == MainRentStatus.IN_PROGRESS
         changeState(MapUiState.CurrentRent(activeRent, show))
         delay(500)
-//        show = !showActiveRentBar && activeRent?.rentStatus == MainRentStatus.CHECK_END
-//        changeState(MapUiState.ShowFinishRent(activeRent, show))
-//        delay(500)
+        show = !showActiveRentBar && activeRent?.rentStatus == MainRentStatus.CHECK_END
+        changeState(MapUiState.FinishRent(show))
+        delay(500)
         changeState(MapUiState.ActiveRentBar(showActiveRentBar))
     }
 
