@@ -51,7 +51,11 @@
 
 <!-- Rent -->
     <string name="return_to_active_ride">Return to active ride</string>
-    <string name="finish_rent">Complete</string>
+    <string name="active_rent_btn">Complete</string>
+    <string name="finish_rent">End of the trip</string>
+    <string name="close_wheel_lock">Close the rear wheel lock</string>
+    <string name="close_chain">Fasten your bike with a cable to the bike rack</string>
+    <string name="finish_rent_btn">Take a photo and finish</string>
 
 <!-- Rent errors -->
     <string name="start_omni_failed_open_chain_error">Bicycle lock failed. Choose another bike</string>

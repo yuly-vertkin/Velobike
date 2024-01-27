@@ -27,28 +27,34 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.map.Parking
+import ru.sitronics.velobike.presentation.map.MapUiState.StationDetail
 import ru.sitronics.velobike.presentation.map.MapUiState
+import ru.sitronics.velobike.presentation.map.DialogState.SHOW
+import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
+import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
+import ru.sitronics.velobike.presentation.map.toDialogState
 import ru.sitronics.velobike.ui.theme.HeaderBackgroundColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StationDetailDialog(uiState: MapUiState, onDismiss: () -> Unit) {
     var parking by remember { mutableStateOf<Parking?>(null) }
-    var show by remember { mutableStateOf(false) }
+    var state by remember { mutableStateOf(CLOSE) }
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
 
     val availableBikes = parking?.let { it.availableNonElectricBikes + it.availableElectricBikes + it.availableOmniBikes }
     val freePlaces = parking?.let { it.freeNonElectricSlots + it.freeElectricSlots + it.freeOmniSlots }
 
-    if (uiState is MapUiState.StationDetail) {
+    if (uiState is StationDetail && state != CLOSING) {
         parking = uiState.station
-        show = true
-    }
+        state = true.toDialogState()
+    } else if (uiState !is StationDetail && state == CLOSING)
+        state = CLOSE
 
-    if (show) {
+    if (state == SHOW) {
         ModalBottomSheet(
-            onDismissRequest = { onDismiss(); show = false },
+            onDismissRequest = { state = CLOSING; onDismiss() },
             sheetState = sheetState
         ) {
             Column(

@@ -24,25 +24,31 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.presentation.map.MapUiState
+import ru.sitronics.velobike.presentation.map.MapUiState.ActiveRentBar
+import ru.sitronics.velobike.presentation.map.DialogState.SHOW
+import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
+import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
+import ru.sitronics.velobike.presentation.map.toDialogState
 import ru.sitronics.velobike.ui.theme.HeaderBackgroundColor
 
 @Composable
 fun ActiveRentBar(uiState: MapUiState, onClick: () -> Unit) {
     val context = LocalContext.current
-    var show by remember { mutableStateOf(false) }
+    var state by remember { mutableStateOf(CLOSE) }
 
-    if (uiState is MapUiState.ActiveRentBar) {
-        show = uiState.show
-    }
+    if (uiState is ActiveRentBar && state != CLOSING) {
+        state = uiState.show.toDialogState()
+    } else if (uiState !is ActiveRentBar && state == CLOSING)
+        state = CLOSE
 
-    if (show) {
+    if (state == SHOW) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 64.dp)
                 .padding(horizontal = 16.dp)
-                .clickable { onClick(); show = false }
+                .clickable { state = CLOSING; onClick() }
                 .clip(RoundedCornerShape(16.dp))
                 .background(HeaderBackgroundColor)
                 .padding(vertical = 16.dp)

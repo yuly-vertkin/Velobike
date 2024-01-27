@@ -26,10 +26,15 @@ import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.presentation.map.MapUiState
+import ru.sitronics.velobike.presentation.map.MapUiState.WheelLock
+import ru.sitronics.velobike.presentation.map.DialogState.SHOW
+import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
+import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
+import ru.sitronics.velobike.presentation.map.toDialogState
 
 @Composable
 fun BoxScope.WheelLockDialog(uiState: MapUiState, onClick: () -> Unit) {
-    var show by remember { mutableStateOf(false) }
+    var state by remember { mutableStateOf(CLOSE) }
     val context = LocalContext.current
 
     val imageLoader = remember {
@@ -43,11 +48,12 @@ fun BoxScope.WheelLockDialog(uiState: MapUiState, onClick: () -> Unit) {
             .build()
     }
 
-    if (uiState is MapUiState.WheelLock) {
-        show = true
-    }
+    if (uiState is WheelLock && state != CLOSING) {
+        state = true.toDialogState()
+    } else if (uiState !is WheelLock && state == CLOSING)
+        state = CLOSE
 
-    if (show) {
+    if (state == SHOW) {
         Column(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -62,7 +68,7 @@ fun BoxScope.WheelLockDialog(uiState: MapUiState, onClick: () -> Unit) {
                     .height(300.dp)
             )
             Button(
-                onClick = { onClick(); show = false },
+                onClick = { state = CLOSING; onClick() },
                 modifier = Modifier
                     .width(250.dp)
                     .align(Alignment.CenterHorizontally)

@@ -14,6 +14,7 @@ import ru.sitronics.velobike.presentation.details.ParkingDetailDialog
 import ru.sitronics.velobike.presentation.details.StationDetailDialog
 import ru.sitronics.velobike.presentation.rent.ActiveRentBar
 import ru.sitronics.velobike.presentation.rent.ActiveRentDialog
+import ru.sitronics.velobike.presentation.rent.FinishRentDialog
 import ru.sitronics.velobike.presentation.rent.ScanQrCodeDialog
 import ru.sitronics.velobike.presentation.rent.WheelLockDialog
 import ru.sitronics.velobike.tools.Logg
@@ -56,6 +57,12 @@ fun MapScreen(
         ActiveRentDialog(mapUiState, { onAction(MapIntent.CloseActiveRent()) }) {
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
                 onAction(MapIntent.CloseActiveRent(true, lat, lon))
+            }
+        }
+
+        FinishRentDialog(mapUiState, { onAction(MapIntent.CloseFinishRent()) }) {
+            locationPermissionLauncher.runWithLocation(context) { lat, lon ->
+                onAction(MapIntent.CloseFinishRent(true, lat, lon))
             }
         }
 

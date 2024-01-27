@@ -144,6 +144,20 @@ class MapViewModel @Inject constructor(
                     changeState(MapUiState.ActiveRentBar(true))
                 }
             }
+            is MapIntent.CloseFinishRent -> {
+                showActiveRentBar = !intent.isClicked
+
+                if (intent.isClicked) {
+//                    rentUseCase.finishRent(
+//                        intent.latitude, intent.longitude,
+//                        { showError(it) }
+//                    ) { activeRent ->
+                          changeState(MapUiState.WheelLock)
+//                    }
+                } else {
+                    changeState(MapUiState.ActiveRentBar(true))
+                }
+            }
             is MapIntent.ClickActiveRentBar -> {
                 rentUseCase.activeRent?.let {
                     showActiveRentBar = false

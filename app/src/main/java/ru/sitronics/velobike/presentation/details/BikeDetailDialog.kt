@@ -30,6 +30,11 @@ import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.map.Bike
 import ru.sitronics.velobike.presentation.map.MapUiState
+import ru.sitronics.velobike.presentation.map.MapUiState.BikeDetail
+import ru.sitronics.velobike.presentation.map.DialogState.SHOW
+import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
+import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
+import ru.sitronics.velobike.presentation.map.toDialogState
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.minutes
 
@@ -39,20 +44,21 @@ import kotlin.time.Duration.Companion.minutes
 fun BikeDetailDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: (String?, Boolean) -> Unit) {
     var bike by remember { mutableStateOf<Bike?>(null) }
     var fromQrScan by remember { mutableStateOf(false) }
-    var show by remember { mutableStateOf(false) }
+    var state by remember { mutableStateOf(CLOSE) }
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
 
-    if (uiState is MapUiState.BikeDetail) {
+    if (uiState is BikeDetail && state != CLOSING) {
         bike = uiState.bike
         fromQrScan = uiState.fromQrScan
-        show = true
-    }
+        state = true.toDialogState()
+    } else if (uiState !is BikeDetail && state == CLOSING)
+        state = CLOSE
 
-    if (show) {
+    if (state == SHOW) {
         ModalBottomSheet(
-            onDismissRequest = { onDismiss(); show = false },
+            onDismissRequest = { state = CLOSING; onDismiss() },
             sheetState = sheetState
         ) {
             Text(
@@ -80,8 +86,8 @@ fun BikeDetailDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: (Strin
                 onClick = {
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
+                            state = CLOSING
                             onClick(bike?.id, fromQrScan)
-                            show = false
                         }
                     }
                 },

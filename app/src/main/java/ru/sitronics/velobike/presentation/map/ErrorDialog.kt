@@ -13,29 +13,34 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import ru.sitronics.velobike.R
+import ru.sitronics.velobike.presentation.map.MapUiState.Error
+import ru.sitronics.velobike.presentation.map.DialogState.SHOW
+import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
+import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
 
 @Composable
 fun ErrorDialog(uiState: MapUiState, onAction: () -> Unit) {
     var title by remember { mutableStateOf<String>("") }
     var text by remember { mutableStateOf<String>("") }
-    var show by remember { mutableStateOf(false) }
+    var state by remember { mutableStateOf(CLOSE) }
     val context = LocalContext.current
 
-    if (uiState is MapUiState.Error) {
+    if (uiState is Error && state != CLOSING) {
         title = uiState.title
         text = uiState.text
-        show = true
-    }
+        state = true.toDialogState()
+    } else if (uiState !is Error && state == CLOSING)
+        state = CLOSE
 
-    if (show) {
+    if (state == SHOW) {
         AlertDialog(
             icon = { Icon(Icons.Default.Info, contentDescription = null) },
             title = { Text(text = title) },
             text = { Text(text = text) },
-            onDismissRequest = { onAction(); show = false },
+            onDismissRequest = { state = CLOSING; onAction() },
             confirmButton = {
                 TextButton(
-                    onClick = { onAction(); show = false }
+                    onClick = { state = CLOSING; onAction() }
                 ) {
                     Text(context.getString(R.string.ok_btn))
                 }

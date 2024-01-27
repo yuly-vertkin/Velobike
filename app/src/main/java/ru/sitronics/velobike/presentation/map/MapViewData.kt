@@ -28,3 +28,10 @@ sealed class MarkerUserData {
     data class SlowZone(val id: Int) : MarkerUserData()
     data class MoveZone(val id: Int) : MarkerUserData()
 }
+
+enum class DialogState {
+    SHOW, CLOSING, CLOSE
+}
+
+fun Boolean.toDialogState() : DialogState =
+    if (this) DialogState.SHOW else DialogState.CLOSE
