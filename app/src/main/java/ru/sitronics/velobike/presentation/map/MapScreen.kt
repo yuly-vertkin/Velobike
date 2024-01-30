@@ -14,8 +14,10 @@ import ru.sitronics.velobike.presentation.details.ParkingDetailDialog
 import ru.sitronics.velobike.presentation.details.StationDetailDialog
 import ru.sitronics.velobike.presentation.rent.ActiveRentBar
 import ru.sitronics.velobike.presentation.rent.ActiveRentDialog
-import ru.sitronics.velobike.presentation.rent.FinishRentDialog
+import ru.sitronics.velobike.presentation.rent.FinishedRentDialog
+import ru.sitronics.velobike.presentation.rent.FinishingRentDialog
 import ru.sitronics.velobike.presentation.rent.ScanQrCodeDialog
+import ru.sitronics.velobike.presentation.rent.TakePhoto
 import ru.sitronics.velobike.presentation.rent.WheelLockDialog
 import ru.sitronics.velobike.tools.Logg
 import ru.sitronics.velobike.tools.rememberLocationPermissionLauncher
@@ -60,13 +62,21 @@ fun MapScreen(
             }
         }
 
-        FinishRentDialog(mapUiState, { onAction(MapIntent.CloseFinishRent()) }) {
+        FinishingRentDialog(mapUiState, { onAction(MapIntent.CloseFinishingRent()) }) {
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
-                onAction(MapIntent.CloseFinishRent(true, lat, lon))
+                onAction(MapIntent.CloseFinishingRent(true, lat, lon))
             }
         }
 
         WheelLockDialog(mapUiState) { onAction(MapIntent.CloseWheelLock) }
+
+        TakePhoto(mapUiState, { onAction(MapIntent.OnTakePhoto()) }) {
+            onAction(MapIntent.OnTakePhoto(it))
+        }
+
+        FinishedRentDialog(mapUiState, { onAction(MapIntent.ResetState) }) {
+            onAction(MapIntent.CloseFinishedRent)
+        }
 
         ErrorDialog(mapUiState) { onAction(MapIntent.ResetState) }
 

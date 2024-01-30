@@ -112,7 +112,7 @@ class RentUseCase @Inject constructor(
 
     fun checkRentStatus(
         rentId: Int, deviceId: String,
-        onError: ((String?) -> Unit)? = null, onSuccess: (suspend (RentStatus?) -> Unit)? = null
+        onError: ((String?) -> Unit)? = null, onSuccess: (suspend (RentStatus) -> Unit)? = null
         ) {
         Logg.d("!!!! checkRentStatus start")
         processNetworkCall(
@@ -128,6 +128,58 @@ class RentUseCase @Inject constructor(
                 onError?.invoke(null)
             },
             callName = "checkRentStatus"
+        )
+    }
+
+    fun uploadPhotoAndFinishRent(
+        filePath: String,
+        onError: (String?) -> Unit, onSuccess: suspend (RentStatus) -> Unit
+    ) {
+        uploadPhotoRent(filePath, onError) {
+            finishRentAfterUploadPhoto(onError, onSuccess)
+        }
+    }
+
+    fun uploadPhotoRent(
+        filePath: String,
+        onError: (String?) -> Unit, onSuccess: suspend () -> Unit
+    ) {
+        Logg.d("!!!! uploadPhotoRent start")
+        processNetworkCall(
+            action = {
+                rentRepository.uploadPhotoRent(
+                    activeRent?.rentId ?: 0,
+                    activeRent?.frameNumber ?: "",
+                    filePath
+                )
+            },
+            onSuccess = {
+                Logg.d("!!!! uploadPhotoRent success $it")
+                onSuccess()
+            },
+            onError = {
+                Logg.d("!!!! uploadPhotoRent ERROR")
+                onError(context.getString(R.string.error_unknown))
+            },
+            callName = "uploadPhotoRent"
+        )
+    }
+
+    fun finishRentAfterUploadPhoto(
+        onError: (String?) -> Unit, onSuccess: suspend (RentStatus) -> Unit
+    ) {
+        Logg.d("!!!! finishRentAfterUploadPhoto start")
+        processNetworkCall(
+            action = { rentRepository.finishRentAfterUploadPhoto(activeRent?.rentId ?: 0) },
+            onSuccess = {
+                Logg.d("!!!! finishRentAfterUploadPhoto success $it")
+                onSuccess(it)
+            },
+            onError = {
+                Logg.d("!!!! finishRentAfterUploadPhoto ERROR")
+                onError(context.getString(R.string.error_unknown))
+            },
+            callName = "finishRentAfterUploadPhoto"
         )
     }
 

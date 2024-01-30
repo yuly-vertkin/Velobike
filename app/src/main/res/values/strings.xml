@@ -56,6 +56,8 @@
     <string name="close_wheel_lock">Close the rear wheel lock</string>
     <string name="close_chain">Fasten your bike with a cable to the bike rack</string>
     <string name="finish_rent_btn">Take a photo and finish</string>
+    <string name="finished_rent">Ride completed</string>
+    <string name="rate_btn">Rate the trip</string>
 
 <!-- Rent errors -->
     <string name="start_omni_failed_open_chain_error">Bicycle lock failed. Choose another bike</string>

@@ -27,21 +27,20 @@ import ru.sitronics.velobike.presentation.map.DialogState.SHOW
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
 import ru.sitronics.velobike.presentation.map.MapUiState
-import ru.sitronics.velobike.presentation.map.MapUiState.FinishRent
+import ru.sitronics.velobike.presentation.map.MapUiState.FinishingRent
 import ru.sitronics.velobike.presentation.map.toDialogState
-import ru.sitronics.velobike.tools.Logg
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FinishRentDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: () -> Unit) {
+fun FinishingRentDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: () -> Unit) {
     var state by remember { mutableStateOf(CLOSE) }
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
 
-    if (uiState is FinishRent && state != CLOSING) {
+    if (uiState is FinishingRent && state != CLOSING) {
         state = uiState.show.toDialogState()
-    } else if (uiState !is FinishRent && state == CLOSING)
+    } else if (uiState !is FinishingRent && state == CLOSING)
         state = CLOSE
 
     if (state == SHOW) {

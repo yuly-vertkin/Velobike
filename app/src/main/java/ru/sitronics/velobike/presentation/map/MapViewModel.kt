@@ -139,13 +139,13 @@ class MapViewModel @Inject constructor(
                         intent.latitude, intent.longitude,
                         { showError(it) }
                     ) { activeRent ->
-                        changeState(MapUiState.FinishRent(true))
+                        changeState(MapUiState.FinishingRent(true))
                     }
                 } else {
                     changeState(MapUiState.ActiveRentBar(true))
                 }
             }
-            is MapIntent.CloseFinishRent -> {
+            is MapIntent.CloseFinishingRent -> {
                 showActiveRentBar = !intent.isClicked
 
                 if (intent.isClicked) {
@@ -154,8 +154,12 @@ class MapViewModel @Inject constructor(
                             rent.rentId, rent.deviceId,
                             { showError(it) }
                         ) {
-                            if (it?.processStatus == ProgressStatus.WAIT_CLOSE_LOCK)
+                            if (it.processStatus == ProgressStatus.WAIT_CLOSE_LOCK)
                                 changeState(MapUiState.WheelLock)
+                            else if (it.processStatus == ProgressStatus.WAIT_UPLOAD_PHOTO)
+                                changeState(MapUiState.TakePhoto)
+//                            else
+//                                changeState(MapUiState.TakePhoto)
                         }
                     }
                 } else {
@@ -170,11 +174,30 @@ class MapViewModel @Inject constructor(
                     }
                 }
             }
-            is MapIntent.CloseError -> {
+            is MapIntent.CloseWheelLock -> {
+                changeState(MapUiState.FinishingRent(true))
+            }
+            is MapIntent.OnTakePhoto -> {
+                if (intent.filePath != null) {
+                    // TODO: temp
+//                    rentUseCase.updateActiveRent(false, {}) { _ -> }
+                    rentUseCase.uploadPhotoAndFinishRent(
+                        intent.filePath,
+                        { showError(it) }
+                    ) {
+                        if (it.status?.isDone() == true)
+                            changeState(MapUiState.FinishedRent(rentUseCase.activeRent))
+                        else
+                            showError(context.getString(R.string.error_unknown))
+                    }
+                } else
+                    changeState(MapUiState.FinishingRent(true))
+            }
+            is MapIntent.CloseFinishedRent -> {
                 changeState(MapUiState.Normal)
             }
-            is MapIntent.CloseWheelLock -> {
-                changeState(MapUiState.FinishRent(true))
+            is MapIntent.CloseError -> {
+                changeState(MapUiState.Normal)
             }
         }
     }
@@ -189,7 +212,7 @@ class MapViewModel @Inject constructor(
         changeState(MapUiState.CurrentRent(activeRent, show))
         delay(500)
         show = !showActiveRentBar && activeRent?.rentStatus == MainRentStatus.CHECK_END
-        changeState(MapUiState.FinishRent(show))
+        changeState(MapUiState.FinishingRent(show))
         delay(500)
         changeState(MapUiState.ActiveRentBar(showActiveRentBar))
     }

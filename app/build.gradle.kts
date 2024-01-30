@@ -60,14 +60,15 @@ android {
             buildConfigField("String", "BASE_URL", "\"https://dev-velobike.sitronics-it.com\"")
             buildConfigField("String", "BASE_URL_OLD", "\"https://apivelobike.legacy.sitronics-it.com\"")
             buildConfigField("String", "QRATOR_SECRET", "\"\"")
-            applicationIdSuffix = ".dev"
+            // TODO: FileProvider for TakePhoto may be won't work with applicationIdSuffix
+//            applicationIdSuffix = ".dev"
         }
         create("staging") {
             dimension = "environment"
             buildConfigField("String", "BASE_URL", "\"https://qrator-test-velobike.sitronics-it.com\"")
             buildConfigField("String", "BASE_URL_OLD", "\"https://apivelobike.legacy-test.sitronics-it.com\"")
             buildConfigField("String", "QRATOR_SECRET", "\"qqsFJjHdpFcQ\"")
-            applicationIdSuffix = ".test"
+//            applicationIdSuffix = ".test"
         }
         create("production") {
             dimension = "environment"

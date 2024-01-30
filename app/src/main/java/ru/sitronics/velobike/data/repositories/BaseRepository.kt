@@ -51,10 +51,13 @@ open class BaseRepository<T>(
                 resDto is ResponseDto<*> -> resDto.toModel()
                 resDto is List<*> && resDto.firstOrNull() is ResponseDto<*> ->
                     resDto.map { (it as ResponseDto<*>).toModel() }
-                resDto is Response<*> && !resDto.isSuccessful -> {
-                    val body = resDto.errorBody()?.string()
-                    val error = gson.fromJson(body, BusinessErrorResponse::class.java)
-                    throw ResponseException(ERROR_UNKNOWN, error.message)
+                resDto is Response<*> -> {
+                    if (resDto.isSuccessful) true
+                    else {
+                        val body = resDto.errorBody()?.string()
+                        val error = gson.fromJson(body, BusinessErrorResponse::class.java)
+                        throw ResponseException(ERROR_UNKNOWN, error.message)
+                    }
                 }
                 else -> resDto
             } ?: throw ResponseException(ERROR_UNKNOWN, context.getString(R.string.error_unknown))

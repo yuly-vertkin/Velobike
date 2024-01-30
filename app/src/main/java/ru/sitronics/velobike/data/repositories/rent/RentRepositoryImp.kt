@@ -2,6 +2,9 @@ package ru.sitronics.velobike.data.repositories.rent
 
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.data.network.RentService
@@ -12,6 +15,7 @@ import ru.sitronics.velobike.domain.rent.RentData
 import ru.sitronics.velobike.domain.rent.RentRepository
 import ru.sitronics.velobike.domain.rent.RentStatus
 import ru.sitronics.velobike.domain.rent.StartRentParams
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,12 +33,6 @@ class RentRepositoryImp @Inject constructor(
         super.saveData(data)
     }
 
-    override fun startRent(params: StartRentParams) : Flow<Result<RentStatus>> =
-        callAction { service.startRent(params) }
-
-    override fun finishRent(params: FinishRentParams) : Flow<Result<RentStatus>> =
-        callAction { service.finishRent(params.id, params) }
-
     override fun checkStatus(rentId: Int, deviceId: String) : Flow<Result<RentStatus>> =
         callAction { service.checkStatus(rentId, deviceId) }
 
@@ -43,4 +41,24 @@ class RentRepositoryImp @Inject constructor(
 
     override fun checkActiveRentOld(uid: String) : Flow<Result<List<ActiveRent>>> =
         callAction { service.checkActiveRentOld("eq.$uid") }
+
+    override fun startRent(params: StartRentParams) : Flow<Result<RentStatus>> =
+        callAction { service.startRent(params) }
+
+    override fun finishRent(params: FinishRentParams) : Flow<Result<RentStatus>> =
+        callAction { service.finishRent(params.id, params) }
+
+    override fun uploadPhotoRent(rentId: Int, deviceId: String, imagePath: String) : Flow<Result<Boolean>> {
+        val image = File(imagePath)
+        val requestBody = image.asRequestBody("image/jpeg".toMediaType())
+        val filePart = MultipartBody.Part.createFormData(
+            "photo",
+            image.name,
+            requestBody
+        )
+        return callAction { service.uploadPhotoRent(rentId, deviceId, filePart) }
+    }
+
+    override fun finishRentAfterUploadPhoto(rentId: Int) : Flow<Result<RentStatus>> =
+        callAction { service.finishRentAfterUploadPhoto(rentId) }
 }
