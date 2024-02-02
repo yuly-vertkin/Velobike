@@ -126,3 +126,8 @@ enum class FailedReason(@StringRes val messageIdStart: Int, @StringRes val messa
     @SerializedName("BIKE_IS_FAR_FROM_USER")
     BIKE_IS_FAR_FROM_USER(R.string.far_from_user_error, R.string.start_omni_failed_default),
 }
+
+data class ChooseParkingParams(
+    val deviceId: String,
+    val externalParkingId: String
+)

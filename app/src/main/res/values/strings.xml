@@ -53,6 +53,9 @@
     <string name="return_to_active_ride">Return to active ride</string>
     <string name="active_rent_btn">Complete</string>
     <string name="finish_rent">End of the trip</string>
+    <string name="choose_parking_title">Select parking on the map</string>
+    <string name="choose_parking_text">Unfortunately, we were unable to locate the bike. Please select the parking lot where you are located on the map</string>
+    <string name="choose_parking_btn">I can\'t find parking</string>
     <string name="close_wheel_lock">Close the rear wheel lock</string>
     <string name="close_chain">Fasten your bike with a cable to the bike rack</string>
     <string name="finish_rent_btn">Take a photo and finish</string>

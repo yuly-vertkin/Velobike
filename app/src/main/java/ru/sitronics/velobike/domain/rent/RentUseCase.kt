@@ -55,8 +55,9 @@ class RentUseCase @Inject constructor(
                 while (rentStatus?.status == MainRentStatus.CHECK_START) {
                     checkRentStatus(it.id, it.deviceId ?: "")
                     delay(CHECK_RENT_STATUS_DELAY)
+                    Logg.d("!!!! startRent while, status ${rentStatus?.status} ${rentStatus?.processStatus}")
                 }
-                Logg.d("!!!! startRent end, status $rentStatus")
+                Logg.d("!!!! startRent end, status ${rentStatus?.status} ${rentStatus?.processStatus}")
 
                 if (rentStatus?.status == MainRentStatus.IN_PROGRESS)
                     checkActiveRent(onError, onSuccess)
@@ -64,7 +65,7 @@ class RentUseCase @Inject constructor(
                     onError(getRentError(it.failedReason, true))
             },
             onError = {
-                Logg.d("!!!! ERROR startRent()")
+                Logg.d("!!!! ERROR startRent() ${it.message}")
                 onError(context.getString(R.string.error_unknown))
             },
             callName = "startRent"
@@ -118,7 +119,7 @@ class RentUseCase @Inject constructor(
         processNetworkCall(
             action = { rentRepository.checkStatus(rentId, deviceId) },
             onSuccess = {
-                Logg.d("!!!! checkRentStatus success, status ${it.status} , ${it.processStatus}")
+                Logg.d("!!!! checkRentStatus success, status ${it.status}, ${it.processStatus}")
                 rentStatus = it
                 onSuccess?.invoke(it)
             },
@@ -128,6 +129,33 @@ class RentUseCase @Inject constructor(
                 onError?.invoke(null)
             },
             callName = "checkRentStatus"
+        )
+    }
+
+    fun chooseParking(
+        rentId: Int, params: ChooseParkingParams,
+        onError: (String?) -> Unit, onSuccess: suspend () -> Unit
+    ) {
+        Logg.d("!!!! chooseParking start")
+        processNetworkCall(
+            action = { rentRepository.chooseParking(rentId, params) },
+            onSuccess = {
+                Logg.d("!!!! chooseParking success, status ${it.status}, ${it.processStatus}")
+                rentStatus = it
+                delay(CHECK_RENT_STATUS_DELAY)
+
+                while (rentStatus?.processStatus == ProgressStatus.S5_OBTAIN_LOCK_INFO) {
+                    checkRentStatus(it.id, it.deviceId ?: "")
+                    delay(CHECK_RENT_STATUS_DELAY)
+                }
+
+                onSuccess()
+            },
+            onError = {
+                Logg.d("!!!! chooseParking ERROR")
+                onError(null)
+            },
+            callName = "chooseParking"
         )
     }
 

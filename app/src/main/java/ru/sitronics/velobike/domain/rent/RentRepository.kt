@@ -11,6 +11,7 @@ interface RentRepository {
     fun checkActiveRentOld(uid: String) : Flow<Result<List<ActiveRent>>>
     fun startRent(params: StartRentParams) : Flow<Result<RentStatus>>
     fun finishRent(params: FinishRentParams) : Flow<Result<RentStatus>>
+    fun chooseParking(rentId: Int, params: ChooseParkingParams) : Flow<Result<RentStatus>>
     fun uploadPhotoRent(rentId: Int, deviceId: String, imagePath: String) : Flow<Result<Boolean>>
     fun finishRentAfterUploadPhoto(rentId: Int) : Flow<Result<RentStatus>>
 }

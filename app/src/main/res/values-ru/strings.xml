@@ -52,6 +52,9 @@
     <string name="return_to_active_ride">Вернуться к активной поездке</string>
     <string name="active_rent_btn">Завершить</string>
     <string name="finish_rent">Завершение поездки</string>
+    <string name="choose_parking_title">Выберите парковку на карте</string>
+    <string name="choose_parking_text">К сожалению, мы не смогли определить местоположение велосипеда. Пожалуйста выберите на карте парковку на которой вы находитесь</string>
+    <string name="choose_parking_btn">Не могу найти парковку</string>
     <string name="close_wheel_lock">Закройте замок на заднем колесе</string>
     <string name="close_chain">Пристегните велосипед тросом к велопарковке</string>
     <string name="finish_rent_btn">Сделать фото и завершить</string>

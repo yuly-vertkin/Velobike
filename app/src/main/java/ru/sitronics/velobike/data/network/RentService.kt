@@ -11,6 +11,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import ru.sitronics.velobike.data.repositories.rent.ActiveRentOldDto
 import ru.sitronics.velobike.domain.rent.ActiveRent
+import ru.sitronics.velobike.domain.rent.ChooseParkingParams
 import ru.sitronics.velobike.domain.rent.FinishRentParams
 import ru.sitronics.velobike.domain.rent.RentStatus
 import ru.sitronics.velobike.domain.rent.StartRentParams
@@ -37,4 +38,7 @@ interface RentService {
 
     @POST("api/rent/rents/{rentId}/finishRentAfterUploadPhoto")
     suspend fun finishRentAfterUploadPhoto(@Path("rentId") rentId: Int) : RentStatus
+
+    @POST("api/rent/rents/{rentId}/commands/parkBikeToParking")
+    suspend fun chooseParking(@Path("rentId") rentId: Int, @Body params: ChooseParkingParams) : RentStatus
 }

@@ -10,6 +10,7 @@ import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.data.network.RentService
 import ru.sitronics.velobike.data.repositories.BaseRepository
 import ru.sitronics.velobike.domain.rent.ActiveRent
+import ru.sitronics.velobike.domain.rent.ChooseParkingParams
 import ru.sitronics.velobike.domain.rent.FinishRentParams
 import ru.sitronics.velobike.domain.rent.RentData
 import ru.sitronics.velobike.domain.rent.RentRepository
@@ -47,6 +48,9 @@ class RentRepositoryImp @Inject constructor(
 
     override fun finishRent(params: FinishRentParams) : Flow<Result<RentStatus>> =
         callAction { service.finishRent(params.id, params) }
+
+    override fun chooseParking(rentId: Int, params: ChooseParkingParams) : Flow<Result<RentStatus>> =
+        callAction { service.chooseParking(rentId, params) }
 
     override fun uploadPhotoRent(rentId: Int, deviceId: String, imagePath: String) : Flow<Result<Boolean>> {
         val image = File(imagePath)
