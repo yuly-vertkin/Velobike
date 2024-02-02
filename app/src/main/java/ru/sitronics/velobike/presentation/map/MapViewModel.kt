@@ -101,11 +101,12 @@ class MapViewModel @Inject constructor(
             is MapIntent.CloseBikeDetail -> {
                 intent.id?.let { id ->
                     if (intent.fromQrScan) {
+                        changeState(MapUiState.Loading(true))
                         rentUseCase.startRent(
                             id, intent.latitude, intent.longitude,
                             { showError(it) }
                         ) { activeRent ->
-                            changeState(MapUiState.CurrentRent(activeRent, true))
+                            changeState(MapUiState.CurrentRent(activeRent, true), true)
                         }
                     } else {
                         changeState(MapUiState.QrScan(show = true, fromBikeDetail = true))
@@ -118,18 +119,18 @@ class MapViewModel @Inject constructor(
             is MapIntent.CloseQrScan -> {
                 viewModelScope.launch {
                     changeState(MapUiState.QrScan(false))
-                    delay(CHANGE_STATE_DELAY)
                     intent.id?.let { id ->
                         if (intent.fromBikeDetail) {
+                            changeState(MapUiState.Loading(true), delay = true)
                             rentUseCase.startRent(
                                 id, intent.latitude, intent.longitude,
                                 { showError(it) }
                             ) { activeRent ->
-                                changeState(MapUiState.CurrentRent(activeRent, true))
+                                changeState(MapUiState.CurrentRent(activeRent, true), true)
                             }
                         } else {
                             mapContentUseCase.runWithBike(id) { bike ->
-                                changeState(MapUiState.BikeDetail(bike, fromQrScan = true))
+                                changeState(MapUiState.BikeDetail(bike, fromQrScan = true), delay = true)
                             }
                         }
                     }
@@ -139,11 +140,12 @@ class MapViewModel @Inject constructor(
                 showActiveRentBar = !intent.isClicked
 
                 if (intent.isClicked) {
+                    changeState(MapUiState.Loading(true))
                     rentUseCase.finishRent(
                         intent.latitude, intent.longitude,
                         { showError(it) }
                     ) { activeRent ->
-                        changeState(MapUiState.FinishingRent(true))
+                        changeState(MapUiState.FinishingRent(true), true)
                     }
                 } else {
                     changeState(MapUiState.ActiveRentBar(true))
@@ -154,6 +156,7 @@ class MapViewModel @Inject constructor(
 
                 if (intent.isClicked) {
                     rentUseCase.activeRent?.let { rent ->
+                        changeState(MapUiState.Loading(true))
                         rentUseCase.checkRentStatus(
                             rent.rentId, rent.deviceId,
                             { showError(it) }
@@ -161,15 +164,14 @@ class MapViewModel @Inject constructor(
                             when (it.processStatus) {
                                 ProgressStatus.WAIT_CLOSE_LOCK -> {
                                     showWheelLock = true
-                                    changeState(MapUiState.WheelLock)
+                                    changeState(MapUiState.WheelLock, true)
                                 }
                                 ProgressStatus.WAIT_UPLOAD_PHOTO ->
-                                    changeState(MapUiState.TakePhoto)
+                                    changeState(MapUiState.TakePhoto, true)
                                 ProgressStatus.WAIT_PARKING_FROM_CLIENT -> {
                                     chooseParking = true
-                                    changeState(MapUiState.FinishingRent(false))
-                                    delay(CHANGE_STATE_DELAY)
-                                    changeState(MapUiState.ChooseParking)
+                                    changeState(MapUiState.FinishingRent(false), true)
+                                    changeState(MapUiState.ChooseParking, delay = true)
                                 }
                                 else -> {}
                             }
@@ -182,9 +184,7 @@ class MapViewModel @Inject constructor(
             is MapIntent.ClickActiveRentBar -> {
                 rentUseCase.activeRent?.let {
                     showActiveRentBar = false
-                    viewModelScope.launch {
-                        handleActiveRent(it)
-                    }
+                    handleActiveRent(it)
                 }
             }
             is MapIntent.CloseChooseParking -> {
@@ -194,7 +194,7 @@ class MapViewModel @Inject constructor(
                     handleChooseParking()
                 } else {
                     viewModelScope.launch {
-                        delay(60000)
+                        delay(CHOOSE_PARKING_TIME)
                         chooseParking = false
                     }
                 }
@@ -207,14 +207,14 @@ class MapViewModel @Inject constructor(
                 if (intent.filePath != null) {
                     // TODO: temp
 //                    rentUseCase.updateActiveRent(false, {}) { _ -> }
+                    changeState(MapUiState.Loading(true))
                     rentUseCase.uploadPhotoAndFinishRent(
                         intent.filePath,
                         { showError(it) }
                     ) {
                         if (it.status?.isDone() == true) {
-                            changeState(MapUiState.FinishingRent(false))
-                            delay(CHANGE_STATE_DELAY)
-                            changeState(MapUiState.FinishedRent(rentUseCase.activeRent))
+                            changeState(MapUiState.FinishingRent(false), true)
+                            changeState(MapUiState.FinishedRent(rentUseCase.activeRent), delay = true)
                         } else
                             showError(context.getString(R.string.error_unknown))
                     }
@@ -230,20 +230,14 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    private fun changeState(uiState: MapUiState) {
-        _mapUiState.value = uiState
-    }
-
-    private suspend fun handleActiveRent(activeRent: ActiveRent?) {
+    private fun handleActiveRent(activeRent: ActiveRent?) {
         if (activeRent == null) showActiveRentBar = false
         var show = !showActiveRentBar && activeRent?.rentStatus == MainRentStatus.IN_PROGRESS
         changeState(MapUiState.CurrentRent(activeRent, show))
-        delay(CHANGE_STATE_DELAY)
         show = !showActiveRentBar && !showWheelLock && !chooseParking &&
                 activeRent?.rentStatus == MainRentStatus.CHECK_END
-        changeState(MapUiState.FinishingRent(show))
-        delay(CHANGE_STATE_DELAY)
-        changeState(MapUiState.ActiveRentBar(showActiveRentBar))
+        changeState(MapUiState.FinishingRent(show), delay = true)
+        changeState(MapUiState.ActiveRentBar(showActiveRentBar), delay = true)
     }
 
     private fun onBikeClick(id: String) {
@@ -274,20 +268,34 @@ class MapViewModel @Inject constructor(
         chooseParking = false
 
         rentUseCase.activeRent?.let { rent ->
+            changeState(MapUiState.Loading(true))
             rentUseCase.chooseParking(
                 rent.rentId, ChooseParkingParams(rent.deviceId, id),
                 { showError(it) }
             ) {
-                changeState(MapUiState.FinishingRent(true))
+                changeState(MapUiState.FinishingRent(true), true)
             }
         }
     }
 
-    private fun showError(msg: String?) =
-        msg?.let { changeState(MapUiState.Error(context.getString(R.string.error_title), it)) }
+    private fun changeState(uiState: MapUiState, stopLoading: Boolean = false, delay: Boolean = false) {
+        viewModelScope.launch {
+            if (stopLoading)
+                _mapUiState.value = MapUiState.Loading(false)
+            if (stopLoading || delay)
+                delay(CHANGE_STATE_DELAY)
+            _mapUiState.value = uiState
+        }
+    }
+
+    private fun showError(msg: String?) {
+        changeState(MapUiState.Loading(false))
+        msg?.let { changeState(MapUiState.Error(context.getString(R.string.error_title), it), delay = true) }
+    }
 
     companion object {
-        private const val CHANGE_STATE_DELAY = 500L
+        private const val CHANGE_STATE_DELAY = 50L
+        private const val CHOOSE_PARKING_TIME = 60000L
         private const val UNDEFINED_PARKING = "undefined"
     }
 }

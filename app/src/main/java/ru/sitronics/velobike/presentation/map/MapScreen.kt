@@ -17,6 +17,7 @@ import ru.sitronics.velobike.presentation.rent.ActiveRentDialog
 import ru.sitronics.velobike.presentation.rent.ChooseParkingDialog
 import ru.sitronics.velobike.presentation.rent.FinishedRentDialog
 import ru.sitronics.velobike.presentation.rent.FinishingRentDialog
+import ru.sitronics.velobike.presentation.rent.LoadingBar
 import ru.sitronics.velobike.presentation.rent.ScanQrCodeDialog
 import ru.sitronics.velobike.presentation.rent.TakePhoto
 import ru.sitronics.velobike.presentation.rent.WheelLockDialog
@@ -84,6 +85,8 @@ fun MapScreen(
         }
 
         ErrorDialog(mapUiState) { onAction(MapIntent.ResetState) }
+
+        LoadingBar(mapUiState)
 
 /*
             if (uiState.dialogState) {

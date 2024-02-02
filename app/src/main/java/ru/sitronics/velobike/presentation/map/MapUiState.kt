@@ -23,7 +23,8 @@ sealed class MapUiState {
     object WheelLock : MapUiState()
     object TakePhoto : MapUiState()
     data class FinishedRent(val activeRent: ActiveRent?) : MapUiState()
-    data class Error(val title: String, val text: String): MapUiState()
+    data class Error(val title: String, val text: String) : MapUiState()
+    data class Loading(val show: Boolean) : MapUiState()
 }
 
 sealed class MapIntent {
