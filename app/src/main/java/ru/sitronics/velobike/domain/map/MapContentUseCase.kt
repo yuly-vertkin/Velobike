@@ -173,7 +173,7 @@ class MapContentUseCase @Inject constructor(
     }
 
     fun updateMoveZones(
-        onError: (String?) -> Unit, onSuccess: (List<MoveZone>) -> Unit
+        onError: suspend (String?) -> Unit, onSuccess: (List<MoveZone>) -> Unit
     ) {
         if (mapContentRepository.getData().moveZones == null) {
             processNetworkCall(

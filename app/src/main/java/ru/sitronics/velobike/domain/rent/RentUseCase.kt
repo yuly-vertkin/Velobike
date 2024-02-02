@@ -1,6 +1,7 @@
 package ru.sitronics.velobike.domain.rent
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.map.Bike
@@ -34,7 +35,7 @@ class RentUseCase @Inject constructor(
 
     fun startRent(
         bikeId: String, latitude: Double?, longitude: Double?,
-        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit
+        onError: suspend (String?) -> Unit, onSuccess: suspend (ActiveRent?) -> Unit
     ) {
         val params = StartRentParams(
             bikeSerialNumber = bikeId,
@@ -74,7 +75,7 @@ class RentUseCase @Inject constructor(
 
     fun finishRent(
         latitude: Double?, longitude: Double?,
-        onError: (String?) -> Unit, onSuccess: suspend (ActiveRent?) -> Unit
+        onError: suspend (String?) -> Unit, onSuccess: suspend (ActiveRent?) -> Unit
     ) {
         if (activeRent == null) return
 
@@ -113,7 +114,7 @@ class RentUseCase @Inject constructor(
 
     fun checkRentStatus(
         rentId: Int, deviceId: String,
-        onError: ((String?) -> Unit)? = null, onSuccess: (suspend (RentStatus) -> Unit)? = null
+        onError: (suspend (String?) -> Unit)? = null, onSuccess: (suspend (RentStatus) -> Unit)? = null
         ) {
         Logg.d("!!!! checkRentStatus start")
         processNetworkCall(
@@ -134,7 +135,7 @@ class RentUseCase @Inject constructor(
 
     fun chooseParking(
         rentId: Int, params: ChooseParkingParams,
-        onError: (String?) -> Unit, onSuccess: suspend () -> Unit
+        onError: suspend (String?) -> Unit, onSuccess: suspend () -> Unit
     ) {
         Logg.d("!!!! chooseParking start")
         processNetworkCall(
@@ -161,7 +162,7 @@ class RentUseCase @Inject constructor(
 
     fun uploadPhotoAndFinishRent(
         filePath: String,
-        onError: (String?) -> Unit, onSuccess: suspend (RentStatus) -> Unit
+        onError: suspend (String?) -> Unit, onSuccess: suspend (RentStatus) -> Unit
     ) {
         uploadPhotoRent(filePath, onError) {
             finishRentAfterUploadPhoto(onError, onSuccess)
@@ -170,7 +171,7 @@ class RentUseCase @Inject constructor(
 
     fun uploadPhotoRent(
         filePath: String,
-        onError: (String?) -> Unit, onSuccess: suspend () -> Unit
+        onError: suspend (String?) -> Unit, onSuccess: suspend () -> Unit
     ) {
         Logg.d("!!!! uploadPhotoRent start")
         processNetworkCall(
@@ -194,7 +195,7 @@ class RentUseCase @Inject constructor(
     }
 
     fun finishRentAfterUploadPhoto(
-        onError: (String?) -> Unit, onSuccess: suspend (RentStatus) -> Unit
+        onError: suspend (String?) -> Unit, onSuccess: suspend (RentStatus) -> Unit
     ) {
         Logg.d("!!!! finishRentAfterUploadPhoto start")
         processNetworkCall(
@@ -219,7 +220,7 @@ class RentUseCase @Inject constructor(
 
     fun updateActiveRent(
         isStart: Boolean,
-        onError: (String?) -> Unit,
+        onError: suspend (String?) -> Unit,
         onSuccess: suspend (ActiveRent?) -> Unit,
     ) {
         if (isStart && activeRentUpdateTask == null) {
@@ -233,7 +234,7 @@ class RentUseCase @Inject constructor(
     }
 
     private fun checkActiveRent(
-        onError: (String?) -> Unit, onSuccess: suspend (ActiveRent?) -> Unit
+        onError: suspend (String?) -> Unit, onSuccess: suspend (ActiveRent?) -> Unit
     ) {
         processNetworkCall(
             action = { rentRepository.checkActiveRent() },
@@ -253,7 +254,7 @@ class RentUseCase @Inject constructor(
     }
 
     private fun checkActiveRentOld(
-        onError: (String?) -> Unit, onSuccess: suspend (ActiveRent?) -> Unit
+        onError: suspend (String?) -> Unit, onSuccess: suspend (ActiveRent?) -> Unit
     ) {
         userId?.let {
             processNetworkCall(
@@ -270,7 +271,7 @@ class RentUseCase @Inject constructor(
             )
         } ?: {
             Logg.d("!!!! no user error")
-            onError(null)
+            scope.launch { onError(null) }
         }
     }
 

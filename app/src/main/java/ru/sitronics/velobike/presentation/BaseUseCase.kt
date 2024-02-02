@@ -23,7 +23,7 @@ abstract class BaseUseCase(appContextProvider: AppContextProvider) {
     protected fun <T> processNetworkCall(
         action: () -> Flow<Result<T>>,
         onSuccess: (suspend (T) -> Unit)? = null,
-        onError: ((Throwable) -> Unit)? = null,
+        onError: (suspend (Throwable) -> Unit)? = null,
         force: Boolean = false,
         callName: String = DEFAULT_CALL_NAME
     ) {
