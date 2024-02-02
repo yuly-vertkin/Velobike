@@ -127,6 +127,7 @@ class MapViewModel @Inject constructor(
                                 id, intent.latitude, intent.longitude,
                                 { showError(it) }
                             ) { activeRent ->
+                                delay(CHANGE_STATE_DELAY)
                                 changeStates(MapUiState.CurrentRent(activeRent, true), true)
                             }
                         } else {
