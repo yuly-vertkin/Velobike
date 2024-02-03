@@ -2,10 +2,15 @@ package ru.sitronics.velobike.presentation.map
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
@@ -27,6 +32,8 @@ class MapViewModel @Inject constructor(
     private val mapContentUseCase: MapContentUseCase,
     appContextProvider: AppContextProvider,
 ) : BaseViewModel(appContextProvider) {
+    private val mapUiStates: MutableSharedFlow<MapUiState> = MutableSharedFlow(replay = 10, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    private lateinit var mapUiStatesJob: Job
     private val _mapUiState: MutableStateFlow<MapUiState> = MutableStateFlow(MapUiState.Normal)
     val mapUiState: StateFlow<MapUiState> = _mapUiState.asStateFlow()
     private var showActiveRentBar: Boolean = false
@@ -44,6 +51,8 @@ class MapViewModel @Inject constructor(
                 changeState(MapUiState.Normal)
             }
             is MapIntent.MapStart -> {
+                initStates()
+
                 rentUseCase.onMapStart()
 
                 mapContentUseCase.updateMoveZones({ showError(it) }) { moveZones ->
@@ -55,6 +64,8 @@ class MapViewModel @Inject constructor(
                 }
             }
             is MapIntent.MapStop -> {
+                closeStates()
+
                 rentUseCase.updateActiveRent(false, {}) { _ -> }
             }
             is MapIntent.ChangeMapPosition -> {
@@ -106,7 +117,7 @@ class MapViewModel @Inject constructor(
                             id, intent.latitude, intent.longitude,
                             { showError(it) }
                         ) { activeRent ->
-                            changeStates(MapUiState.CurrentRent(activeRent, true), true)
+                            changeState(MapUiState.CurrentRent(activeRent, true), true)
                         }
                     } else {
                         changeState(MapUiState.QrScan(show = true, fromBikeDetail = true))
@@ -117,23 +128,19 @@ class MapViewModel @Inject constructor(
                 changeState(MapUiState.QrScan(true))
             }
             is MapIntent.CloseQrScan -> {
-                viewModelScope.launch {
-                    changeState(MapUiState.QrScan(false))
-                    delay(CHANGE_STATE_DELAY)
-                    intent.id?.let { id ->
-                        if (intent.fromBikeDetail) {
-                            changeState(MapUiState.Loading(true))
-                            rentUseCase.startRent(
-                                id, intent.latitude, intent.longitude,
-                                { showError(it) }
-                            ) { activeRent ->
-                                delay(CHANGE_STATE_DELAY)
-                                changeStates(MapUiState.CurrentRent(activeRent, true), true)
-                            }
-                        } else {
-                            mapContentUseCase.runWithBike(id) { bike ->
-                                changeState(MapUiState.BikeDetail(bike, fromQrScan = true))
-                            }
+                changeState(MapUiState.QrScan(false))
+                intent.id?.let { id ->
+                    if (intent.fromBikeDetail) {
+                        changeState(MapUiState.Loading(true))
+                        rentUseCase.startRent(
+                            id, intent.latitude, intent.longitude,
+                            { showError(it) }
+                        ) { activeRent ->
+                            changeState(MapUiState.CurrentRent(activeRent, true), true)
+                        }
+                    } else {
+                        mapContentUseCase.runWithBike(id) { bike ->
+                            changeState(MapUiState.BikeDetail(bike, fromQrScan = true))
                         }
                     }
                 }
@@ -147,7 +154,7 @@ class MapViewModel @Inject constructor(
                         intent.latitude, intent.longitude,
                         { showError(it) }
                     ) { activeRent ->
-                        changeStates(MapUiState.FinishingRent(true), true)
+                        changeState(MapUiState.FinishingRent(true), true)
                     }
                 } else {
                     changeState(MapUiState.ActiveRentBar(true))
@@ -163,17 +170,19 @@ class MapViewModel @Inject constructor(
                             rent.rentId, rent.deviceId,
                             { showError(it) }
                         ) {
+                            changeState(MapUiState.Loading(false))
+
                             when (it.processStatus) {
                                 ProgressStatus.WAIT_CLOSE_LOCK -> {
                                     showWheelLock = true
-                                    changeStates(MapUiState.WheelLock, true)
+                                    changeState(MapUiState.WheelLock)
                                 }
                                 ProgressStatus.WAIT_UPLOAD_PHOTO ->
-                                    changeStates(MapUiState.TakePhoto, true)
+                                    changeState(MapUiState.TakePhoto)
                                 ProgressStatus.WAIT_PARKING_FROM_CLIENT -> {
                                     chooseParking = true
-                                    changeStates(MapUiState.FinishingRent(false), true)
-                                    changeStates(MapUiState.ChooseParking, delay = true)
+                                    changeState(MapUiState.FinishingRent(false))
+                                    changeState(MapUiState.ChooseParking)
                                 }
                                 else -> {}
                             }
@@ -192,11 +201,10 @@ class MapViewModel @Inject constructor(
                 }
             }
             is MapIntent.CloseChooseParking -> {
-                changeState(MapUiState.Normal)
-
                 if (intent.isClicked) {
                     handleChooseParking()
                 } else {
+                    changeState(MapUiState.Normal)
                     viewModelScope.launch {
                         delay(CHOOSE_PARKING_TIME)
                         chooseParking = false
@@ -217,8 +225,8 @@ class MapViewModel @Inject constructor(
                         { showError(it) }
                     ) {
                         if (it.status?.isDone() == true) {
-                            changeStates(MapUiState.FinishingRent(false), true)
-                            changeStates(MapUiState.FinishedRent(rentUseCase.activeRent), delay = true)
+                            changeState(MapUiState.FinishingRent(false), true)
+                            changeState(MapUiState.FinishedRent(rentUseCase.activeRent))
                         } else
                             showError(context.getString(R.string.error_unknown))
                     }
@@ -234,14 +242,14 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    private suspend fun handleActiveRent(activeRent: ActiveRent?) {
+    private fun handleActiveRent(activeRent: ActiveRent?) {
         if (activeRent == null) showActiveRentBar = false
         var show = !showActiveRentBar && activeRent?.rentStatus == MainRentStatus.IN_PROGRESS
-        changeStates(MapUiState.CurrentRent(activeRent, show))
+        changeState(MapUiState.CurrentRent(activeRent, show))
         show = !showActiveRentBar && !showWheelLock && !chooseParking &&
                 activeRent?.rentStatus == MainRentStatus.CHECK_END
-        changeStates(MapUiState.FinishingRent(show), delay = true)
-        changeStates(MapUiState.ActiveRentBar(showActiveRentBar), delay = true)
+        changeState(MapUiState.FinishingRent(show))
+        changeState(MapUiState.ActiveRentBar(showActiveRentBar))
     }
 
     private fun onBikeClick(id: String) {
@@ -277,26 +285,31 @@ class MapViewModel @Inject constructor(
                 rent.rentId, ChooseParkingParams(rent.deviceId, id),
                 { showError(it) }
             ) {
-                changeStates(MapUiState.FinishingRent(true), true)
+                changeState(MapUiState.FinishingRent(true), true)
             }
         }
     }
 
-    private fun changeState(uiState: MapUiState) {
-        _mapUiState.value = uiState
-    }
-
-    private suspend fun changeStates(uiState: MapUiState, stopLoading: Boolean = false, delay: Boolean = false) {
-        if (stopLoading)
-            _mapUiState.value = MapUiState.Loading(false)
-        if (stopLoading || delay)
-            delay(CHANGE_STATE_DELAY)
-        _mapUiState.value = uiState
-    }
-
-    private suspend fun showError(msg: String?) {
+    private fun showError(msg: String?) {
         changeState(MapUiState.Loading(false))
-        msg?.let { changeStates(MapUiState.Error(context.getString(R.string.error_title), it), delay = true) }
+        msg?.let { changeState(MapUiState.Error(context.getString(R.string.error_title), it)) }
+    }
+
+    private fun initStates() {
+        mapUiStatesJob = mapUiStates.onEach {
+            delay(CHANGE_STATE_DELAY)
+            _mapUiState.value = it
+        }.launchIn(viewModelScope)
+    }
+
+    private fun closeStates() {
+        mapUiStatesJob.cancel()
+    }
+
+    private fun changeState(uiState: MapUiState, stopLoading: Boolean = false) {
+        if (stopLoading)
+            mapUiStates.tryEmit(MapUiState.Loading(false))
+        mapUiStates.tryEmit(uiState)
     }
 
     companion object {

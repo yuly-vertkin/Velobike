@@ -35,7 +35,7 @@ class RentUseCase @Inject constructor(
 
     fun startRent(
         bikeId: String, latitude: Double?, longitude: Double?,
-        onError: suspend (String?) -> Unit, onSuccess: suspend (ActiveRent?) -> Unit
+        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit
     ) {
         val params = StartRentParams(
             bikeSerialNumber = bikeId,
@@ -75,7 +75,7 @@ class RentUseCase @Inject constructor(
 
     fun finishRent(
         latitude: Double?, longitude: Double?,
-        onError: suspend (String?) -> Unit, onSuccess: suspend (ActiveRent?) -> Unit
+        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit
     ) {
         if (activeRent == null) return
 
@@ -114,7 +114,7 @@ class RentUseCase @Inject constructor(
 
     fun checkRentStatus(
         rentId: Int, deviceId: String,
-        onError: (suspend (String?) -> Unit)? = null, onSuccess: (suspend (RentStatus) -> Unit)? = null
+        onError: ((String?) -> Unit)? = null, onSuccess: ((RentStatus) -> Unit)? = null
         ) {
         Logg.d("!!!! checkRentStatus start")
         processNetworkCall(
@@ -135,7 +135,7 @@ class RentUseCase @Inject constructor(
 
     fun chooseParking(
         rentId: Int, params: ChooseParkingParams,
-        onError: suspend (String?) -> Unit, onSuccess: suspend () -> Unit
+        onError: (String?) -> Unit, onSuccess: () -> Unit
     ) {
         Logg.d("!!!! chooseParking start")
         processNetworkCall(
@@ -162,7 +162,7 @@ class RentUseCase @Inject constructor(
 
     fun uploadPhotoAndFinishRent(
         filePath: String,
-        onError: suspend (String?) -> Unit, onSuccess: suspend (RentStatus) -> Unit
+        onError: (String?) -> Unit, onSuccess: (RentStatus) -> Unit
     ) {
         uploadPhotoRent(filePath, onError) {
             finishRentAfterUploadPhoto(onError, onSuccess)
@@ -171,7 +171,7 @@ class RentUseCase @Inject constructor(
 
     fun uploadPhotoRent(
         filePath: String,
-        onError: suspend (String?) -> Unit, onSuccess: suspend () -> Unit
+        onError: (String?) -> Unit, onSuccess: () -> Unit
     ) {
         Logg.d("!!!! uploadPhotoRent start")
         processNetworkCall(
@@ -195,7 +195,7 @@ class RentUseCase @Inject constructor(
     }
 
     fun finishRentAfterUploadPhoto(
-        onError: suspend (String?) -> Unit, onSuccess: suspend (RentStatus) -> Unit
+        onError: (String?) -> Unit, onSuccess: (RentStatus) -> Unit
     ) {
         Logg.d("!!!! finishRentAfterUploadPhoto start")
         processNetworkCall(
@@ -220,8 +220,7 @@ class RentUseCase @Inject constructor(
 
     fun updateActiveRent(
         isStart: Boolean,
-        onError: suspend (String?) -> Unit,
-        onSuccess: suspend (ActiveRent?) -> Unit,
+        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit,
     ) {
         if (isStart && activeRentUpdateTask == null) {
             activeRentUpdateTask = Timer().schedule(0, CHECK_ACTIVE_RENT_DELAY) {
@@ -234,7 +233,7 @@ class RentUseCase @Inject constructor(
     }
 
     private fun checkActiveRent(
-        onError: suspend (String?) -> Unit, onSuccess: suspend (ActiveRent?) -> Unit
+        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit
     ) {
         processNetworkCall(
             action = { rentRepository.checkActiveRent() },
@@ -254,7 +253,7 @@ class RentUseCase @Inject constructor(
     }
 
     private fun checkActiveRentOld(
-        onError: suspend (String?) -> Unit, onSuccess: suspend (ActiveRent?) -> Unit
+        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit
     ) {
         userId?.let {
             processNetworkCall(
@@ -275,7 +274,9 @@ class RentUseCase @Inject constructor(
         }
     }
 
-    private suspend fun onCheckActiveRentSuccess(rent: ActiveRent?, onSuccess: suspend (ActiveRent?) -> Unit) {
+    private fun onCheckActiveRentSuccess(
+        rent: ActiveRent?, onSuccess: (ActiveRent?) -> Unit
+    ) {
         Logg.d("!!!! checkActiveRent ${activeRent?.rentStatus?.name} ${rent?.rentStatus?.name}")
         activeRent = rent
         runWithBike(activeRent?.frameNumber) { bike ->
@@ -284,7 +285,7 @@ class RentUseCase @Inject constructor(
         }
     }
 
-    private suspend fun runWithBike(id: String?, action: suspend (Bike?) -> Unit) {
+    private fun runWithBike(id: String?, action: (Bike?) -> Unit) {
         if (id == null) {
             action(null)
             return
