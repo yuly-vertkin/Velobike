@@ -45,7 +45,15 @@ fun ProfileScreen(
         }
         is ProfileUiState.Tariffs -> {
             val tariffs = (profileUiState as? ProfileUiState.Tariffs)?.tariffs ?: emptyList()
-            TariffScreen(tariffs, onAction)
+            TariffScreen(tariffs) {
+                onAction(ProfileIntent.CloseTariffs(it))
+            }
+        }
+        is ProfileUiState.TariffDetail -> {
+            val tariff = (profileUiState as? ProfileUiState.TariffDetail)?.tariff
+            TariffDetail(tariff!!) {
+                onAction(ProfileIntent.CloseTariffDetail(it))
+            }
         }
         is ProfileUiState.Error -> {
             val uiState = profileUiState as ProfileUiState.Error

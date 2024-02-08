@@ -6,11 +6,13 @@ import ru.sitronics.velobike.domain.profile.Tariff
 sealed class ProfileUiState {
     data class Normal(val profile: Profile?) : ProfileUiState()
     data class Tariffs(val tariffs: List<Tariff>) : ProfileUiState()
+    data class TariffDetail(val tariff: Tariff) : ProfileUiState()
     data class Error(val title: String, val text: String) : ProfileUiState()
 }
 
 sealed class ProfileIntent {
     object GetTariffs : ProfileIntent()
     data class CloseTariffs(val tariff: Tariff? = null) : ProfileIntent()
+    data class CloseTariffDetail(val tariff: Tariff? = null) : ProfileIntent()
     object CloseError : ProfileIntent()
 }

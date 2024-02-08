@@ -30,7 +30,15 @@ class ProfileViewModel @Inject constructor(
                 getTariffs()
             }
             is ProfileIntent.CloseTariffs -> {
-                getProfile()
+                intent.tariff?.let {
+                    changeState(ProfileUiState.TariffDetail(it))
+                } ?: getProfile()
+            }
+            is ProfileIntent.CloseTariffDetail -> {
+                intent.tariff?.let {
+                    // TODO: buy tariff
+                    showError("buy tariff")
+                } ?: getTariffs()
             }
             is ProfileIntent.CloseError -> {
                 val profile = profileRepository.getData().profile

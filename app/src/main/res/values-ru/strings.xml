@@ -93,6 +93,7 @@
     <string name="choose_tariff">Выберите тариф</string>
     <string name="old_bike_tab">Механик/Электро</string>
     <string name="new_bike_tab">Электро 2.0</string>
+    <string name="access_cost">Стоимость доступа</string>
 
     <!-- Help -->
     <string name="help">Помощь</string>

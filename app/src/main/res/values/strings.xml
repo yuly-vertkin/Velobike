@@ -94,6 +94,7 @@
     <string name="choose_tariff">Choose tariff</string>
     <string name="old_bike_tab">Mechanical/Electrical</string>
     <string name="new_bike_tab">Electrical 2.0</string>
+    <string name="access_cost">Access cost</string>
 
     <!-- Help -->
     <string name="help">Help</string>

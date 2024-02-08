@@ -1,7 +1,7 @@
 package ru.sitronics.velobike.presentation.profile
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -19,8 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,7 +35,7 @@ import ru.sitronics.velobike.ui.theme.HeaderBackgroundColor
 @Composable
 fun TariffScreen(
     tariffs: List<Tariff>,
-    onAction: (ProfileIntent) -> Unit,
+    onAction: (Tariff?) -> Unit,
 ) {
     val context = LocalContext.current
     val tabData = listOf(context.getString(R.string.old_bike_tab), context.getString(R.string.new_bike_tab))
@@ -69,19 +66,22 @@ fun TariffScreen(
             val curTariffs = tariffs.filter {
                 it.tariffBikeType == TariffBikeType.values()[i]
             }
-            TariffContent(curTariffs)
+            TariffContent(curTariffs) {
+                onAction(it)
+            }
         }
     }
 
-    BackPressHandler(onBackPressed = { onAction(ProfileIntent.CloseTariffs()) })
+    BackPressHandler(onBackPressed = { onAction(null) })
 }
 
 @Composable
-fun TariffContent(tariffs: List<Tariff>) {
+fun TariffContent(tariffs: List<Tariff>, onClick: (Tariff) -> Unit) {
     LazyColumn {
         items(tariffs) { tariff ->
             Row(
                 modifier = Modifier
+                    .clickable { onClick(tariff) }
                     .padding(horizontal = 16.dp)
                     .padding(top = 16.dp)
             ) {
