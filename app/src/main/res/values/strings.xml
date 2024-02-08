@@ -91,6 +91,9 @@
     <string name="profile_password">Password\n%s</string>
     <string name="tariff">Tariff</string>
     <string name="buy_tariff">Buy access</string>
+    <string name="choose_tariff">Choose tariff</string>
+    <string name="old_bike_tab">Mechanical/Electrical</string>
+    <string name="new_bike_tab">Electrical 2.0</string>
 
     <!-- Help -->
     <string name="help">Help</string>

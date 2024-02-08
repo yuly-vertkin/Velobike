@@ -29,8 +29,12 @@ class ProfileViewModel @Inject constructor(
             is ProfileIntent.GetTariffs -> {
                 getTariffs()
             }
-            is ProfileIntent.CloseError -> {
+            is ProfileIntent.CloseTariffs -> {
                 getProfile()
+            }
+            is ProfileIntent.CloseError -> {
+                val profile = profileRepository.getData().profile
+                changeState(ProfileUiState.Normal(profile))
             }
         }
     }
