@@ -174,7 +174,6 @@ fun ShowMessageDialog(msg: String?, onClick: () -> Unit) {
         dialogText = msg ?: context.getString(R.string.warning),
         icon = Icons.Default.Warning
     )
-
 }
 
 @Preview(showBackground = true/*, widthDp = 500, heightDp = 500*/)

@@ -27,11 +27,16 @@ class SecureInterceptor @Inject constructor() : Interceptor {
             .add(VERSION_KEY, BuildConfig.VERSION_NAME)
             .add(HASH_KEY, hash)
             .add(TIMESTAMP_KEY, timestamp)
+            .add(USER_AGENT_KEY, getUserAgentInfo())
             .build()
 
         request = request.newBuilder().headers(headers).build()
 
         return chain.proceed(request)
+    }
+
+    private fun getUserAgentInfo(): String {
+        return "${Build.MODEL};Android;${Build.VERSION.SDK_INT};${BuildConfig.VERSION_NAME}"
     }
 
     companion object {
@@ -41,6 +46,7 @@ class SecureInterceptor @Inject constructor() : Interceptor {
         private val VERSION_KEY = "App-Version"
         private val HASH_KEY = "Hash"
         private val TIMESTAMP_KEY = "Timestamp"
+        private val USER_AGENT_KEY = "User-Agent"
     }
 }
 

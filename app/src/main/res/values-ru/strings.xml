@@ -88,6 +88,8 @@
     <string name="profile_title">Кабинет</string>
     <string name="profile_login">Логин\n%s</string>
     <string name="profile_password">Пароль\n%s</string>
+    <string name="tariff">Тариф</string>
+    <string name="buy_tariff">Купить доступ</string>
 
     <!-- Help -->
     <string name="help">Помощь</string>

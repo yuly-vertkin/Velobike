@@ -6,8 +6,8 @@ import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.map.Bike
 import ru.sitronics.velobike.domain.map.MapContentRepository
-import ru.sitronics.velobike.domain.profile.ProfileData
 import ru.sitronics.velobike.domain.profile.ProfileRepository
+import ru.sitronics.velobike.domain.profile.Tariff
 import ru.sitronics.velobike.presentation.BaseUseCase
 import ru.sitronics.velobike.tools.Logg
 import java.util.Timer
@@ -319,13 +319,41 @@ class RentUseCase @Inject constructor(
             processNetworkCall(
                 action = { profileRepository.getProfile() },
                 onSuccess = {
-                    val profileData = ProfileData(it)
+                    Logg.d("!!!! getProfile success")
+                    val profileData = profileRepository.getData().copy(
+                        profile = it
+                    )
                     profileRepository.saveData(profileData)
                     userId = it.userId
-                    Logg.d("!!!! getProfile success")
                 },
-                onError = { },
+                onError = { Logg.d("!!!! getProfile error") },
                 callName = "getProfile"
+            )
+        }
+    }
+
+    private fun getTariffs(
+        onError: (String?) -> Unit, onSuccess: (List<Tariff>) -> Unit
+    ) {
+        val tariffs = profileRepository.getData().tariffs
+        if (tariffs != null) {
+            onSuccess(tariffs)
+        } else {
+            processNetworkCall(
+                action = { profileRepository.getTariffs() },
+                onSuccess = {
+                    Logg.d("!!!! getTariffs success")
+                    val profileData = profileRepository.getData().copy(
+                        tariffs = it
+                    )
+                    profileRepository.saveData(profileData)
+                    onSuccess(it)
+                },
+                onError = {
+                    Logg.d("!!!! getTariffs error")
+                    onError("getTariffs error")
+                },
+                callName = "getTariffs"
             )
         }
     }

@@ -5,9 +5,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,16 +28,41 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.profile.Profile
+import ru.sitronics.velobike.presentation.SimpleDialog
 
 @Composable
 fun ProfileScreen(
     contentPadding: PaddingValues,
     profileViewModel: ProfileViewModel = viewModel()
 ) {
-    val context = LocalContext.current
     val profileUiState by profileViewModel.profileUiState.collectAsStateWithLifecycle()
-    val profile = if (profileUiState is ProfileUiState.Normal) (profileUiState as ProfileUiState.Normal).profile
-                  else Profile.empty
+    val onAction: (ProfileIntent) -> Unit = { intent -> profileViewModel.handleIntent(intent) }
+
+    when(profileUiState) {
+        is ProfileUiState.Normal -> {
+            val profile = (profileUiState as? ProfileUiState.Normal)?.profile ?: Profile.empty
+            ProfileScreenInt(contentPadding, profile, onAction)
+        }
+        is ProfileUiState.Tariffs -> {
+            val tariffs = (profileUiState as? ProfileUiState.Tariffs)?.tariffs ?: emptyList()
+            TariffScreen(tariffs, onAction)
+        }
+        is ProfileUiState.Error -> {
+            val uiState = profileUiState as ProfileUiState.Error
+            ShowMessageDialog(uiState.text) {
+                onAction(ProfileIntent.CloseError)
+            }
+        }
+    }
+}
+
+@Composable
+fun ProfileScreenInt(
+    contentPadding: PaddingValues,
+    profile: Profile,
+    onAction: (ProfileIntent) -> Unit,
+) {
+    val context = LocalContext.current
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -68,5 +97,31 @@ fun ProfileScreen(
             text = "${profile.firstName} ${profile.lastName}",
             modifier = Modifier.padding(16.dp)
         )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
+            Text(
+                text = context.getString(R.string.tariff),
+                modifier = Modifier.weight(1f)
+            )
+            Button(onClick = { onAction(ProfileIntent.GetTariffs) }) {
+                Text(text = context.getString(R.string.buy_tariff))
+            }
+        }
     }
+}
+
+@Composable
+fun ShowMessageDialog(msg: String?, onClick: () -> Unit) {
+    val context = LocalContext.current
+
+    SimpleDialog(
+        onDismissRequest = { onClick() },
+        onConfirmation = { onClick() },
+        dialogTitle = context.getString(R.string.warning),
+        dialogText = msg ?: context.getString(R.string.warning),
+        icon = Icons.Default.Warning
+    )
 }

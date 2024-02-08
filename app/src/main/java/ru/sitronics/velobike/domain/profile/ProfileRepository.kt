@@ -7,4 +7,6 @@ interface ProfileRepository {
     fun getData(): ProfileData
     fun saveData(data: ProfileData)
     fun getProfile() : Flow<Result<Profile>>
+    fun getTariffs() : Flow<Result<List<Tariff>>>
+    fun getTariff(id: String) : Flow<Result<Tariff>>
 }
