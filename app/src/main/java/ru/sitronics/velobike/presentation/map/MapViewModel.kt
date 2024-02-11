@@ -282,7 +282,7 @@ class MapViewModel @Inject constructor(
         rentUseCase.activeRent?.let { rent ->
             changeState(MapUiState.Loading(true))
             rentUseCase.chooseParking(
-                rent.rentId, ChooseParkingParams(rent.deviceId, id),
+                rent.rentId, ChooseParkingParams(id),
                 { showError(it) }
             ) {
                 changeState(MapUiState.FinishingRent(true), true)

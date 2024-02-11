@@ -6,10 +6,13 @@ import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.data.network.ProfileService
 import ru.sitronics.velobike.data.repositories.BaseRepository
+import ru.sitronics.velobike.domain.profile.Card
 import ru.sitronics.velobike.domain.profile.Profile
 import ru.sitronics.velobike.domain.profile.ProfileData
 import ru.sitronics.velobike.domain.profile.ProfileRepository
 import ru.sitronics.velobike.domain.profile.Tariff
+import ru.sitronics.velobike.domain.profile.TariffPayment
+import ru.sitronics.velobike.domain.profile.TariffPaymentParams
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,4 +38,10 @@ class ProfileRepositoryImp @Inject constructor(
 
     override fun getTariff(id: String) : Flow<Result<Tariff>> =
         callAction { service.getTariff(id) }
+
+    override fun getCards(): Flow<Result<List<Card>>> =
+        callAction { service.getCards() }
+
+    override fun payTariff(params: TariffPaymentParams): Flow<Result<TariffPayment>> =
+        callAction { service.payTariff(params) }
 }

@@ -8,6 +8,7 @@
     <string name="cancel_btn">Cancel</string>
 
 <!-- Errors -->
+    <string name="success">Success!</string>
     <string name="error_title">Error</string>
     <string name="error_no_network">No network</string>
     <string name="error_unknown">Unknown error</string>
@@ -89,12 +90,16 @@
     <string name="profile_title">Profile</string>
     <string name="profile_login">Login\n%s</string>
     <string name="profile_password">Password\n%s</string>
+    <string name="tariff_name">Tariff %s</string>
+    <string name="tariff_end">Active until %s</string>
+    <string name="no_tariff">No active tariff</string>
     <string name="tariff">Tariff</string>
     <string name="buy_tariff">Buy access</string>
     <string name="choose_tariff">Choose tariff</string>
     <string name="old_bike_tab">Mechanical/Electrical</string>
     <string name="new_bike_tab">Electrical 2.0</string>
     <string name="access_cost">Access cost</string>
+    <string name="error_no_active_card">No active card found</string>
 
     <!-- Help -->
     <string name="help">Help</string>

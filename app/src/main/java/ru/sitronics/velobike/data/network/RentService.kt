@@ -18,7 +18,7 @@ import ru.sitronics.velobike.domain.rent.StartRentParams
 
 interface RentService {
     @GET("api/rent/rents/{rentId}/checkRentStatus")
-    suspend fun checkStatus(@Path("rentId") rentId: Int, @Query("deviceId") deviceId: String) : RentStatus
+    suspend fun checkStatus(@Path("rentId") rentId: Int, @Query("frameNumber") frameNumber: String) : RentStatus
 
     @GET("api/rent/rents/not-finished/user")
     suspend fun checkActiveRent() : List<ActiveRent>
@@ -34,7 +34,7 @@ interface RentService {
 
     @Multipart
     @POST("api/rent/files/{rentId}/uploadPhoto")
-    suspend fun uploadPhotoRent(@Path("rentId") rentId: Int, @Query("deviceId") deviceId: String, @Part image: MultipartBody.Part) : Response<Unit>
+    suspend fun uploadPhotoRent(@Path("rentId") rentId: Int, @Part image: MultipartBody.Part) : Response<Unit>
 
     @POST("api/rent/rents/{rentId}/finishRentAfterUploadPhoto")
     suspend fun finishRentAfterUploadPhoto(@Path("rentId") rentId: Int) : RentStatus

@@ -30,6 +30,7 @@ import ru.sitronics.velobike.tools.BackPressHandler
 @Composable
 fun TariffDetail(
     tariff: Tariff,
+    canBuy: Boolean,
     onAction: (Tariff?) -> Unit,
 ) {
     val context = LocalContext.current
@@ -65,32 +66,34 @@ fun TariffDetail(
             color = Color.Red,
         )
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 64.dp)
-                .padding(top = 200.dp),
-        ) {
-            Checkbox(
-                checked = agree,
-                onCheckedChange = { agree = it }
-            )
-            Text(
-                text = context.getString(R.string.agree),
-                modifier = Modifier.padding(start = 16.dp)
-            )
-        }
+        if (canBuy) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 64.dp)
+                    .padding(top = 200.dp),
+            ) {
+                Checkbox(
+                    checked = agree,
+                    onCheckedChange = { agree = it }
+                )
+                Text(
+                    text = context.getString(R.string.agree),
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
 
-        Button(
-            onClick = { onAction(tariff) },
-            enabled = agree,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            Text(text = context.getString(R.string.buy_tariff))
+            Button(
+                onClick = { onAction(tariff) },
+                enabled = agree,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Text(text = context.getString(R.string.buy_tariff))
+            }
         }
     }
 

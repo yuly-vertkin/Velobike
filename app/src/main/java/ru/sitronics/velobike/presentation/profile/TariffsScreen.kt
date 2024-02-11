@@ -33,7 +33,7 @@ import ru.sitronics.velobike.ui.theme.HeaderBackgroundColor
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TariffScreen(
+fun TariffsScreen(
     tariffs: List<Tariff>,
     onAction: (Tariff?) -> Unit,
 ) {

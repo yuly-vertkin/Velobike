@@ -54,7 +54,7 @@ class RentUseCase @Inject constructor(
                 delay(CHECK_RENT_STATUS_DELAY)
 
                 while (rentStatus?.status == MainRentStatus.CHECK_START) {
-                    checkRentStatus(it.id, it.deviceId ?: "")
+                    checkRentStatus(it.id, it.bikeSerialNumber ?: "")
                     delay(CHECK_RENT_STATUS_DELAY)
                     Logg.d("!!!! startRent while, status ${rentStatus?.status} ${rentStatus?.processStatus}")
                 }
@@ -82,7 +82,7 @@ class RentUseCase @Inject constructor(
         val params = FinishRentParams(
             id = activeRent?.rentId ?: 0,
             deviceId = activeRent?.frameNumber ?: "",
-            bikeSerialNumber = activeRent?.bike?.bikeSerialNumber ?: "",
+            bikeSerialNumber = activeRent?.bike?.deviceId ?: "",
             clientGeoPosition = ClientGeoPosition(
                 lat = latitude ?: 0.0,
                 lon = longitude ?: 0.0,
@@ -98,7 +98,7 @@ class RentUseCase @Inject constructor(
                 delay(CHECK_RENT_STATUS_DELAY)
 
                 while (rentStatus?.processStatus == ProgressStatus.S5_OBTAIN_LOCK_INFO) {
-                    checkRentStatus(it.id, it.deviceId ?: "")
+                    checkRentStatus(it.id, it.bikeSerialNumber ?: "")
                     delay(CHECK_RENT_STATUS_DELAY)
                 }
 
@@ -113,12 +113,12 @@ class RentUseCase @Inject constructor(
     }
 
     fun checkRentStatus(
-        rentId: Int, deviceId: String,
+        rentId: Int, frameNumber: String,
         onError: ((String?) -> Unit)? = null, onSuccess: ((RentStatus) -> Unit)? = null
         ) {
         Logg.d("!!!! checkRentStatus start")
         processNetworkCall(
-            action = { rentRepository.checkStatus(rentId, deviceId) },
+            action = { rentRepository.checkStatus(rentId, frameNumber) },
             onSuccess = {
                 Logg.d("!!!! checkRentStatus success, status ${it.status}, ${it.processStatus}")
                 rentStatus = it
@@ -146,7 +146,7 @@ class RentUseCase @Inject constructor(
                 delay(CHECK_RENT_STATUS_DELAY)
 
                 while (rentStatus?.processStatus == ProgressStatus.S5_OBTAIN_LOCK_INFO) {
-                    checkRentStatus(it.id, it.deviceId ?: "")
+                    checkRentStatus(it.id, it.bikeSerialNumber ?: "")
                     delay(CHECK_RENT_STATUS_DELAY)
                 }
 
@@ -178,7 +178,6 @@ class RentUseCase @Inject constructor(
             action = {
                 rentRepository.uploadPhotoRent(
                     activeRent?.rentId ?: 0,
-                    activeRent?.frameNumber ?: "",
                     filePath
                 )
             },
@@ -328,32 +327,6 @@ class RentUseCase @Inject constructor(
                 },
                 onError = { Logg.d("!!!! getProfile error") },
                 callName = "getProfile"
-            )
-        }
-    }
-
-    private fun getTariffs(
-        onError: (String?) -> Unit, onSuccess: (List<Tariff>) -> Unit
-    ) {
-        val tariffs = profileRepository.getData().tariffs
-        if (tariffs != null) {
-            onSuccess(tariffs)
-        } else {
-            processNetworkCall(
-                action = { profileRepository.getTariffs() },
-                onSuccess = {
-                    Logg.d("!!!! getTariffs success")
-                    val profileData = profileRepository.getData().copy(
-                        tariffs = it
-                    )
-                    profileRepository.saveData(profileData)
-                    onSuccess(it)
-                },
-                onError = {
-                    Logg.d("!!!! getTariffs error")
-                    onError("getTariffs error")
-                },
-                callName = "getTariffs"
             )
         }
     }

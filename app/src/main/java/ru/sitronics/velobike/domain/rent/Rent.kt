@@ -128,6 +128,5 @@ enum class FailedReason(@StringRes val messageIdStart: Int, @StringRes val messa
 }
 
 data class ChooseParkingParams(
-    val deviceId: String,
     val externalParkingId: String
 )

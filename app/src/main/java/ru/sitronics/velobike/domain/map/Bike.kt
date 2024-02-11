@@ -5,7 +5,7 @@ import java.util.UUID
 
 data class Bike(
     val id: String,
-    val bikeSerialNumber: String,
+    val deviceId: String,
     val batteryPower: Int,
     val latitude: Double,
     val longitude: Double,

@@ -8,6 +8,7 @@
     <string name="cancel_btn">Отменить</string>
 
 <!-- Errors -->
+    <string name="success">Успешно!</string>
     <string name="error_title">Ошибка</string>
     <string name="error_no_network">Нет сети</string>
     <string name="error_unknown">Неизвестная ошибка</string>
@@ -88,12 +89,16 @@
     <string name="profile_title">Кабинет</string>
     <string name="profile_login">Логин\n%s</string>
     <string name="profile_password">Пароль\n%s</string>
+    <string name="tariff_name">Тариф %s</string>
+    <string name="tariff_end">Активен до %s</string>
+    <string name="no_tariff">Нет активного тарифа</string>
     <string name="tariff">Тариф</string>
     <string name="buy_tariff">Купить доступ</string>
     <string name="choose_tariff">Выберите тариф</string>
     <string name="old_bike_tab">Механик/Электро</string>
     <string name="new_bike_tab">Электро 2.0</string>
     <string name="access_cost">Стоимость доступа</string>
+    <string name="error_no_active_card">Не найдено активной карты</string>
 
     <!-- Help -->
     <string name="help">Помощь</string>

@@ -34,8 +34,8 @@ class RentRepositoryImp @Inject constructor(
         super.saveData(data)
     }
 
-    override fun checkStatus(rentId: Int, deviceId: String) : Flow<Result<RentStatus>> =
-        callAction { service.checkStatus(rentId, deviceId) }
+    override fun checkStatus(rentId: Int, frameNumber: String) : Flow<Result<RentStatus>> =
+        callAction { service.checkStatus(rentId, frameNumber) }
 
     override fun checkActiveRent() : Flow<Result<List<ActiveRent>>> =
         callAction { service.checkActiveRent() }
@@ -52,7 +52,7 @@ class RentRepositoryImp @Inject constructor(
     override fun chooseParking(rentId: Int, params: ChooseParkingParams) : Flow<Result<RentStatus>> =
         callAction { service.chooseParking(rentId, params) }
 
-    override fun uploadPhotoRent(rentId: Int, deviceId: String, imagePath: String) : Flow<Result<Boolean>> {
+    override fun uploadPhotoRent(rentId: Int, imagePath: String) : Flow<Result<Boolean>> {
         val image = File(imagePath)
         val requestBody = image.asRequestBody("image/jpeg".toMediaType())
         val filePart = MultipartBody.Part.createFormData(
@@ -60,7 +60,7 @@ class RentRepositoryImp @Inject constructor(
             image.name,
             requestBody
         )
-        return callAction { service.uploadPhotoRent(rentId, deviceId, filePart) }
+        return callAction { service.uploadPhotoRent(rentId, filePart) }
     }
 
     override fun finishRentAfterUploadPhoto(rentId: Int) : Flow<Result<RentStatus>> =

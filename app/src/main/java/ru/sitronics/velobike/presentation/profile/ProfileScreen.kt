@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,6 +30,7 @@ import coil.compose.AsyncImage
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.profile.Profile
 import ru.sitronics.velobike.presentation.SimpleDialog
+import ru.sitronics.velobike.tools.formatDateTimeStr
 
 @Composable
 fun ProfileScreen(
@@ -40,25 +42,25 @@ fun ProfileScreen(
 
     when(profileUiState) {
         is ProfileUiState.Normal -> {
-            val profile = (profileUiState as? ProfileUiState.Normal)?.profile ?: Profile.empty
+            val profile = (profileUiState as? ProfileUiState.Normal)?.profile ?: Profile()
             ProfileScreenInt(contentPadding, profile, onAction)
         }
         is ProfileUiState.Tariffs -> {
             val tariffs = (profileUiState as? ProfileUiState.Tariffs)?.tariffs ?: emptyList()
-            TariffScreen(tariffs) {
-                onAction(ProfileIntent.CloseTariffs(it))
+            TariffsScreen(tariffs) {
+                onAction(ProfileIntent.GetTariff(it, true))
             }
         }
         is ProfileUiState.TariffDetail -> {
-            val tariff = (profileUiState as? ProfileUiState.TariffDetail)?.tariff
-            TariffDetail(tariff!!) {
-                onAction(ProfileIntent.CloseTariffDetail(it))
+            val uiState = profileUiState as ProfileUiState.TariffDetail
+            TariffDetail(uiState.tariff, uiState.canBuy) {
+                onAction(ProfileIntent.BuyTariff(it, uiState.canBuy))
             }
         }
-        is ProfileUiState.Error -> {
-            val uiState = profileUiState as ProfileUiState.Error
+        is ProfileUiState.ShowMessage -> {
+            val uiState = profileUiState as ProfileUiState.ShowMessage
             ShowMessageDialog(uiState.text) {
-                onAction(ProfileIntent.CloseError)
+                onAction(ProfileIntent.CloseMessage)
             }
         }
     }
@@ -74,16 +76,18 @@ fun ProfileScreenInt(
 
     Column(modifier = Modifier
         .fillMaxSize()
-        .padding(contentPadding)) {
+        .padding(contentPadding)
+        .padding(horizontal = 16.dp)
+    ) {
         Text(
             text = context.getString(R.string.profile_title),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
-                .padding(16.dp)
                 .align(Alignment.CenterHorizontally)
+                .padding(vertical = 16.dp)
         )
-        Row(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Row {
             AsyncImage(
                 model = profile.avatarUrl,
                 contentDescription = null,
@@ -101,24 +105,78 @@ fun ProfileScreenInt(
                 modifier = Modifier.padding(16.dp)
             )
         }
+
         Text(
             text = "${profile.firstName} ${profile.lastName}",
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(top = 16.dp)
         )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
+
+        TariffSection(profile, isOld = true, onAction)
+        TariffSection(profile, isOld = false, onAction)
+    }
+}
+
+@Composable
+private fun TariffSection(profile: Profile, isOld: Boolean, onAction: (ProfileIntent) -> Unit) {
+    val context = LocalContext.current
+
+    Text(
+        text = context.getString(if (isOld) R.string.old_bike_tab else R.string.new_bike_tab),
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(top = 16.dp)
+    )
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        val isTariff = isOld && profile.tariffIdOld.isNotEmpty() || !isOld && profile.tariffId.isNotEmpty()
+
+        if (isTariff) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = context.getString(R.string.tariff_name, if (isOld) profile.tariffNameOld else profile.tariffName),
+                    fontSize = 14.sp,
+                )
+
+                val cost = if (isOld) profile.tariffOld?.cost?.toInt() ?: 0
+                           else profile.tariff?.cost?.toInt() ?: 0
+                Text(
+                    text = "$cost ₽",
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Red,
+                )
+
+                Text(
+                    text = context.getString(R.string.tariff_end, getDateStr(
+                        if (isOld) profile.tariffEndOld else profile.tariffEnd
+                    )),
+                    fontSize = 14.sp,
+                )
+            }
+        } else {
             Text(
-                text = context.getString(R.string.tariff),
+                text = context.getString(R.string.no_tariff),
+                fontSize = 14.sp,
                 modifier = Modifier.weight(1f)
             )
-            Button(onClick = { onAction(ProfileIntent.GetTariffs) }) {
-                Text(text = context.getString(R.string.buy_tariff))
-            }
+        }
+
+        Button(onClick = {
+            val intent = if (isOld && profile.tariffIdOld.isNotEmpty()) ProfileIntent.GetTariff(profile.tariffOld, false)
+                    else if (!isOld && profile.tariffId.isNotEmpty()) ProfileIntent.GetTariff(profile.tariff, false)
+                    else ProfileIntent.GetTariffs
+            onAction(intent)
+        }) {
+            val textId = if (isOld && profile.tariffIdOld.isNotEmpty() ||
+                             !isOld && profile.tariffId.isNotEmpty()) R.string.tariff
+                         else R.string.buy_tariff
+            Text(text = context.getString(textId))
         }
     }
+
+    HorizontalDivider(Modifier.padding(top = 8.dp), 1.dp, Color.LightGray)
 }
 
 @Composable
@@ -133,3 +191,6 @@ fun ShowMessageDialog(msg: String?, onClick: () -> Unit) {
         icon = Icons.Default.Warning
     )
 }
+
+private fun getDateStr(time: String?) : String =
+    time?.let { formatDateTimeStr(it, "yyyy-MM-dd'T'HH:mm", "dd.MM.yyyy") } ?: ""

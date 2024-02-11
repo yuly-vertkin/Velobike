@@ -59,7 +59,7 @@ data class BikeDto(
     override fun toModel(): Bike =
         Bike(
             id = frameNumber ?: "",
-            bikeSerialNumber = serialNum ?: "",
+            deviceId = serialNum ?: "",
             batteryPower = telemetry?.batteryLevel ?: 0,
             latitude = telemetry?.coordinates?.latitude ?: 0.0,
             longitude = telemetry?.coordinates?.longitude ?: 0.0,

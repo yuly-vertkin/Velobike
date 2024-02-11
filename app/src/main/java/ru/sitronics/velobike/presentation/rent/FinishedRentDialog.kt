@@ -30,9 +30,7 @@ import ru.sitronics.velobike.presentation.map.DialogState.SHOW
 import ru.sitronics.velobike.presentation.map.MapUiState
 import ru.sitronics.velobike.presentation.map.MapUiState.FinishedRent
 import ru.sitronics.velobike.presentation.map.toDialogState
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import ru.sitronics.velobike.tools.getDateTimeStr
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -112,9 +110,7 @@ fun FinishedRentDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: () -
     }
 }
 
-private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-
 private fun getTimeStr(startTime: Long) : String {
     val time = System.currentTimeMillis() - startTime
-    return timeFormat.format(Date(time))
+    return getDateTimeStr(time, "HH:mm")
 }
