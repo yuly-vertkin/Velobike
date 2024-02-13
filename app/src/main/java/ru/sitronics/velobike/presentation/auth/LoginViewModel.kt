@@ -4,10 +4,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.AuthManager
 import ru.sitronics.velobike.data.ResponseException
 import ru.sitronics.velobike.domain.auth.AuthRepository
+import ru.sitronics.velobike.domain.auth.Register
 import ru.sitronics.velobike.domain.auth.RegisterData
 import ru.sitronics.velobike.domain.auth.UserToken
 import ru.sitronics.velobike.presentation.BaseViewModel
@@ -33,16 +35,16 @@ class LoginViewModel @Inject constructor(
                 loginUser(intent.login, intent.password)
             }
             is LoginIntent.ShowRegister -> {
-                _loginUiState.value = LoginUiState.ShowRegister
+                changeState(LoginUiState.ShowRegister)
             }
             is LoginIntent.OnRegister -> {
                 registerUser(intent.registerData)
             }
             is LoginIntent.OnMessage -> {
-                _loginUiState.value = LoginUiState.Normal(
+                changeState(LoginUiState.Normal(
                     login = authRepository.getData().login ?: "",
                     password = authRepository.getData().password ?: "",
-                )
+                ))
             }
         }
     }
@@ -75,16 +77,21 @@ class LoginViewModel @Inject constructor(
     private fun onLoginSuccess(response: UserToken) {
         Logg.d("!!! Login success")
         authManager.accessToken = response.accessToken
-        _loginUiState.value = LoginUiState.Close
+        changeState(LoginUiState.Close)
     }
 
-    private fun onRegisterSuccess(text: String) {
-        Logg.d("!!! register success")
-        _loginUiState.value = LoginUiState.ShowMessage(text)
+    private fun onRegisterSuccess(status: Register) {
+        Logg.d("!!! register status ${status.code}")
+        changeState(LoginUiState.ShowMessage(context.getString(
+            if (status.isSuccess()) R.string.register_success else R.string.error_unknown)))
     }
 
     private fun onError(e: Throwable) {
         val text = if (e is ResponseException) e.errorMessage else e.message
-        _loginUiState.value = LoginUiState.ShowMessage(text)
+        changeState(LoginUiState.ShowMessage(text))
+    }
+
+    private fun changeState(uiState: LoginUiState) {
+        _loginUiState.value = uiState
     }
 }

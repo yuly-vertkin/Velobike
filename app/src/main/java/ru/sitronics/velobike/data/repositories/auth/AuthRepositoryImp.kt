@@ -8,6 +8,7 @@ import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.domain.auth.AuthData
 import ru.sitronics.velobike.domain.auth.AuthRepository
+import ru.sitronics.velobike.domain.auth.Register
 import ru.sitronics.velobike.domain.auth.RegisterData
 import ru.sitronics.velobike.domain.auth.UserToken
 import javax.inject.Inject
@@ -35,7 +36,7 @@ class AuthRepositoryImp @Inject constructor(
     override fun login(login: String, password: String) : Flow<Result<UserToken>> =
         callAction { service.login(LoginDto(login, password)) }
 
-    override fun register(registerData: RegisterData) : Flow<Result<String>> =
+    override fun register(registerData: RegisterData) : Flow<Result<Register>> =
         callAction { service.register(RegisterParams(registerData)) }
 
     companion object {

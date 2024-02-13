@@ -28,6 +28,7 @@
     <string name="phone">Phone</string>
     <string name="email">Email</string>
     <string name="agree">I accept the terms of the agreement on the processing of personal information</string>
+    <string name="register_success">You are successfully registered</string>
 
 <!-- Bike detail -->
     <string name="bike_detail_title">Electric bike 2.0 №%s</string>

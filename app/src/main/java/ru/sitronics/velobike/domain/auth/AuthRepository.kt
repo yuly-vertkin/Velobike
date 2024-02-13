@@ -7,5 +7,5 @@ interface AuthRepository {
     fun getData(): AuthData
     fun saveData(data: AuthData)
     fun login(login: String, password: String) : Flow<Result<UserToken>>
-    fun register(registerData: RegisterData) : Flow<Result<String>>
+    fun register(registerData: RegisterData) : Flow<Result<Register>>
 }

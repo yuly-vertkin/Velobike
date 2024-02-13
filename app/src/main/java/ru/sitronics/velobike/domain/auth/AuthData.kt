@@ -25,3 +25,10 @@ data class RegisterData(
     @SerializedName("Email")
     val email : String,
 )
+
+data class Register(
+    val code: String
+) {
+    fun isSuccess() : Boolean =
+        code == "OK"
+}
