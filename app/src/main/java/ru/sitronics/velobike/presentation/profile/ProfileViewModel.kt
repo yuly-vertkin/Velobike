@@ -45,6 +45,11 @@ class ProfileViewModel @Inject constructor(
                 else if (intent.canBuy) getTariffs()
                 else getProfileData()
             }
+            is ProfileIntent.GetCards -> {
+                getCards {
+                    changeState(ProfileUiState.Cards(it))
+                }
+            }
             is ProfileIntent.CloseMessage -> {
                 val profile = profileRepository.getData().profile
                 changeState(ProfileUiState.Normal(profile))

@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,13 +23,14 @@ import androidx.compose.ui.unit.sp
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.tools.BackPressHandler
 import ru.sitronics.velobike.tools.Logg
+import ru.sitronics.velobike.tools.MenuItem
 
 enum class SupportScreen {
     BASE, CALL_US
 }
 
 @Composable
-fun BoxScope.SupportScreen(
+fun SupportScreen(
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -37,9 +38,10 @@ fun BoxScope.SupportScreen(
 
     Column (
         modifier = Modifier
-            .matchParentSize()
+            .fillMaxSize()
             .background(Color.White)
             .padding(top = 16.dp)
+            .padding(horizontal = 16.dp)
     ) {
         Text(
             text = context.getString(R.string.support),
@@ -50,7 +52,7 @@ fun BoxScope.SupportScreen(
                 .padding(bottom = 24.dp)
         )
 
-        HelpItem(R.string.call_us, R.drawable.phone) {
+        MenuItem(R.string.call_us, R.drawable.phone) {
             /*showScreen = SupportScreen.CALL_US*/
             callToSupport(context)
         }

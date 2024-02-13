@@ -38,7 +38,7 @@ class RentUseCase @Inject constructor(
         onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit
     ) {
         val params = StartRentParams(
-            bikeSerialNumber = bikeId,
+            frameNumber = bikeId,
             isUsedQr = true,
             clientGeoPosition = ClientGeoPosition(
                 lat = latitude ?: 0.0,
@@ -82,7 +82,7 @@ class RentUseCase @Inject constructor(
         val params = FinishRentParams(
             id = activeRent?.rentId ?: 0,
             deviceId = activeRent?.frameNumber ?: "",
-            bikeSerialNumber = activeRent?.bike?.deviceId ?: "",
+            frameNumber = activeRent?.bike?.deviceId ?: "",
             clientGeoPosition = ClientGeoPosition(
                 lat = latitude ?: 0.0,
                 lon = longitude ?: 0.0,

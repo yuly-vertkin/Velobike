@@ -8,7 +8,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -46,7 +45,7 @@ enum class HowToUseScreen {
 }
 
 @Composable
-fun BoxScope.HowToUseScreen(
+fun HowToUseScreen(
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -54,7 +53,7 @@ fun BoxScope.HowToUseScreen(
 
     Column (
         modifier = Modifier
-            .matchParentSize()
+            .fillMaxSize()
             .background(Color.White)
             .padding(top = 16.dp)
     ) {

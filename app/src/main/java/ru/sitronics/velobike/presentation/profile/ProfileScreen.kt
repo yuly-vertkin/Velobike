@@ -28,8 +28,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import ru.sitronics.velobike.R
+import ru.sitronics.velobike.domain.profile.Card
 import ru.sitronics.velobike.domain.profile.Profile
 import ru.sitronics.velobike.presentation.SimpleDialog
+import ru.sitronics.velobike.tools.MenuItem
 import ru.sitronics.velobike.tools.formatDateTimeStr
 
 @Composable
@@ -55,6 +57,12 @@ fun ProfileScreen(
             val uiState = profileUiState as ProfileUiState.TariffDetail
             TariffDetail(uiState.tariff, uiState.canBuy) {
                 onAction(ProfileIntent.BuyTariff(it, uiState.canBuy))
+            }
+        }
+        is ProfileUiState.Cards -> {
+            val cards = (profileUiState as? ProfileUiState.Cards)?.cards ?: emptyList()
+            BankCardsScreen(cards) {
+                onAction(ProfileIntent.CloseMessage)
             }
         }
         is ProfileUiState.ShowMessage -> {
@@ -113,6 +121,8 @@ fun ProfileScreenInt(
 
         TariffSection(profile, isOld = true, onAction)
         TariffSection(profile, isOld = false, onAction)
+
+        MenuItem(R.string.my_bank_cards, R.drawable.card) { onAction(ProfileIntent.GetCards) }
     }
 }
 

@@ -12,14 +12,14 @@ data class RentData(
 )
 
 data class StartRentParams(
-    val bikeSerialNumber: String,
+    val frameNumber: String,
     val isUsedQr: Boolean,
     val clientGeoPosition: ClientGeoPosition,
 )
 
 data class FinishRentParams(
     val id: Int,
-    val bikeSerialNumber: String,
+    val frameNumber: String,
     val deviceId: String,
     val clientGeoPosition: ClientGeoPosition,
 )

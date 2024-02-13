@@ -101,6 +101,8 @@
     <string name="new_bike_tab">Electrical 2.0</string>
     <string name="access_cost">Access cost</string>
     <string name="error_no_active_card">No active card found</string>
+    <string name="my_bank_cards">My bank cards</string>
+    <string name="no_bank_cards">No active cards found.\nAttach your card to pay for access to the bike.</string>
 
     <!-- Help -->
     <string name="help">Help</string>
