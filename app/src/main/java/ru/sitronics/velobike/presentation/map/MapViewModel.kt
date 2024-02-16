@@ -53,8 +53,6 @@ class MapViewModel @Inject constructor(
             is MapIntent.MapStart -> {
                 initStates()
 
-                rentUseCase.onMapStart()
-
                 mapContentUseCase.updateMoveZones({ showError(it) }) { moveZones ->
                     changeState(MapUiState.MoveZones(filterMoveZones(moveZones)))
                 }

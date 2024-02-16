@@ -4,10 +4,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
+import ru.sitronics.velobike.data.AuthManager
 import ru.sitronics.velobike.domain.map.Bike
 import ru.sitronics.velobike.domain.map.MapContentRepository
-import ru.sitronics.velobike.domain.profile.ProfileRepository
-import ru.sitronics.velobike.domain.profile.Tariff
 import ru.sitronics.velobike.presentation.BaseUseCase
 import ru.sitronics.velobike.tools.Logg
 import java.util.Timer
@@ -20,18 +19,13 @@ import kotlin.concurrent.schedule
 class RentUseCase @Inject constructor(
     private val rentRepository: RentRepository,
     private val mapContentRepository: MapContentRepository,
-    private val profileRepository: ProfileRepository,
+    private val authManager: AuthManager,
     appContextProvider: AppContextProvider,
 ) : BaseUseCase(appContextProvider) {
     var activeRent: ActiveRent? = null
         private set
     private var rentStatus: RentStatus? = null
     private var activeRentUpdateTask: TimerTask? = null
-    private var userId: String? = null
-
-    fun onMapStart() {
-        getProfile()
-    }
 
     fun startRent(
         bikeId: String, latitude: Double?, longitude: Double?,
@@ -254,9 +248,9 @@ class RentUseCase @Inject constructor(
     private fun checkActiveRentOld(
         onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit
     ) {
-        userId?.let {
+        authManager.userId?.let {
             processNetworkCall(
-                action = { rentRepository.checkActiveRentOld(it) }, //"4002600"
+                action = { rentRepository.checkActiveRentOld(it) },
                 onSuccess = {
                     Logg.d("!!!! checkActiveRentOld found ${it.size}")
                     onCheckActiveRentSuccess(it.firstOrNull(), onSuccess)
@@ -309,25 +303,6 @@ class RentUseCase @Inject constructor(
                     onError = { Logg.d("!1 runWithBike ERROR") },
                 )
             }
-        }
-    }
-
-    private fun getProfile() {
-        userId = profileRepository.getData().profile?.userId
-        if (userId == null) {
-            processNetworkCall(
-                action = { profileRepository.getProfile() },
-                onSuccess = {
-                    Logg.d("!!!! getProfile success")
-                    val profileData = profileRepository.getData().copy(
-                        profile = it
-                    )
-                    profileRepository.saveData(profileData)
-                    userId = it.userId
-                },
-                onError = { Logg.d("!!!! getProfile error") },
-                callName = "getProfile"
-            )
         }
     }
 

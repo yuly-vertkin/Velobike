@@ -29,6 +29,13 @@ class AuthManager @Inject constructor(@ApplicationContext context: Context) {
             setStringPreference(AUTH_TOKEN_OLD_KEY, field)
         }
 
+    var userId: String? = null
+        get() = field ?: getStringPreference(AUTH_TOKEN_USER_ID_KEY)
+        private set(value) {
+            field = value
+            setStringPreference(AUTH_TOKEN_USER_ID_KEY, field)
+        }
+
     val isLogged: Boolean
         get() = accessToken != null
 
@@ -38,6 +45,7 @@ class AuthManager @Inject constructor(@ApplicationContext context: Context) {
         val jsonString = String(Base64Utils.decode(b64payload))//.replaceFirst("{","{\"token\":$token,")
         val tokens = gson.fromJson(jsonString, UserToken::class.java)
         accessTokenOldApi = tokens.accessTokenOldApi
+        userId = tokens.userId
     }
 
     private fun getStringPreference(key: String) =
@@ -55,5 +63,6 @@ class AuthManager @Inject constructor(@ApplicationContext context: Context) {
     companion object {
         private const val AUTH_TOKEN_KEY = "AUTH_TOKEN_KEY"
         private const val AUTH_TOKEN_OLD_KEY = "AUTH_TOKEN_OLD_KEY"
+        private const val AUTH_TOKEN_USER_ID_KEY = "AUTH_TOKEN_USER_ID_KEY"
     }
 }

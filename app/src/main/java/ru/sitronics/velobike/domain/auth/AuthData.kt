@@ -13,6 +13,8 @@ data class UserToken (
     val accessToken: String,
     @SerializedName("nmc_access_token")
     val accessTokenOldApi: String,
+    @SerializedName("nmc_user_id")
+    val userId: String
 )
 
 data class RegisterData(
