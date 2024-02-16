@@ -4,7 +4,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
-import ru.sitronics.velobike.data.AuthManager
+import ru.sitronics.velobike.domain.auth.AuthManager
 import ru.sitronics.velobike.domain.map.Bike
 import ru.sitronics.velobike.domain.map.MapContentRepository
 import ru.sitronics.velobike.presentation.BaseUseCase

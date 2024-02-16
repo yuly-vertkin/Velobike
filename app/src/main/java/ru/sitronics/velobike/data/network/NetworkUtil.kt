@@ -9,7 +9,7 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import ru.sitronics.velobike.BuildConfig
-import ru.sitronics.velobike.data.AuthManager
+import ru.sitronics.velobike.domain.auth.AuthManager
 import ru.sitronics.velobike.tools.Md5Utils
 import timber.log.Timber
 import java.util.Date

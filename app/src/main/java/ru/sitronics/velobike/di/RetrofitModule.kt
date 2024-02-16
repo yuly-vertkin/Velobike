@@ -11,7 +11,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import ru.sitronics.velobike.BuildConfig
-import ru.sitronics.velobike.data.AuthManager
 import ru.sitronics.velobike.data.network.AuthInterceptor
 import ru.sitronics.velobike.data.network.DebugOkHttpHelper
 import ru.sitronics.velobike.data.network.AuthService
@@ -20,6 +19,7 @@ import ru.sitronics.velobike.data.network.ProfileService
 import ru.sitronics.velobike.data.network.RentService
 import ru.sitronics.velobike.data.network.SecureInterceptor
 import ru.sitronics.velobike.data.network.TestInterceptor
+import ru.sitronics.velobike.domain.auth.AuthManager
 import javax.inject.Singleton
 
 @Module

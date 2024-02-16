@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
-import ru.sitronics.velobike.data.AuthManager
 import ru.sitronics.velobike.data.ResponseException
+import ru.sitronics.velobike.domain.auth.AuthManager
 import ru.sitronics.velobike.domain.auth.AuthRepository
 import ru.sitronics.velobike.domain.auth.Register
 import ru.sitronics.velobike.domain.auth.RegisterData
@@ -76,7 +76,7 @@ class LoginViewModel @Inject constructor(
 
     private fun onLoginSuccess(response: UserToken) {
         Logg.d("!!! Login success")
-        authManager.accessToken = response.accessToken
+        authManager.setToken(response.accessToken)
         changeState(LoginUiState.Close)
     }
 

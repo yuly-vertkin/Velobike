@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.data.AppContextProvider
-import ru.sitronics.velobike.data.AuthManager
+import ru.sitronics.velobike.domain.auth.AuthManager
 import ru.sitronics.velobike.presentation.BaseViewModel
 import javax.inject.Inject
 
