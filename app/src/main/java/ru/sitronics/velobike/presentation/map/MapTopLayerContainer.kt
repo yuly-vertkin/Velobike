@@ -1,5 +1,6 @@
 package ru.sitronics.velobike.presentation.map
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.shape.CircleShape
@@ -8,15 +9,20 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.yandex.mapkit.mapview.MapView
 import ru.sitronics.velobike.CHANGE_ZOOM
 import ru.sitronics.velobike.R
+import ru.sitronics.velobike.tools.drawChatBitmap
+import ru.sitronics.velobike.tools.getBitmapFromVectorDrawable
 import ru.sitronics.velobike.tools.rememberLocationPermissionLauncher
 import ru.sitronics.velobike.tools.runWithLocation
 
@@ -28,20 +34,26 @@ fun BoxScope.MapTopLayerContainer(
 ) {
     val context = LocalContext.current
     val locationPermissionLauncher = rememberLocationPermissionLauncher()
+    val chatDefaultBitmap = remember { context.getBitmapFromVectorDrawable(R.drawable.chat).asImageBitmap() }
+    val chatUnreadMessagesBitmap = remember { context.getBitmapFromVectorDrawable(R.drawable.chat).drawChatBitmap().asImageBitmap() }
+    val chatBitmap = remember { mutableStateOf(chatDefaultBitmap) }
+
+    if (uiState is MapUiState.ChatUnreadMessages) {
+        chatBitmap.value = if (uiState.count > 0) chatUnreadMessagesBitmap else chatDefaultBitmap
+    }
 
     FloatingActionButton(
         modifier = Modifier
             .align(Alignment.TopStart)
             .offset(x = 8.dp, y = 16.dp),
-        onClick = {  },
+        onClick = { onAction(MapIntent.ChatTap(context)) },
         shape = CircleShape,
         containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
     ) {
-        Icon(
-            painter = painterResource(R.drawable.chat),
-            contentDescription = "",
-            tint = Color.Unspecified,
+        Image(
+            bitmap = chatBitmap.value,
+            contentDescription = null,
         )
     }
 

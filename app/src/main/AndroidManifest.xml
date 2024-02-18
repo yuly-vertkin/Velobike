@@ -16,7 +16,7 @@
         android:name=".VelobikeApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
+        android:fullBackupContent="@xml/backup_rules" tools:replace="android:fullBackupContent"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -44,6 +44,27 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/path_provider" />
         </provider>
+
+        <meta-data
+            android:name="im.threads.getServerUrl"
+            android:value="https://mosmetro-ds.threads.im/" />
+        <meta-data
+            android:name="im.threads.getDatastoreUrl"
+            android:value="https://mosmetro-ds.threads.im/" />
+        <meta-data
+            android:name="im.threads.threadsGateUrl"
+            android:value="wss://mosmetro.edna.io/socket" />
+        <meta-data
+            android:name="im.threads.threadsGateProviderUid"
+            android:value="RWNqIVdGKEtIKUBxW0s8QVNjOW9Ca3E5NEZ0cw==" />
+        <meta-data
+            android:name="im.threads.threadsTransportType"
+            android:value="THREADS_GATE"
+            tools:replace="android:value" />
+        <meta-data
+            android:name="com.pushserver.android.logs"
+            android:value="false" />
+
     </application>
 
 </manifest>

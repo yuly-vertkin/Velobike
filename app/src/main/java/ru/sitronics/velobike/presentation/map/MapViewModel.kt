@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
+import ru.sitronics.velobike.domain.chat.ChatManager
 import ru.sitronics.velobike.domain.map.MapContentUseCase
 import ru.sitronics.velobike.domain.rent.ActiveRent
 import ru.sitronics.velobike.domain.rent.ChooseParkingParams
@@ -30,6 +31,7 @@ import javax.inject.Inject
 class MapViewModel @Inject constructor(
     private val rentUseCase: RentUseCase,
     private val mapContentUseCase: MapContentUseCase,
+    private val chatManager: ChatManager,
     appContextProvider: AppContextProvider,
 ) : BaseViewModel(appContextProvider) {
     private val mapUiStates: MutableSharedFlow<MapUiState> = MutableSharedFlow(replay = 10, onBufferOverflow = BufferOverflow.DROP_OLDEST)
@@ -60,11 +62,17 @@ class MapViewModel @Inject constructor(
                 rentUseCase.updateActiveRent(true, { showError(it) }) { activeRent ->
                     handleActiveRent(activeRent)
                 }
+
+                chatManager.addUnreadMessagesCountListener {
+                    changeState(MapUiState.ChatUnreadMessages(it))
+                }
             }
             is MapIntent.MapStop -> {
                 closeStates()
 
                 rentUseCase.updateActiveRent(false, {}) { _ -> }
+
+                chatManager.addUnreadMessagesCountListener {}
             }
             is MapIntent.ChangeMapPosition -> {
                 mapContentUseCase.updateMapContent(intent.mapRect, intent.zoom) {
@@ -236,6 +244,9 @@ class MapViewModel @Inject constructor(
             }
             is MapIntent.CloseError -> {
                 changeState(MapUiState.Normal)
+            }
+            is MapIntent.ChatTap -> {
+                chatManager.showChat(intent.context)
             }
         }
     }

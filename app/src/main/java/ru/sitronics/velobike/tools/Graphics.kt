@@ -9,6 +9,7 @@ import android.graphics.Rect
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.createBitmap
 
 private const val EMPTY_BITMAP_WIDTH = 28
 private const val EMPTY_BITMAP_HEIGHT = 18
@@ -51,3 +52,38 @@ fun Bitmap.drawText(context: Context, text: String, textSize: Int,
 
     return bitmap
 }
+
+fun Bitmap.drawChatBitmap() : Bitmap {
+    val bitmap = createBitmap(width * 2, height * 2, config)
+
+    val canvas = Canvas(bitmap)
+    val paint = Paint()
+    var x = width / 2f
+    var y = height / 2f
+
+    canvas.drawBitmap(this, x, y, paint)
+    paint.color = Color.RED
+
+    x = width * 1.5f
+    y = height / 2f
+    val radius = width / 4f
+    canvas.drawCircle(x, y, radius, paint)
+
+    return bitmap
+}
+
+/*
+fun Bitmap.drawChatBitmap() : Bitmap {
+    val bitmap = copy(config ?: Bitmap.Config.ARGB_8888, true)
+    val canvas = Canvas(bitmap)
+    val paint = Paint()
+    paint.color = Color.RED
+
+    val x = width * 0.75f
+    val y = height * 0.25f
+    val radius = width * 0.25f
+    canvas.drawCircle(x, y, radius, paint)
+
+    return bitmap
+}
+*/

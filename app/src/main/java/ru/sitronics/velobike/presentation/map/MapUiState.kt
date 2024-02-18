@@ -1,5 +1,6 @@
 package ru.sitronics.velobike.presentation.map
 
+import android.content.Context
 import ru.sitronics.velobike.domain.MapRect
 import ru.sitronics.velobike.domain.map.Bike
 import ru.sitronics.velobike.domain.map.Parking
@@ -23,6 +24,7 @@ sealed class MapUiState {
     object WheelLock : MapUiState()
     object TakePhoto : MapUiState()
     data class FinishedRent(val activeRent: ActiveRent?) : MapUiState()
+    data class ChatUnreadMessages(val count: Int) : MapUiState()
     data class Error(val title: String, val text: String) : MapUiState()
     data class Loading(val show: Boolean) : MapUiState()
 }
@@ -34,6 +36,7 @@ sealed class MapIntent {
     data class ChangeMapPosition(val mapRect: MapRect, val zoom: Float) : MapIntent()
     data class MapObjectTap(val userData: MarkerUserData?) : MapIntent()
     object QrScanTap : MapIntent()
+    data class ChatTap(val context: Context) : MapIntent()
     data class CloseBikeDetail(val id: String?, val fromQrScan: Boolean, val latitude: Double?, val longitude: Double?) : MapIntent()
     data class CloseQrScan(val id: String? = null, val fromBikeDetail: Boolean, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
     data class CloseActiveRent(val isClicked: Boolean = false, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()

@@ -12,6 +12,7 @@ import ru.sitronics.velobike.domain.auth.AuthRepository
 import ru.sitronics.velobike.domain.auth.Register
 import ru.sitronics.velobike.domain.auth.RegisterData
 import ru.sitronics.velobike.domain.auth.UserToken
+import ru.sitronics.velobike.domain.chat.ChatManager
 import ru.sitronics.velobike.presentation.BaseViewModel
 import ru.sitronics.velobike.tools.Logg
 import javax.inject.Inject
@@ -20,6 +21,7 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val authManager: AuthManager,
+    private val chatManager: ChatManager,
     appContextProvider: AppContextProvider,
 ) : BaseViewModel(appContextProvider) {
     private val _loginUiState: MutableStateFlow<LoginUiState> = MutableStateFlow(
@@ -77,6 +79,9 @@ class LoginViewModel @Inject constructor(
     private fun onLoginSuccess(response: UserToken) {
         Logg.d("!!! Login success")
         authManager.setToken(response.accessToken)
+        authManager.userId?.let {
+            chatManager.login(it)
+        }
         changeState(LoginUiState.Close)
     }
 
