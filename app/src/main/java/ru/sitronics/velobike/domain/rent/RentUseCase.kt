@@ -48,7 +48,7 @@ class RentUseCase @Inject constructor(
                 delay(CHECK_RENT_STATUS_DELAY)
 
                 while (rentStatus?.status == MainRentStatus.CHECK_START) {
-                    checkRentStatus(it.id, it.bikeSerialNumber ?: "")
+                    checkRentStatus(it.id, it.frameNumber ?: "")
                     delay(CHECK_RENT_STATUS_DELAY)
                     Logg.d("!!!! startRent while, status ${rentStatus?.status} ${rentStatus?.processStatus}")
                 }
@@ -75,8 +75,8 @@ class RentUseCase @Inject constructor(
 
         val params = FinishRentParams(
             id = activeRent?.rentId ?: 0,
-            deviceId = activeRent?.frameNumber ?: "",
-            frameNumber = activeRent?.bike?.deviceId ?: "",
+            frameNumber = activeRent?.frameNumber ?: "",
+            deviceId = activeRent?.bike?.deviceId ?: "",
             clientGeoPosition = ClientGeoPosition(
                 lat = latitude ?: 0.0,
                 lon = longitude ?: 0.0,
@@ -92,7 +92,7 @@ class RentUseCase @Inject constructor(
                 delay(CHECK_RENT_STATUS_DELAY)
 
                 while (rentStatus?.processStatus == ProgressStatus.S5_OBTAIN_LOCK_INFO) {
-                    checkRentStatus(it.id, it.bikeSerialNumber ?: "")
+                    checkRentStatus(it.id, it.frameNumber ?: "")
                     delay(CHECK_RENT_STATUS_DELAY)
                 }
 
@@ -140,7 +140,7 @@ class RentUseCase @Inject constructor(
                 delay(CHECK_RENT_STATUS_DELAY)
 
                 while (rentStatus?.processStatus == ProgressStatus.S5_OBTAIN_LOCK_INFO) {
-                    checkRentStatus(it.id, it.bikeSerialNumber ?: "")
+                    checkRentStatus(it.id, it.frameNumber ?: "")
                     delay(CHECK_RENT_STATUS_DELAY)
                 }
 

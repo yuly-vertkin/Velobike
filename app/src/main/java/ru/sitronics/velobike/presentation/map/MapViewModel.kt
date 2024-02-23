@@ -173,7 +173,7 @@ class MapViewModel @Inject constructor(
                     rentUseCase.activeRent?.let { rent ->
                         changeState(MapUiState.Loading(true))
                         rentUseCase.checkRentStatus(
-                            rent.rentId, rent.deviceId,
+                            rent.rentId, rent.frameNumber,
                             { showError(it) }
                         ) {
                             changeState(MapUiState.Loading(false))

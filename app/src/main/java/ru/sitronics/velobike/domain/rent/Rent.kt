@@ -46,7 +46,7 @@ data class ActiveRent(
 @Parcelize
 data class RentStatus(
     val id: Int,
-    val bikeSerialNumber: String? = null,
+    val frameNumber: String? = null,
     val deviceId: String? = null,
     val status: MainRentStatus? = null,
     val processStatus: ProgressStatus? = null,
