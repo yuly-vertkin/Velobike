@@ -14,12 +14,15 @@ import ru.sitronics.velobike.BuildConfig
 import ru.sitronics.velobike.data.network.AuthInterceptor
 import ru.sitronics.velobike.data.network.DebugOkHttpHelper
 import ru.sitronics.velobike.data.network.AuthService
+import ru.sitronics.velobike.data.network.DateDeserializer
+import ru.sitronics.velobike.data.network.HistoryService
 import ru.sitronics.velobike.data.network.MapContentService
 import ru.sitronics.velobike.data.network.ProfileService
 import ru.sitronics.velobike.data.network.RentService
 import ru.sitronics.velobike.data.network.SecureInterceptor
 import ru.sitronics.velobike.data.network.TestInterceptor
 import ru.sitronics.velobike.domain.auth.AuthManager
+import java.util.Date
 import javax.inject.Singleton
 
 @Module
@@ -53,7 +56,9 @@ object RetrofitModule {
     @Singleton
     @Provides
     fun provideGson(): Gson {
-        return GsonBuilder().create()
+        return GsonBuilder()
+            .registerTypeAdapter(Date::class.java, DateDeserializer())
+            .create()
     }
 
     @Singleton
@@ -75,4 +80,9 @@ object RetrofitModule {
     @Provides
     fun provideProfileService(retrofit: Retrofit): ProfileService =
         retrofit.create(ProfileService::class.java)
+
+    @Singleton
+    @Provides
+    fun provideHistoryService(retrofit: Retrofit): HistoryService =
+        retrofit.create(HistoryService::class.java)
 }

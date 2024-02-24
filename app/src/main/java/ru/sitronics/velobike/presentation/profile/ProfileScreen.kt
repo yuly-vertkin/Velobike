@@ -28,11 +28,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import ru.sitronics.velobike.R
-import ru.sitronics.velobike.domain.profile.Card
 import ru.sitronics.velobike.domain.profile.Profile
 import ru.sitronics.velobike.presentation.SimpleDialog
 import ru.sitronics.velobike.tools.MenuItem
-import ru.sitronics.velobike.tools.formatDateTimeStr
+import ru.sitronics.velobike.tools.getDateTimeStr
+import java.util.Date
 
 @Composable
 fun ProfileScreen(
@@ -202,5 +202,5 @@ fun ShowMessageDialog(msg: String?, onClick: () -> Unit) {
     )
 }
 
-private fun getDateStr(time: String?) : String =
-    time?.let { formatDateTimeStr(it, "yyyy-MM-dd'T'HH:mm", "dd.MM.yyyy") } ?: ""
+private fun getDateStr(time: Date?) : String =
+    time?.let { getDateTimeStr(it, "dd.MM.yyyy") } ?: ""

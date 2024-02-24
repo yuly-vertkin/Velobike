@@ -86,6 +86,12 @@
     <string name="finish_omni_failed_default">Ошибка</string>
     <string name="omni_ride_not_found_error">Аренда не найдена</string>
 
+<!-- History -->
+    <string name="history_title">История</string>
+    <string name="trip_tab">Поездки</string>
+    <string name="pay_tab">Покупки</string>
+    <string name="pay_tariff">Оплата тарифа</string>
+
 <!-- Profile -->
     <string name="profile_title">Кабинет</string>
     <string name="profile_login">Логин\n%s</string>

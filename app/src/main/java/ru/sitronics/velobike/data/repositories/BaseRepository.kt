@@ -92,10 +92,10 @@ open class BaseRepository<T>(
         }
     }
 
-    protected suspend fun <DTO, RESULT> callSupabaseAction(action: suspend () -> DTO) : Flow<Result<RESULT>> =
-        withContext(Dispatchers.IO) {
-            callAction(action)
-        }
+//    protected suspend fun <DTO, RESULT> callSupabaseAction(action: suspend () -> DTO) : Flow<Result<RESULT>> =
+//        withContext(Dispatchers.IO) {
+//            callAction(action)
+//        }
 
     protected fun getBooleanPreference(key: String) =
         sharedPreferences.getBoolean(key, false)

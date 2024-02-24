@@ -104,6 +104,7 @@ private fun HowToUseItem(
                 text = context.getString(textId),
                 lineHeight = 16.sp,
             )
+
             Text(
                 text = context.getString(addTextId),
                 fontSize = 14.sp,
@@ -111,6 +112,7 @@ private fun HowToUseItem(
                 color = Color.LightGray,
             )
         }
+
         Image(
             painter = painterResource(imageId),
             contentDescription = "",

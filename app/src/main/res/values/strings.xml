@@ -87,7 +87,13 @@
     <string name="finish_omni_failed_default">Error</string>
     <string name="omni_ride_not_found_error">Ride not found</string>
 
-    <!-- Profile -->
+<!-- History -->
+    <string name="history_title">History</string>
+    <string name="trip_tab">Trips</string>
+    <string name="pay_tab">Purchases</string>
+    <string name="pay_tariff">Tariff payment</string>
+
+<!-- Profile -->
     <string name="profile_title">Profile</string>
     <string name="profile_login">Login\n%s</string>
     <string name="profile_password">Password\n%s</string>
@@ -130,5 +136,8 @@
     <!-- Support -->
     <string name="call_us">Call us</string>
     <string name="support_phone" translatable="false">+7 (495) 966 4 669</string>
+
+    <!-- Patterns -->
+    <string name="str_str" translatable="false">"%s - %s"</string>
 
 </resources>

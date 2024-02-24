@@ -1,6 +1,7 @@
 package ru.sitronics.velobike.domain.profile
 
 import com.google.gson.annotations.SerializedName
+import java.util.Date
 
 data class ProfileData(
     val profile: Profile? = null,
@@ -42,9 +43,9 @@ data class Profile(
     @SerializedName("TariffName")
     val tariffNameOld: String = "",
 //    @SerializedName("TariffStart")
-//    val tariffStartOld: String? = null,
+//    val tariffStartOld: Date? = null,
     @SerializedName("TariffEnd")
-    val tariffEndOld: String? = null,
+    val tariffEndOld: Date? = null,
 //    @SerializedName("PaymentCardMask")
 //    val paymentCardMask: String? = "",
 //    @SerializedName("PaymentBind")
@@ -54,9 +55,9 @@ data class Profile(
     @SerializedName("OmniTariffName")
     val tariffName: String = "",
 //    @SerializedName("OmniTariffStart")
-//    val tariffStart: String? = null,
+//    val tariffStart: Date? = null,
     @SerializedName("OmniTariffEnd")
-    val tariffEnd: String? = null,
+    val tariffEnd: Date? = null,
 //    @SerializedName("ActivationFlag")
 //    val activationFlag: Boolean = false,
 //    @SerializedName("OmniActivationFlag")

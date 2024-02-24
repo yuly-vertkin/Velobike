@@ -5,10 +5,12 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import ru.sitronics.velobike.data.repositories.auth.AuthRepositoryImp
+import ru.sitronics.velobike.data.repositories.history.HistoryRepositoryImp
 import ru.sitronics.velobike.data.repositories.map.MapContentRepositoryImp
 import ru.sitronics.velobike.data.repositories.profile.ProfileRepositoryImp
 import ru.sitronics.velobike.data.repositories.rent.RentRepositoryImp
 import ru.sitronics.velobike.domain.auth.AuthRepository
+import ru.sitronics.velobike.domain.history.HistoryRepository
 import ru.sitronics.velobike.domain.map.MapContentRepository
 import ru.sitronics.velobike.domain.profile.ProfileRepository
 import ru.sitronics.velobike.domain.rent.RentRepository
@@ -32,4 +34,8 @@ abstract class RepositoryModule {
     @Singleton
     @Binds
     abstract fun bindProfileRepository(repositoryImpl: ProfileRepositoryImp): ProfileRepository
+
+    @Singleton
+    @Binds
+    abstract fun bindHistoryRepository(repositoryImpl: HistoryRepositoryImp): HistoryRepository
 }
