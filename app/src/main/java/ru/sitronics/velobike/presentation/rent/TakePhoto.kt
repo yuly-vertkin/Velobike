@@ -6,9 +6,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
+import kotlinx.coroutines.launch
 import ru.sitronics.velobike.BuildConfig
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
@@ -24,6 +26,7 @@ import java.io.File
 fun TakePhoto(uiState: MapUiState, onDismiss: () -> Unit, onSuccess: (String) -> Unit) {
     var state by remember { mutableStateOf(CLOSE) }
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var filePath by remember { mutableStateOf("") }
     val cameraPermissionLauncher = rememberCameraPermissionLauncher()
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
@@ -37,16 +40,19 @@ fun TakePhoto(uiState: MapUiState, onDismiss: () -> Unit, onSuccess: (String) ->
 
     if (uiState is TakePhoto && state != CLOSING) {
         state = true.toDialogState()
-    } else if (uiState !is TakePhoto && state == CLOSING)
+    } else if (uiState !is TakePhoto && state == CLOSING) {
         state = CLOSE
+    }
 
     if (state == SHOW) {
         val file = remember { File.createTempFile("vel_", ".jpg", context.externalCacheDir) }
         val uri = remember { FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file) }
         filePath = file.absolutePath
 
-        cameraPermissionLauncher.runWithCamera(context) {
-            cameraLauncher.launch(uri)
+        scope.launch {
+            cameraPermissionLauncher.runWithCamera(context) {
+                cameraLauncher.launch(uri)
+            }
         }
     }
 }

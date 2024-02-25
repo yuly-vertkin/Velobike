@@ -45,6 +45,12 @@ class MapViewModel @Inject constructor(
     init {
         rentUseCase.scope = viewModelScope
         mapContentUseCase.scope = viewModelScope
+        initStates()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        closeStates()
     }
 
     fun handleIntent(intent: MapIntent) {
@@ -53,8 +59,6 @@ class MapViewModel @Inject constructor(
                 changeState(MapUiState.Normal)
             }
             is MapIntent.MapStart -> {
-                initStates()
-
                 mapContentUseCase.updateMoveZones({ showError(it) }) { moveZones ->
                     changeState(MapUiState.MoveZones(filterMoveZones(moveZones)))
                 }
@@ -68,8 +72,6 @@ class MapViewModel @Inject constructor(
                 }
             }
             is MapIntent.MapStop -> {
-                closeStates()
-
                 rentUseCase.updateActiveRent(false, {}) { _ -> }
 
                 chatManager.addUnreadMessagesCountListener {}
