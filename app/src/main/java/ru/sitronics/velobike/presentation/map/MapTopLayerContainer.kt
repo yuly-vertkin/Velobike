@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.mapview.MapView
 import ru.sitronics.velobike.CHANGE_ZOOM
 import ru.sitronics.velobike.R
@@ -85,7 +86,7 @@ fun BoxScope.MapTopLayerContainer(
         modifier = Modifier
             .align(Alignment.CenterEnd)
             .offset(x = (-8).dp, y = (-32).dp),
-        onClick = { changeZoom(mapView, CHANGE_ZOOM) },
+        onClick = { moveMap(mapView, changeZoom = CHANGE_ZOOM) },
         shape = CircleShape,
         containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
@@ -97,7 +98,7 @@ fun BoxScope.MapTopLayerContainer(
         modifier = Modifier
             .align(Alignment.CenterEnd)
             .offset(x = (-8).dp, y = 32.dp),
-        onClick = { changeZoom(mapView, -CHANGE_ZOOM) },
+        onClick = { moveMap(mapView, changeZoom = -CHANGE_ZOOM) },
         shape = CircleShape,
         containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
@@ -127,7 +128,7 @@ fun BoxScope.MapTopLayerContainer(
             .offset(x = (-8).dp, y = (-16).dp),
         onClick = {
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
-                moveMap(mapView, lat ?: MOSCOW_LAT, lon ?: MOSCOW_LON)
+                moveMap(mapView, Point(lat ?: MOSCOW_LAT, lon ?: MOSCOW_LON))
             }
         },
         shape = CircleShape,

@@ -77,8 +77,8 @@ class MapViewModel @Inject constructor(
                 chatManager.addUnreadMessagesCountListener {}
             }
             is MapIntent.ChangeMapPosition -> {
+                Logg.d("!!!! MapIntent.ChangeMapPosition ${intent.mapRect}")
                 mapContentUseCase.updateMapContent(intent.mapRect, intent.zoom) {
-                    Logg.d("!!!! MapIntent.ChangeMapPosition updateMapContent bikes ${it.bikes?.size}")
                     changeState(MapUiState.MapContent(
                         bikes = it.bikes,
                         stations = it.stations,

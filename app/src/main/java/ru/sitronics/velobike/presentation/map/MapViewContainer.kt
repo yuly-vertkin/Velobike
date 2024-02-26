@@ -46,7 +46,6 @@ fun BoxScope.MapViewContainer(
 ) {
     val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle(onAction)
-//    val coroutineScope = rememberCoroutineScope()
     val cameraListener = remember {
         CameraListener { map, cameraPosition, _, finished ->
             if (finished) {
@@ -75,7 +74,7 @@ fun BoxScope.MapViewContainer(
     val locationPermissionLauncher = rememberLocationPermissionLauncher()
     locationPermissionLauncher.RunWithLocation { lat, lon ->
         // TODO: commented for debug purpose
-        moveMap(mapView, /*lat ?:*/ MOSCOW_LAT, /*lon ?:*/ MOSCOW_LON)
+        moveMap(mapView, Point(MOSCOW_LAT, MOSCOW_LON) /*Point(lat, lon)*/)
         MapKitFactory.getInstance().resetLocationManagerToDefault()
         try {
             MapKitFactory.getInstance().createUserLocationLayer(mapView.mapWindow).apply {
@@ -87,8 +86,7 @@ fun BoxScope.MapViewContainer(
     }
 
     AndroidView({
-        moveMap(mapView, MOSCOW_LAT, MOSCOW_LON)
-        changeZoom(mapView, initZoom = INITIAL_ZOOM)
+        moveMap(mapView, Point(MOSCOW_LAT, MOSCOW_LON), initZoom = INITIAL_ZOOM)
         mapView.mapWindow.map.addCameraListener(cameraListener)
         mapView
     })
@@ -382,22 +380,11 @@ private fun getMapRect(mapView: MapView) : MapRect {
     return MapRect(bottomRight.latitude, topLeft.longitude, topLeft.latitude, bottomRight.longitude)
 }
 
-fun moveMap(mapView: MapView, lat: Double, lon: Double) {
+fun moveMap(mapView: MapView, point: Point? = null, changeZoom: Float = 0f, initZoom: Float? = null) {
     with(mapView.mapWindow.map) {
         move(CameraPosition(
-            Point(lat, lon),
-            cameraPosition.zoom,
-            cameraPosition.azimuth,
-            cameraPosition.tilt
-        ))
-    }
-}
-
-fun changeZoom(mapView: MapView, changeZoom: Float = 0f, initZoom: Float = 0f) {
-    with(mapView.mapWindow.map) {
-        move(CameraPosition(
-            cameraPosition.target,
-            if (initZoom == 0f) cameraPosition.zoom + changeZoom else initZoom,
+            point ?: cameraPosition.target,
+            initZoom ?: (cameraPosition.zoom + changeZoom),
             cameraPosition.azimuth,
             cameraPosition.tilt
         ))
