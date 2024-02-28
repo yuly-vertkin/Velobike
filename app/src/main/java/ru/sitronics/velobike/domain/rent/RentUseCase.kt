@@ -253,7 +253,7 @@ class RentUseCase @Inject constructor(
                 action = { rentRepository.checkActiveRentOld(it) },
                 onSuccess = {
                     Logg.d("!!!! checkActiveRentOld found ${it.size}")
-                    onCheckActiveRentSuccess(it.firstOrNull(), onSuccess)
+                    onCheckActiveRentSuccess(it.firstOrNull(), onSuccess, true)
                 },
                 onError = {
                     Logg.d("!!!! ERROR checkActiveRentOld()")
@@ -268,14 +268,17 @@ class RentUseCase @Inject constructor(
     }
 
     private fun onCheckActiveRentSuccess(
-        rent: ActiveRent?, onSuccess: (ActiveRent?) -> Unit
+        rent: ActiveRent?, onSuccess: (ActiveRent?) -> Unit, isOld: Boolean = false
     ) {
         Logg.d("!!!! checkActiveRent ${activeRent?.rentStatus?.name} ${rent?.rentStatus?.name}")
         activeRent = rent
-        runWithBike(activeRent?.frameNumber) { bike ->
-            activeRent?.bike = bike
+        if (!isOld)
+            runWithBike(activeRent?.frameNumber) { bike ->
+                activeRent?.bike = bike
+                onSuccess(activeRent)
+            }
+        else
             onSuccess(activeRent)
-        }
     }
 
     private fun runWithBike(id: String?, action: (Bike?) -> Unit) {
