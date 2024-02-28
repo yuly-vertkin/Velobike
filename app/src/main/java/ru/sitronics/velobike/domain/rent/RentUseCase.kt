@@ -253,7 +253,9 @@ class RentUseCase @Inject constructor(
                 action = { rentRepository.checkActiveRentOld(it) },
                 onSuccess = {
                     Logg.d("!!!! checkActiveRentOld found ${it.size}")
-                    onCheckActiveRentSuccess(it.firstOrNull(), onSuccess, true)
+                    val rent = it.firstOrNull()
+                    rent?.isOld = true
+                    onCheckActiveRentSuccess(rent, onSuccess)
                 },
                 onError = {
                     Logg.d("!!!! ERROR checkActiveRentOld()")
@@ -268,12 +270,12 @@ class RentUseCase @Inject constructor(
     }
 
     private fun onCheckActiveRentSuccess(
-        rent: ActiveRent?, onSuccess: (ActiveRent?) -> Unit, isOld: Boolean = false
+        rent: ActiveRent?, onSuccess: (ActiveRent?) -> Unit
     ) {
         Logg.d("!!!! checkActiveRent ${activeRent?.rentStatus?.name} ${rent?.rentStatus?.name}")
         activeRent = rent
-        if (!isOld)
-            runWithBike(activeRent?.frameNumber) { bike ->
+        if (rent != null && !rent.isOld)
+            runWithBike(rent.frameNumber) { bike ->
                 activeRent?.bike = bike
                 onSuccess(activeRent)
             }
@@ -281,11 +283,7 @@ class RentUseCase @Inject constructor(
             onSuccess(activeRent)
     }
 
-    private fun runWithBike(id: String?, action: (Bike?) -> Unit) {
-        if (id == null) {
-            action(null)
-            return
-        }
+    private fun runWithBike(id: String, action: (Bike?) -> Unit) {
         var bike = rentRepository.getData().activeRentBike
         if (bike != null) {
             action(bike)

@@ -41,6 +41,7 @@ data class ActiveRent(
     val startPortNumber: Int,
     val deviceId: String,
     var bike: Bike? = null,
+    var isOld: Boolean = false
 )
 
 @Parcelize

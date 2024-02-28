@@ -45,61 +45,64 @@ fun ActiveRentDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: () -> 
     } else if (uiState !is CurrentRent && state == CLOSING)
         state = CLOSE
 
-    if (state == SHOW) {
-        ModalBottomSheet(
-            onDismissRequest = { state = CLOSING; onDismiss() },
-            sheetState = sheetState
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 32.dp)
+    if (state == SHOW)
+        activeRent?.let {
+            ModalBottomSheet(
+                onDismissRequest = { state = CLOSING; onDismiss() },
+                sheetState = sheetState
             ) {
-                Text(
-                    text = "100 p.",
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .padding(start = 16.dp)
-                        .weight(1f)
-                )
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 32.dp)
+                ) {
+                    Text(
+                        text = "100 p.",
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .weight(1f)
+                    )
 
-                Text(
-                    text = getTimeStr(activeRent?.startTime ?: 0),
-                    modifier = Modifier
-                        .padding(start = 16.dp)
-                        .weight(1f)
-                )
+                    Text(
+                        text = getTimeStr(it.startTime),
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .weight(1f)
+                    )
 
-                Text(
-                    text = "№" + activeRent?.frameNumber,
-                    modifier = Modifier
-                        .padding(start = 16.dp)
-                )
-            }
+                    Text(
+                        text = "№" + it.frameNumber,
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                    )
+                }
 
-            activeRent?.bike?.let {
-                BikeChargeSection(it)
-            }
+                it.bike?.let {
+                    BikeChargeSection(it)
+                }
 
-            Button(
-                onClick = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            state = CLOSING
-                            onClick()
-                        }
+                if (!it.isOld) {
+                    Button(
+                        onClick = {
+                            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                if (!sheetState.isVisible) {
+                                    state = CLOSING
+                                    onClick()
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(horizontal = 32.dp)
+                            .padding(vertical = 32.dp)
+                    ) {
+                        Text(context.getString(R.string.active_rent_btn))
                     }
-                },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(horizontal = 32.dp)
-                    .padding(vertical = 32.dp)
-            ) {
-                Text(context.getString(R.string.active_rent_btn))
+                }
             }
         }
-    }
 }
 
 private fun getTimeStr(startTime: Long) : String {
