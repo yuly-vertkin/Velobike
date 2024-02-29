@@ -23,14 +23,20 @@ class MainViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             delay(SPLASH_DELAY)
-            _mainUiState.value = if (authManager.isLogged) MainUiState.Normal else MainUiState.Login
+            changeState(if (authManager.isLogged) MainUiState.Normal else MainUiState.Login)
         }
+
+        authManager.reLoginListener = { changeState(MainUiState.Login) }
     }
 
     fun handleIntent(intent: MainIntent) {
         when (intent) {
-            is MainIntent.Logged -> _mainUiState.value = MainUiState.Normal
+            is MainIntent.Logged -> changeState(MainUiState.Normal)
         }
+    }
+
+    private fun changeState(uiState: MainUiState) {
+        _mainUiState.value = uiState
     }
 
     companion object {

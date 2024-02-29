@@ -12,6 +12,7 @@ import ru.sitronics.velobike.BuildConfig
 import ru.sitronics.velobike.domain.auth.AuthManager
 import ru.sitronics.velobike.tools.Md5Utils
 import timber.log.Timber
+import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
 import java.util.Date
 import javax.inject.Inject
 
@@ -63,7 +64,14 @@ class AuthInterceptor(private val authManager: AuthManager): Interceptor {
                 .build()
             request = request.newBuilder().headers(headers).build()
         }
-        return chain.proceed(request)
+
+        val response = chain.proceed(request)
+
+        if (response.code == HTTP_UNAUTHORIZED) {
+            authManager.needReLogin()
+        }
+
+        return response
     }
 
     companion object {

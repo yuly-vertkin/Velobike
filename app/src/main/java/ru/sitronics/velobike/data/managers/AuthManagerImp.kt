@@ -16,6 +16,7 @@ class AuthManagerImp @Inject constructor(
     @ApplicationContext context: Context
 ) : AuthManager {
     private val sharedPreferences: SharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
+    override var reLoginListener: (() -> Unit)? = null
 
     override var accessToken: String? = null
         get() = field ?: getStringPreference(AUTH_TOKEN_KEY)
@@ -44,6 +45,10 @@ class AuthManagerImp @Inject constructor(
 
     override fun setToken(token: String?) {
         accessToken = token
+    }
+
+    override fun needReLogin() {
+        reLoginListener?.invoke()
     }
 
     private fun saveOtherData(token: String) {
