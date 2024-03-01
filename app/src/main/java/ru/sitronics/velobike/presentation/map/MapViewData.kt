@@ -35,3 +35,5 @@ enum class DialogState {
 
 fun Boolean.toDialogState() : DialogState =
     if (this) DialogState.SHOW else DialogState.CLOSE
+
+data class Padding(val top: Int, val bottom: Int)

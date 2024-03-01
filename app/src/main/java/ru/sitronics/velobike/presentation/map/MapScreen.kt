@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -34,21 +37,22 @@ fun MapScreen(
     val onAction: (MapIntent) -> Unit = { intent -> mapViewModel.handleIntent(intent) }
     val context = LocalContext.current
     val locationPermissionLauncher = rememberLocationPermissionLauncher()
+    var padding by remember { mutableStateOf(Padding(0, 0)) }
 
     Box(modifier = Modifier.padding(contentPadding)) {
         Logg.d("!!!! MapScreen ${mapUiState.javaClass.name}")
 
-        MapViewContainer(mapUiState, onAction)
+        MapViewContainer(mapUiState, padding, onAction)
 
-        BikeDetailDialog(mapUiState, { onAction(MapIntent.ResetState) }) { id, from ->
+        BikeDetailDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.ResetState) }) { id, from ->
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
                 onAction(MapIntent.CloseBikeDetail(id, from, lat, lon))
             }
         }
 
-        StationDetailDialog(mapUiState) { onAction(MapIntent.ResetState) }
+        StationDetailDialog(mapUiState, { padding = padding.copy(bottom = it) }) { onAction(MapIntent.ResetState) }
 
-        ParkingDetailDialog(mapUiState) { onAction(MapIntent.ResetState) }
+        ParkingDetailDialog(mapUiState, { padding = padding.copy(bottom = it) }) { onAction(MapIntent.ResetState) }
 
         ScanQrCodeDialog(mapUiState, { onAction(MapIntent.ResetState) }) { id, from ->
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
@@ -56,21 +60,21 @@ fun MapScreen(
             }
         }
 
-        ActiveRentBar(mapUiState) { onAction(MapIntent.ClickActiveRentBar) }
+        ActiveRentBar(mapUiState, { padding = padding.copy(top = it) }) { onAction(MapIntent.ClickActiveRentBar) }
 
-        ActiveRentDialog(mapUiState, { onAction(MapIntent.CloseActiveRent()) }) {
+        ActiveRentDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.CloseActiveRent()) }) {
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
                 onAction(MapIntent.CloseActiveRent(true, lat, lon))
             }
         }
 
-        FinishingRentDialog(mapUiState, { onAction(MapIntent.CloseFinishingRent()) }) {
+        FinishingRentDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.CloseFinishingRent()) }) {
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
                 onAction(MapIntent.CloseFinishingRent(true, lat, lon))
             }
         }
 
-        ChooseParkingDialog(mapUiState, { onAction(MapIntent.CloseChooseParking()) }) {
+        ChooseParkingDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.CloseChooseParking()) }) {
             onAction(MapIntent.CloseChooseParking(true))
         }
 
@@ -80,7 +84,7 @@ fun MapScreen(
             onAction(MapIntent.OnTakePhoto(it))
         }
 
-        FinishedRentDialog(mapUiState, { onAction(MapIntent.ResetState) }) {
+        FinishedRentDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.ResetState) }) {
             onAction(MapIntent.CloseFinishedRent)
         }
 

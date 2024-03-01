@@ -29,14 +29,16 @@ import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
 import ru.sitronics.velobike.presentation.map.MapUiState
 import ru.sitronics.velobike.presentation.map.MapUiState.FinishingRent
 import ru.sitronics.velobike.presentation.map.toDialogState
+import ru.sitronics.velobike.tools.onSizeChanged
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FinishingRentDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: () -> Unit) {
+fun FinishingRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismiss: () -> Unit, onClick: () -> Unit) {
     var state by remember { mutableStateOf(CLOSE) }
     val context = LocalContext.current
-    val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
+    sheetState.onSizeChanged(onSizeChanged)
 
     if (uiState is FinishingRent && state != CLOSING) {
         state = uiState.show.toDialogState()

@@ -27,21 +27,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.map.Parking
-import ru.sitronics.velobike.presentation.map.MapUiState.StationDetail
-import ru.sitronics.velobike.presentation.map.MapUiState
-import ru.sitronics.velobike.presentation.map.DialogState.SHOW
-import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
+import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
+import ru.sitronics.velobike.presentation.map.DialogState.SHOW
+import ru.sitronics.velobike.presentation.map.MapUiState
+import ru.sitronics.velobike.presentation.map.MapUiState.StationDetail
 import ru.sitronics.velobike.presentation.map.toDialogState
+import ru.sitronics.velobike.tools.onSizeChanged
 import ru.sitronics.velobike.ui.theme.HeaderBackgroundColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StationDetailDialog(uiState: MapUiState, onDismiss: () -> Unit) {
+fun StationDetailDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismiss: () -> Unit) {
     var parking by remember { mutableStateOf<Parking?>(null) }
     var state by remember { mutableStateOf(CLOSE) }
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState()
+    sheetState.onSizeChanged(onSizeChanged)
 
     val availableBikes = parking?.let { it.availableNonElectricBikes + it.availableElectricBikes + it.availableOmniBikes }
     val freePlaces = parking?.let { it.freeNonElectricSlots + it.freeElectricSlots + it.freeOmniSlots }

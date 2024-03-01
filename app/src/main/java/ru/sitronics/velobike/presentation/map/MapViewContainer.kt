@@ -42,6 +42,7 @@ import ru.sitronics.velobike.tools.rememberLocationPermissionLauncher
 @Composable
 fun BoxScope.MapViewContainer(
     uiState: MapUiState,
+    padding: Padding,
     onAction: (MapIntent) -> Unit,
 ) {
     val context = LocalContext.current
@@ -136,7 +137,7 @@ fun BoxScope.MapViewContainer(
         else -> {}
     }
 
-    MapTopLayerContainer(mapView, uiState, onAction)
+    MapTopLayerContainer(mapView, uiState, padding, onAction)
 }
 
 private fun updateBikes(

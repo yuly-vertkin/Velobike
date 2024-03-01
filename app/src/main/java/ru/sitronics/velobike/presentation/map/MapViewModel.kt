@@ -261,6 +261,7 @@ class MapViewModel @Inject constructor(
                 activeRent?.rentStatus == MainRentStatus.CHECK_END
         changeState(MapUiState.FinishingRent(show))
         changeState(MapUiState.ActiveRentBar(showActiveRentBar))
+        changeState(MapUiState.QrScanButton(activeRent == null))
     }
 
     private fun onBikeClick(id: String) {

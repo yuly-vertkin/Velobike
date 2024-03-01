@@ -35,19 +35,21 @@ import ru.sitronics.velobike.presentation.map.DialogState.SHOW
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
 import ru.sitronics.velobike.presentation.map.toDialogState
+import ru.sitronics.velobike.tools.onSizeChanged
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.minutes
 
 @SuppressLint("StringFormatInvalid")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BikeDetailDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: (String?, Boolean) -> Unit) {
+fun BikeDetailDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismiss: () -> Unit, onClick: (String?, Boolean) -> Unit) {
     var bike by remember { mutableStateOf<Bike?>(null) }
     var fromQrScan by remember { mutableStateOf(false) }
     var state by remember { mutableStateOf(CLOSE) }
     val context = LocalContext.current
-    val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
+    sheetState.onSizeChanged(onSizeChanged)
 
     if (uiState is BikeDetail && state != CLOSING) {
         bike = uiState.bike

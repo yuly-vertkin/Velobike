@@ -29,15 +29,17 @@ import ru.sitronics.velobike.presentation.map.MapUiState
 import ru.sitronics.velobike.presentation.map.MapUiState.CurrentRent
 import ru.sitronics.velobike.presentation.map.toDialogState
 import ru.sitronics.velobike.tools.getDateTimeStr
+import ru.sitronics.velobike.tools.onSizeChanged
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ActiveRentDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: () -> Unit) {
+fun ActiveRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismiss: () -> Unit, onClick: () -> Unit) {
     var activeRent by remember { mutableStateOf<ActiveRent?>(null) }
     var state by remember { mutableStateOf(CLOSE) }
     val context = LocalContext.current
-    val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
+    sheetState.onSizeChanged(onSizeChanged)
 
     if (uiState is CurrentRent && state != CLOSING) {
         activeRent = uiState.activeRent

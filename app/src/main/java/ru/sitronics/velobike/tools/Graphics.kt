@@ -6,8 +6,15 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import android.util.DisplayMetrics
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
 
@@ -87,3 +94,23 @@ fun Bitmap.drawChatBitmap() : Bitmap {
     return bitmap
 }
 */
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SheetState.onSizeChanged(onSizeChanged: (Int) -> Unit) {
+    val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+
+    LaunchedEffect(currentValue) {
+        if (isVisible)  {
+            val height = configuration.screenHeightDp - requireOffset().toInt().toDp(context) - PADDING_CORRECTION
+            onSizeChanged(height)
+        }
+        else onSizeChanged(0)
+    }
+}
+
+const val PADDING_CORRECTION = 48
+
+fun Int.toDp(context: Context) : Int =
+    this * DisplayMetrics.DENSITY_DEFAULT / context.resources.displayMetrics.densityDpi

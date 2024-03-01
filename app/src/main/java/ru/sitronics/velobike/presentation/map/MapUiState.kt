@@ -27,6 +27,7 @@ sealed class MapUiState {
     data class ChatUnreadMessages(val count: Int) : MapUiState()
     data class Error(val title: String, val text: String) : MapUiState()
     data class Loading(val show: Boolean) : MapUiState()
+    data class QrScanButton(val show: Boolean) : MapUiState()
 }
 
 sealed class MapIntent {
