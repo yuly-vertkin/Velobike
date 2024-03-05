@@ -200,6 +200,14 @@ class MapContentUseCase @Inject constructor(
         }
     }
 
+    fun findParking(findStr: String) : List<Parking> {
+        val data = mapContentRepository.getData()
+        return (data.parkings.orEmpty() + data.stations.orEmpty()).filter { x ->
+            x.id.contains(findStr, ignoreCase = true) ||
+            x.address.contains(findStr, ignoreCase = true)
+        }
+    }
+
     companion object {
         private const val MAP_CONTENT_ITEM_NUM = 3
         private const val SHOW_CONTENT_ZOOM = 5f

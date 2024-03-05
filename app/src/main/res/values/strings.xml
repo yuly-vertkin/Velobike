@@ -51,6 +51,9 @@
 
     <string name="qr_scan_missing_camera_permission">Missing camera permission</string>
 
+<!-- Search -->
+    <string name="search_label">Street or station number</string>
+
 <!-- Rent -->
     <string name="return_to_active_ride">Return to active ride</string>
     <string name="active_rent_btn">Complete</string>

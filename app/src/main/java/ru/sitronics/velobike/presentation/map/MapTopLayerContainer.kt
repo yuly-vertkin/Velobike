@@ -78,7 +78,7 @@ fun BoxScope.MapTopLayerContainer(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .offset(x = (-8).dp, y = 16.dp),
-            onClick = { },
+            onClick = { onAction(MapIntent.Search("")) },
             shape = CircleShape,
             containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),

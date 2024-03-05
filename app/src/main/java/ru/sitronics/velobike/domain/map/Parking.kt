@@ -16,6 +16,7 @@ data class Parking(
     val availableElectricBikes: Int,
     val availableOmniBikes: Int,
     val status: Int,
+    var distance: Float? = null,
 )
 
 enum class StationType(val type: Int) {

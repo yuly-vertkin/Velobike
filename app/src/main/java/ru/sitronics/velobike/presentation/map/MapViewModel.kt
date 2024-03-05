@@ -1,5 +1,6 @@
 package ru.sitronics.velobike.presentation.map
 
+import android.location.Location
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -152,6 +153,19 @@ class MapViewModel @Inject constructor(
                         }
                     }
                 }
+            }
+            is MapIntent.Search -> {
+                val parkings = if (intent.searchStr.length > 1) mapContentUseCase.findParking(intent.searchStr)
+                               else emptyList()
+                // calculate distance
+                val isLocation = intent.latitude != null && intent.longitude != null
+                val res = FloatArray(1)
+                parkings.forEach {
+                    if (isLocation)
+                        Location.distanceBetween(intent.latitude!!, intent.longitude!!, it.latitude, it.longitude, res)
+                    it.distance = if (isLocation) res[0] else null
+                }
+                changeState(MapUiState.Search(parkings))
             }
             is MapIntent.CloseActiveRent -> {
                 showActiveRentBar = !intent.isClicked

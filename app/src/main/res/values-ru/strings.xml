@@ -50,7 +50,10 @@
 
     <string name="qr_scan_missing_camera_permission">Нужно разрешение на использование камеры</string>
 
-<!-- Rent -->
+    <!-- Search -->
+    <string name="search_label">Улица или номер станции</string>
+
+    <!-- Rent -->
     <string name="return_to_active_ride">Вернуться к активной поездке</string>
     <string name="active_rent_btn">Завершить</string>
     <string name="finish_rent">Завершение поездки</string>

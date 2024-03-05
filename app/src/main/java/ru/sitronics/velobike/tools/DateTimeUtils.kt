@@ -1,5 +1,7 @@
 package ru.sitronics.velobike.tools
 
+import java.text.DecimalFormat
+import java.text.NumberFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -24,5 +26,11 @@ fun formatDateTimeStr(time: String, inputPattern: String, outputPattern: String)
         }
     } catch (_: ParseException) { }
     return result
+}
+
+fun getNumberStr(number: Float, pattern: String) : String {
+    val formatter = NumberFormat.getInstance() as DecimalFormat
+    formatter.applyPattern(pattern)
+    return formatter.format(number)
 }
 
