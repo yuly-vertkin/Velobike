@@ -40,6 +40,7 @@ sealed class MapIntent {
     object QrScanTap : MapIntent()
     data class ChatTap(val context: Context) : MapIntent()
     data class Search(val searchStr: String, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
+    data class CloseSearch(val id: String) : MapIntent()
     data class CloseBikeDetail(val id: String?, val fromQrScan: Boolean, val latitude: Double?, val longitude: Double?) : MapIntent()
     data class CloseQrScan(val id: String? = null, val fromBikeDetail: Boolean, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
     data class CloseActiveRent(val isClicked: Boolean = false, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()

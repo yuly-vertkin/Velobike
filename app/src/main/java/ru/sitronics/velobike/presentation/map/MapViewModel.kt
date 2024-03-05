@@ -110,9 +110,9 @@ class MapViewModel @Inject constructor(
             }
             is MapIntent.MapObjectTap -> {
                 when (intent.userData) {
-                    is MarkerUserData.Bike -> onBikeClick(intent.userData.id)
-                    is MarkerUserData.Station -> onStationClick(intent.userData.id)
-                    is MarkerUserData.Parking -> onParkingClick(intent.userData.id)
+                    is MarkerUserData.Bike -> showBikeDetail(intent.userData.id)
+                    is MarkerUserData.Station -> showStationDetail(intent.userData.id)
+                    is MarkerUserData.Parking -> showParkingDetail(intent.userData.id)
                     is MarkerUserData.SlowZone -> {}//onSlowZoneClick(data)
                     is MarkerUserData.MoveZone -> {}//onNotMoveZoneClick()
                     null -> {}
@@ -166,6 +166,9 @@ class MapViewModel @Inject constructor(
                     it.distance = if (isLocation) res[0] else null
                 }
                 changeState(MapUiState.Search(parkings))
+            }
+            is MapIntent.CloseSearch -> {
+                showStationDetail(intent.id)
             }
             is MapIntent.CloseActiveRent -> {
                 showActiveRentBar = !intent.isClicked
@@ -278,15 +281,15 @@ class MapViewModel @Inject constructor(
         changeState(MapUiState.QrScanButton(activeRent == null))
     }
 
-    private fun onBikeClick(id: String) {
-        Logg.d("!!! onBikeClick $id")
+    private fun showBikeDetail(id: String) {
+        Logg.d("!!! showBikeDetail $id")
         mapContentUseCase.getBike(id)?.let { bike ->
             changeState(MapUiState.BikeDetail(bike))
         }
     }
 
-    private fun onStationClick(id: String) {
-        Logg.d("!!! onStationClick $id")
+    private fun showStationDetail(id: String) {
+        Logg.d("!!! showStationDetail $id")
         if (chooseParking)
             handleChooseParking(id)
         else
@@ -295,8 +298,8 @@ class MapViewModel @Inject constructor(
             }
     }
 
-    private fun onParkingClick(id: String) {
-        Logg.d("!!! onParkingClick $id")
+    private fun showParkingDetail(id: String) {
+        Logg.d("!!! showParkingDetail $id")
         mapContentUseCase.getParking(id)?.let { parking ->
             changeState(MapUiState.ParkingDetail(parking))
         }

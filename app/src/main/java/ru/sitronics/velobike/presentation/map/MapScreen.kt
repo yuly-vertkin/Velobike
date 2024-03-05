@@ -54,7 +54,7 @@ fun MapScreen(
 
         ParkingDetailDialog(mapUiState, { padding = padding.copy(bottom = it) }) { onAction(MapIntent.ResetState) }
 
-        SearchDialog(mapUiState) {
+        SearchDialog(mapUiState, { onAction(MapIntent.CloseSearch(it)) }) {
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
                 onAction(MapIntent.Search(it, lat, lon))
             }

@@ -1,6 +1,7 @@
 package ru.sitronics.velobike.presentation.map
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,7 +32,7 @@ import ru.sitronics.velobike.tools.BackPressHandler
 import ru.sitronics.velobike.tools.getNumberStr
 
 @Composable
-fun SearchDialog(uiState: MapUiState, onChange: (String) -> Unit) {
+fun SearchDialog(uiState: MapUiState, onClick: (String) -> Unit, onChange: (String) -> Unit) {
     var state by remember { mutableStateOf(CLOSE) }
     var searchStr by remember { mutableStateOf("") }
     var parkings by remember { mutableStateOf<List<Parking>>(emptyList()) }
@@ -63,7 +64,9 @@ fun SearchDialog(uiState: MapUiState, onChange: (String) -> Unit) {
 
             LazyColumn {
                 items(parkings) {
-                    Column {
+                    Column(
+                        modifier = Modifier.clickable { state = CLOSING; searchStr = ""; onClick(it.id) }
+                    ) {
                         HorizontalDivider(Modifier.padding(vertical = 8.dp), 1.dp, Color.LightGray)
                         Text(text = "№ ${it.id} ${it.address}    ${getDistanceStr(it.distance)}")
                     }
