@@ -11,7 +11,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven(url = "https://jitpack.io")
-        maven(url = "https://maven-pub.mfms.ru/repository/maven-public/")
+        maven(url = "https://maven-pub.edna.ru/repository/maven-public/")
     }
 }
 

@@ -129,9 +129,8 @@ dependencies {
     implementation("io.coil-kt:coil-gif:2.5.0")
 
     // Chat
-    implementation("im.threads:threads-release:4.6.0")
-    //debugImplementation("im.threads:threads-debug:4.0.2")
-    implementation("com.edna.android:push-lite-release:3.5.0")
+    releaseImplementation("im.threads:threads-release:4.29.2")
+    debugImplementation("im.threads:threads-debug:4.29.2")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
