@@ -54,6 +54,13 @@ data class RentStatus(
     val failedReason: FailedReason? = null,
 ) : Parcelable
 
+data class FinishedRentOld(
+    @SerializedName("rental_start_id")
+    val rentalStartId : String,
+    @SerializedName("bike_id")
+    val bikeId : String,
+)
+
 enum class MainRentStatus {
     @SerializedName("IN_PROGRESS")
     IN_PROGRESS,

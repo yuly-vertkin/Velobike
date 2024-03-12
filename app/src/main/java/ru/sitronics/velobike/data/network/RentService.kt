@@ -13,6 +13,7 @@ import ru.sitronics.velobike.data.repositories.rent.ActiveRentOldDto
 import ru.sitronics.velobike.domain.rent.ActiveRent
 import ru.sitronics.velobike.domain.rent.ChooseParkingParams
 import ru.sitronics.velobike.domain.rent.FinishRentParams
+import ru.sitronics.velobike.domain.rent.FinishedRentOld
 import ru.sitronics.velobike.domain.rent.RentStatus
 import ru.sitronics.velobike.domain.rent.StartRentParams
 
@@ -25,6 +26,9 @@ interface RentService {
 
     @GET("api/supabase/rest/v1/rental_start?select=%2A&bike_type=lte.1")
     suspend fun checkActiveRentOld(@Query("customer_id") uid: String) : List<ActiveRentOldDto>
+
+    @GET("api/supabase/rest/v1/rental_end?select=%2A")
+    suspend fun checkFinishedRentOld(@Query("customer_id") customerId: String, @Query("rental_start_id") rentId: String) : List<FinishedRentOld>
 
     @POST("api/rent/rents")
     suspend fun startRent(@Body params: StartRentParams) : RentStatus

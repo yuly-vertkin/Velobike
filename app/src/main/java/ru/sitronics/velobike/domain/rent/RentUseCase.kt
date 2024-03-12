@@ -24,6 +24,7 @@ class RentUseCase @Inject constructor(
 ) : BaseUseCase(appContextProvider) {
     var activeRent: ActiveRent? = null
         private set
+    private var finishedRentId: Int? = null
     private var rentStatus: RentStatus? = null
     private var activeRentUpdateTask: TimerTask? = null
 
@@ -91,7 +92,8 @@ class RentUseCase @Inject constructor(
                 rentStatus = it
                 delay(CHECK_RENT_STATUS_DELAY)
 
-                while (rentStatus?.processStatus == ProgressStatus.S5_OBTAIN_LOCK_INFO) {
+                while (rentStatus?.processStatus == ProgressStatus.S5_OBTAIN_LOCK_INFO ||
+                       rentStatus?.processStatus == ProgressStatus.S6_OBTAIN_SINGLE_RIDING) {
                     checkRentStatus(it.id, it.frameNumber ?: "")
                     delay(CHECK_RENT_STATUS_DELAY)
                 }
@@ -213,11 +215,11 @@ class RentUseCase @Inject constructor(
 
     fun updateActiveRent(
         isStart: Boolean,
-        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit,
+        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit, onFinish: (FinishedRentOld?) -> Unit
     ) {
         if (isStart && activeRentUpdateTask == null) {
             activeRentUpdateTask = Timer().schedule(0, CHECK_ACTIVE_RENT_DELAY) {
-                checkActiveRent(onError, onSuccess)
+                checkActiveRent(onError, onSuccess, onFinish)
             }
         } else if (!isStart) {
             activeRentUpdateTask?.cancel()
@@ -226,7 +228,7 @@ class RentUseCase @Inject constructor(
     }
 
     private fun checkActiveRent(
-        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit
+        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit, onFinish: ((FinishedRentOld?) -> Unit)? = null
     ) {
         processNetworkCall(
             action = { rentRepository.checkActiveRent() },
@@ -235,7 +237,7 @@ class RentUseCase @Inject constructor(
 
                 it.firstOrNull()?.let { rent ->
                     onCheckActiveRentSuccess(rent, onSuccess)
-                } ?: checkActiveRentOld(onError, onSuccess)
+                } ?: checkActiveRentOld(onError, onSuccess, onFinish)
             },
             onError = {
                 Logg.d("!!!! ERROR checkActiveRent()")
@@ -246,7 +248,7 @@ class RentUseCase @Inject constructor(
     }
 
     private fun checkActiveRentOld(
-        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit
+        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit, onFinish: ((FinishedRentOld?) -> Unit)? = null
     ) {
         authManager.userId?.let {
             processNetworkCall(
@@ -255,7 +257,16 @@ class RentUseCase @Inject constructor(
                     Logg.d("!!!! checkActiveRentOld found ${it.size}")
                     val rent = it.firstOrNull()
                     rent?.isOld = true
+
+                    // check if old rent has just finished
+                    if (rent == null && activeRent?.isOld == true)
+                        finishedRentId = activeRent?.rentId
+
                     onCheckActiveRentSuccess(rent, onSuccess)
+
+                    finishedRentId?.let {
+                        checkFinishedRentOld(onFinish)
+                    }
                 },
                 onError = {
                     Logg.d("!!!! ERROR checkActiveRentOld()")
@@ -269,10 +280,33 @@ class RentUseCase @Inject constructor(
         }
     }
 
+    private fun checkFinishedRentOld(
+        onFinish: ((FinishedRentOld?) -> Unit)?
+    ) {
+        authManager.userId?.let { userId ->
+            finishedRentId?.let { rentId ->
+                processNetworkCall(
+                    action = { rentRepository.checkFinishedRentOld(userId, rentId) },
+                    onSuccess = { rents ->
+                        Logg.d("!!!! checkFinishedRentOld found ${rents.size}")
+                        val rent = rents.firstOrNull()
+                        rent?.let { finishedRentId = null }
+                        onFinish?.invoke(rent)
+                    },
+                    onError = {
+                        Logg.d("!!!! ERROR checkFinishedRentOld()")
+                    },
+                    callName = "checkFinishedRentOld"
+                )
+            }
+        }
+    }
+
     private fun onCheckActiveRentSuccess(
         rent: ActiveRent?, onSuccess: (ActiveRent?) -> Unit
     ) {
         Logg.d("!!!! checkActiveRent ${activeRent?.rentStatus?.name} ${rent?.rentStatus?.name}")
+
         activeRent = rent
         if (rent != null && !rent.isOld)
             runWithBike(rent.frameNumber) { bike ->

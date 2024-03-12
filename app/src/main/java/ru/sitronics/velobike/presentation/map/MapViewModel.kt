@@ -64,16 +64,17 @@ class MapViewModel @Inject constructor(
                     changeState(MapUiState.MoveZones(filterMoveZones(moveZones)))
                 }
 
-                rentUseCase.updateActiveRent(true, { showError(it) }) { activeRent ->
-                    handleActiveRent(activeRent)
-                }
+                rentUseCase.updateActiveRent(true,
+                    { showError(it) },
+                    { handleActiveRent(it) },
+                    { changeState(MapUiState.FinishedRent(null)) })
 
                 chatManager.addUnreadMessagesCountListener {
                     changeState(MapUiState.ChatUnreadMessages(it))
                 }
             }
             is MapIntent.MapStop -> {
-                rentUseCase.updateActiveRent(false, {}) { _ -> }
+                rentUseCase.updateActiveRent(false, {}, {}) { _ -> }
 
                 chatManager.addUnreadMessagesCountListener {}
             }
@@ -198,17 +199,17 @@ class MapViewModel @Inject constructor(
                             changeState(MapUiState.Loading(false))
 
                             when (it.processStatus) {
+                                ProgressStatus.WAIT_PARKING_FROM_CLIENT -> {
+                                    chooseParking = true
+                                    changeState(MapUiState.FinishingRent(false))
+                                    changeState(MapUiState.ChooseParking)
+                                }
                                 ProgressStatus.WAIT_CLOSE_LOCK -> {
                                     showWheelLock = true
                                     changeState(MapUiState.WheelLock)
                                 }
                                 ProgressStatus.WAIT_UPLOAD_PHOTO ->
                                     changeState(MapUiState.TakePhoto)
-                                ProgressStatus.WAIT_PARKING_FROM_CLIENT -> {
-                                    chooseParking = true
-                                    changeState(MapUiState.FinishingRent(false))
-                                    changeState(MapUiState.ChooseParking)
-                                }
                                 else -> {}
                             }
                         }
