@@ -39,13 +39,13 @@ data class Profile(
 //    @SerializedName("Balance")
 //    val balance: Double,
     @SerializedName("TariffId")
-    val tariffIdOld: String = "",
+    val oldTariffId: String = "",
     @SerializedName("TariffName")
-    val tariffNameOld: String = "",
+    val oldTariffName: String = "",
 //    @SerializedName("TariffStart")
-//    val tariffStartOld: Date? = null,
+//    val oldTariffStart: Date? = null,
     @SerializedName("TariffEnd")
-    val tariffEndOld: Date? = null,
+    val oldTariffEnd: Date? = null,
 //    @SerializedName("PaymentCardMask")
 //    val paymentCardMask: String? = "",
 //    @SerializedName("PaymentBind")
@@ -74,6 +74,6 @@ data class Profile(
 //    val activationTariffEndDate: String? = "",
 //    @SerializedName("OmniActivationTariffEndDate")
 //    val omniActivationTariffEndDate: String? = ""
-    var tariffOld: Tariff? = null,
+    var oldTariff: Tariff? = null,
     var tariff: Tariff? = null,
 )

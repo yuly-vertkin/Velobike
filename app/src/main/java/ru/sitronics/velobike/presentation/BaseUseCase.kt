@@ -12,10 +12,14 @@ import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.tools.Logg
 
 abstract class BaseUseCase(appContextProvider: AppContextProvider) {
-    lateinit var scope: CoroutineScope
+    protected lateinit var scope: CoroutineScope
     @SuppressLint("StaticFieldLeak")
     protected val context = appContextProvider.getContext()
     private val calledJobs = HashMap<String, Job?>()
+
+    open fun initScope(vmScope: CoroutineScope) {
+        scope = vmScope
+    }
 
     // Если force = false Мы не повторяем запрос, если предыдущий еще не отработал
     // Внимание! для корректной работы параллельных запросов необходимо дать им разные имена

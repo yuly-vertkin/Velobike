@@ -30,6 +30,7 @@ import ru.sitronics.velobike.presentation.map.MapUiState.CurrentRent
 import ru.sitronics.velobike.presentation.map.toDialogState
 import ru.sitronics.velobike.tools.getDateTimeStr
 import ru.sitronics.velobike.tools.onSizeChanged
+import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +62,7 @@ fun ActiveRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismis
                         .padding(bottom = 32.dp)
                 ) {
                     Text(
-                        text = "100 p.",
+                        text = "${it.cost} ₽",
                         modifier = Modifier
                             .padding(start = 16.dp)
                             .weight(1f)
@@ -108,6 +109,7 @@ fun ActiveRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismis
 }
 
 private fun getTimeStr(startTime: Long) : String {
-    val time = System.currentTimeMillis() - startTime
+    val timeZoneOffset = TimeZone.getDefault().getOffset(System.currentTimeMillis())
+    val time = System.currentTimeMillis() - timeZoneOffset - startTime * 1000
     return getDateTimeStr(time, "HH:mm")
 }

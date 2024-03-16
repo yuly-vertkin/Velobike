@@ -22,17 +22,17 @@ data class Tariff(
     @SerializedName("RentalContractBikeType")
     val tariffBikeType: TariffBikeType?,
     @SerializedName("Segments")
-    val segments: List<TariffSegment>?,
+    val oldSegments: List<TariffSegment>?,
     @SerializedName("ElectroSegments")
-    val electroSegments: List<TariffSegment>?,
-    @SerializedName("AdditionalSegments")
-    val additionalSegments: List<TariffSegment>?,
-    @SerializedName("AdditionalElectroSegments")
-    val additionalElectroSegments: List<TariffSegment>?,
-    @SerializedName("AdditionalOmniSegments")
-    val additionalOmniSegments: List<TariffSegment>?,
+    val oldElectroSegments: List<TariffSegment>?,
     @SerializedName("OmniSegments")
-    val omniSegments: List<TariffSegment>?,
+    val segments: List<TariffSegment>?,
+    @SerializedName("AdditionalSegments")
+    val additionalOldSegments: List<TariffSegment>?,
+    @SerializedName("AdditionalElectroSegments")
+    val additionalOldElectroSegments: List<TariffSegment>?,
+    @SerializedName("AdditionalOmniSegments")
+    val additionalSegments: List<TariffSegment>?,
     @SerializedName("ByMinute")
     val byMinute: Boolean,
     @SerializedName("BillingDescription")

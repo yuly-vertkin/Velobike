@@ -44,8 +44,8 @@ class MapViewModel @Inject constructor(
     private var chooseParking: Boolean = false
 
     init {
-        rentUseCase.scope = viewModelScope
-        mapContentUseCase.scope = viewModelScope
+        rentUseCase.initScope(viewModelScope)
+        mapContentUseCase.initScope(viewModelScope)
         initStates()
     }
 

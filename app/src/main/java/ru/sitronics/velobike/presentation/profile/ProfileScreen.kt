@@ -140,16 +140,16 @@ private fun TariffSection(profile: Profile, isOld: Boolean, onAction: (ProfileIn
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
     ) {
-        val isTariff = isOld && profile.tariffIdOld.isNotEmpty() || !isOld && profile.tariffId.isNotEmpty()
+        val isTariff = isOld && profile.oldTariffId.isNotEmpty() || !isOld && profile.tariffId.isNotEmpty()
 
         if (isTariff) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = context.getString(R.string.tariff_name, if (isOld) profile.tariffNameOld else profile.tariffName),
+                    text = context.getString(R.string.tariff_name, if (isOld) profile.oldTariffName else profile.tariffName),
                     fontSize = 14.sp,
                 )
 
-                val cost = if (isOld) profile.tariffOld?.cost?.toInt() ?: 0
+                val cost = if (isOld) profile.oldTariff?.cost?.toInt() ?: 0
                            else profile.tariff?.cost?.toInt() ?: 0
                 Text(
                     text = "$cost ₽",
@@ -160,7 +160,7 @@ private fun TariffSection(profile: Profile, isOld: Boolean, onAction: (ProfileIn
 
                 Text(
                     text = context.getString(R.string.tariff_end, getDateStr(
-                        if (isOld) profile.tariffEndOld else profile.tariffEnd
+                        if (isOld) profile.oldTariffEnd else profile.tariffEnd
                     )),
                     fontSize = 14.sp,
                 )
@@ -174,12 +174,12 @@ private fun TariffSection(profile: Profile, isOld: Boolean, onAction: (ProfileIn
         }
 
         Button(onClick = {
-            val intent = if (isOld && profile.tariffIdOld.isNotEmpty()) ProfileIntent.GetTariff(profile.tariffOld, false)
+            val intent = if (isOld && profile.oldTariffId.isNotEmpty()) ProfileIntent.GetTariff(profile.oldTariff, false)
                     else if (!isOld && profile.tariffId.isNotEmpty()) ProfileIntent.GetTariff(profile.tariff, false)
                     else ProfileIntent.GetTariffs
             onAction(intent)
         }) {
-            val textId = if (isOld && profile.tariffIdOld.isNotEmpty() ||
+            val textId = if (isOld && profile.oldTariffId.isNotEmpty() ||
                              !isOld && profile.tariffId.isNotEmpty()) R.string.tariff
                          else R.string.buy_tariff
             Text(text = context.getString(textId))

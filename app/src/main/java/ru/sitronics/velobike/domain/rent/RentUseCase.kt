@@ -1,5 +1,6 @@
 package ru.sitronics.velobike.domain.rent
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
@@ -7,6 +8,7 @@ import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.auth.AuthManager
 import ru.sitronics.velobike.domain.map.Bike
 import ru.sitronics.velobike.domain.map.MapContentRepository
+import ru.sitronics.velobike.domain.profile.ProfileUseCase
 import ru.sitronics.velobike.presentation.BaseUseCase
 import ru.sitronics.velobike.tools.Logg
 import java.util.Timer
@@ -19,6 +21,7 @@ import kotlin.concurrent.schedule
 class RentUseCase @Inject constructor(
     private val rentRepository: RentRepository,
     private val mapContentRepository: MapContentRepository,
+    private val profileUseCase: ProfileUseCase,
     private val authManager: AuthManager,
     appContextProvider: AppContextProvider,
 ) : BaseUseCase(appContextProvider) {
@@ -27,6 +30,11 @@ class RentUseCase @Inject constructor(
     private var finishedRentId: Int? = null
     private var rentStatus: RentStatus? = null
     private var activeRentUpdateTask: TimerTask? = null
+
+    override fun initScope(vmScope: CoroutineScope) {
+        super.initScope(vmScope)
+        profileUseCase.initScope(vmScope)
+    }
 
     fun startRent(
         bikeId: String, latitude: Double?, longitude: Double?,
@@ -308,6 +316,12 @@ class RentUseCase @Inject constructor(
         Logg.d("!!!! checkActiveRent ${activeRent?.rentStatus?.name} ${rent?.rentStatus?.name}")
 
         activeRent = rent
+        activeRent?.let {
+            profileUseCase.calculateRentCost(it.startTime, it.isOld) { cost ->
+                it.cost = cost
+            }
+        }
+
         if (rent != null && !rent.isOld)
             runWithBike(rent.frameNumber) { bike ->
                 activeRent?.bike = bike
