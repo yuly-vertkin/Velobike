@@ -154,8 +154,7 @@ class ProfileUseCase  @Inject constructor(
     }
 
     fun calculateRentCost(startTime: Long, isOld: Boolean, onResult: (Int) -> Unit) {
-        val timeZoneOffset = TimeZone.getDefault().getOffset(System.currentTimeMillis())
-        val duration = System.currentTimeMillis() - timeZoneOffset - startTime * 1000
+        val duration = System.currentTimeMillis() - startTime * 1000
         val time = TimeUnit.MILLISECONDS.toMinutes(duration).toInt()
 
         getProfileData { profile ->
