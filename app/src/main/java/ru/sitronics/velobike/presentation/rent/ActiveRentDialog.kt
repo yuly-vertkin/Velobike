@@ -28,8 +28,8 @@ import ru.sitronics.velobike.presentation.map.DialogState.SHOW
 import ru.sitronics.velobike.presentation.map.MapUiState
 import ru.sitronics.velobike.presentation.map.MapUiState.CurrentRent
 import ru.sitronics.velobike.presentation.map.toDialogState
+import ru.sitronics.velobike.tools.getTimeStr
 import ru.sitronics.velobike.tools.onSizeChanged
-import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,11 +105,4 @@ fun ActiveRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismis
                 }
             }
         }
-}
-
-private fun getTimeStr(startTime: Long) : String {
-    val duration = System.currentTimeMillis() - startTime * 1000
-    val hours = TimeUnit.MILLISECONDS.toHours(duration)
-    val mins = TimeUnit.MILLISECONDS.toMinutes(duration) % 60
-    return String.format("%02d:%02d", hours, mins)
 }

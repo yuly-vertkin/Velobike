@@ -30,7 +30,7 @@ import ru.sitronics.velobike.presentation.map.DialogState.SHOW
 import ru.sitronics.velobike.presentation.map.MapUiState
 import ru.sitronics.velobike.presentation.map.MapUiState.FinishedRent
 import ru.sitronics.velobike.presentation.map.toDialogState
-import ru.sitronics.velobike.tools.getDateTimeStr
+import ru.sitronics.velobike.tools.getTimeStr
 import ru.sitronics.velobike.tools.onSizeChanged
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,69 +50,66 @@ fun FinishedRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDism
         state = CLOSE
 
     if (state == SHOW) {
-        ModalBottomSheet(
-            onDismissRequest = { state = CLOSING; onDismiss() },
-            sheetState = sheetState
-        ) {
-            Text(
-                text = context.getString(R.string.finished_rent),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(horizontal = 32.dp)
-                    .offset(y = (-12).dp)
-            )
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 32.dp)
+        activeRent?.let {
+            ModalBottomSheet(
+                onDismissRequest = { state = CLOSING; onDismiss() },
+                sheetState = sheetState
             ) {
                 Text(
-                    text = "100 p.",
+                    text = context.getString(R.string.finished_rent),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier
-                        .padding(start = 16.dp)
-                        .weight(1f)
+                        .align(Alignment.CenterHorizontally)
+                        .padding(horizontal = 32.dp)
+                        .offset(y = (-12).dp)
                 )
 
-                Text(
-                    text = getTimeStr(activeRent?.updateTime ?: 0),
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .padding(start = 16.dp)
-                        .weight(1f)
-                )
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 32.dp)
+                ) {
+                    Text(
+                        text = "${it.cost} ₽",
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .weight(1f)
+                    )
 
-                Text(
-                    text = "№" + activeRent?.frameNumber,
-                    modifier = Modifier
-                        .padding(start = 16.dp)
-                )
-            }
+                    Text(
+                        text = getTimeStr(it.startTime),
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .weight(1f)
+                    )
 
-            Button(
-                onClick = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            state = CLOSING
-                            onClick()
+                    Text(
+                        text = "№" + it.frameNumber,
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                    )
+                }
+
+                Button(
+                    onClick = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                state = CLOSING
+                                onClick()
+                            }
                         }
-                    }
-                },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(horizontal = 32.dp)
-                    .padding(vertical = 32.dp)
-            ) {
-                Text(context.getString(R.string.rate_btn))
+                    },
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(horizontal = 32.dp)
+                        .padding(vertical = 32.dp)
+                ) {
+                    Text(context.getString(R.string.rate_btn))
+                }
             }
         }
     }
-}
-
-private fun getTimeStr(startTime: Long) : String {
-    val time = System.currentTimeMillis() - startTime
-    return getDateTimeStr(time, "HH:mm")
 }

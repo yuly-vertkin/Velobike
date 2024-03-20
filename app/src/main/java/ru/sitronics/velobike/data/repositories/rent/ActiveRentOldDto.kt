@@ -29,7 +29,7 @@ data class ActiveRentOldDto(
             startParkingId = startBikeParkingNumber,
             rentStatus = MainRentStatus.IN_PROGRESS,
             failedReason = null,
-            startTime = startDate,
+            startTime = startDate * 1000, // old rent time in sec.
             updateTime = null,
             startPortNumber = 0,
             deviceId = "",

@@ -67,7 +67,7 @@ class MapViewModel @Inject constructor(
                 rentUseCase.updateActiveRent(true,
                     { showError(it) },
                     { handleActiveRent(it) },
-                    { changeState(MapUiState.FinishedRent(null)) })
+                    { changeState(MapUiState.FinishedRent(it)) })
 
                 chatManager.addUnreadMessagesCountListener {
                     changeState(MapUiState.ChatUnreadMessages(it))
@@ -243,8 +243,6 @@ class MapViewModel @Inject constructor(
             }
             is MapIntent.OnTakePhoto -> {
                 if (intent.filePath != null) {
-                    // TODO: temp
-//                    rentUseCase.updateActiveRent(false, {}) { _ -> }
                     changeState(MapUiState.Loading(true))
                     rentUseCase.uploadPhotoAndFinishRent(
                         intent.filePath,
@@ -252,7 +250,6 @@ class MapViewModel @Inject constructor(
                     ) {
                         if (it.status?.isDone() == true) {
                             changeState(MapUiState.FinishingRent(false), true)
-                            changeState(MapUiState.FinishedRent(rentUseCase.activeRent))
                         } else
                             showError(context.getString(R.string.error_unknown))
                     }

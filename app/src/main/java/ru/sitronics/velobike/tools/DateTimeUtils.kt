@@ -6,6 +6,7 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 fun getDateTimeStr(time: Long, pattern: String) : String =
     getDateTimeStr(Date(time), pattern)
@@ -26,6 +27,13 @@ fun formatDateTimeStr(time: String, inputPattern: String, outputPattern: String)
         }
     } catch (_: ParseException) { }
     return result
+}
+
+fun getTimeStr(startTime: Long) : String {
+    val duration = System.currentTimeMillis() - startTime
+    val hours = TimeUnit.MILLISECONDS.toHours(duration)
+    val mins = TimeUnit.MILLISECONDS.toMinutes(duration) % 60
+    return String.format("%02d:%02d", hours, mins)
 }
 
 fun getNumberStr(number: Float, pattern: String) : String {
