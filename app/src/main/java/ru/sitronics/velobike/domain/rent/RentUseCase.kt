@@ -83,7 +83,7 @@ class RentUseCase @Inject constructor(
         if (activeRent == null) return
 
         val params = FinishRentParams(
-            id = activeRent?.rentId ?: 0,
+            id = activeRent?.rentId.orEmpty(),
             frameNumber = activeRent?.frameNumber ?: "",
             deviceId = activeRent?.bike?.deviceId ?: "",
             clientGeoPosition = ClientGeoPosition(
@@ -117,7 +117,7 @@ class RentUseCase @Inject constructor(
     }
 
     fun checkRentStatus(
-        rentId: Int, frameNumber: String,
+        rentId: String, frameNumber: String,
         onError: ((String?) -> Unit)? = null, onSuccess: ((RentStatus) -> Unit)? = null
         ) {
         Logg.d("!!!! checkRentStatus start")
@@ -138,7 +138,7 @@ class RentUseCase @Inject constructor(
     }
 
     fun chooseParking(
-        rentId: Int, params: ChooseParkingParams,
+        rentId: String, params: ChooseParkingParams,
         onError: (String?) -> Unit, onSuccess: () -> Unit
     ) {
         Logg.d("!!!! chooseParking start")
@@ -181,7 +181,7 @@ class RentUseCase @Inject constructor(
         processNetworkCall(
             action = {
                 rentRepository.uploadPhotoRent(
-                    activeRent?.rentId ?: 0,
+                    activeRent?.rentId.orEmpty(),
                     filePath
                 )
             },
@@ -202,7 +202,7 @@ class RentUseCase @Inject constructor(
     ) {
         Logg.d("!!!! finishRentAfterUploadPhoto start")
         processNetworkCall(
-            action = { rentRepository.finishRentAfterUploadPhoto(activeRent?.rentId ?: 0) },
+            action = { rentRepository.finishRentAfterUploadPhoto(activeRent?.rentId.orEmpty()) },
             onSuccess = {
                 Logg.d("!!!! finishRentAfterUploadPhoto success $it")
                 onSuccess(it)
@@ -307,7 +307,7 @@ class RentUseCase @Inject constructor(
                     onSuccess = { rents ->
                         Logg.d("!!!! checkFinishedRentOld found ${rents.size}")
                         rents.firstOrNull()?.let {
-                            val rent = finishedRent
+                            val rent = finishedRent?.copy(rentId = it.rentId)
                             onFinish?.invoke(rent)
                             finishedRent = null
                         }

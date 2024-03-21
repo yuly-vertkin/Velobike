@@ -35,7 +35,7 @@ class RentRepositoryImp @Inject constructor(
         super.saveData(data)
     }
 
-    override fun checkStatus(rentId: Int, frameNumber: String) : Flow<Result<RentStatus>> =
+    override fun checkStatus(rentId: String, frameNumber: String) : Flow<Result<RentStatus>> =
         callAction { service.checkStatus(rentId, frameNumber) }
 
     override fun checkActiveRent() : Flow<Result<List<ActiveRent>>> =
@@ -44,7 +44,7 @@ class RentRepositoryImp @Inject constructor(
     override fun checkActiveRentOld(uid: String) : Flow<Result<List<ActiveRent>>> =
         callAction { service.checkActiveRentOld("eq.$uid") }
 
-    override fun checkFinishedRentOld(customerId: String, rentId: Int) : Flow<Result<List<FinishedRentOld>>> =
+    override fun checkFinishedRentOld(customerId: String, rentId: String) : Flow<Result<List<FinishedRentOld>>> =
         callAction { service.checkFinishedRentOld("eq.$customerId", "eq.$rentId") }
 
     override fun startRent(params: StartRentParams) : Flow<Result<RentStatus>> =
@@ -53,10 +53,10 @@ class RentRepositoryImp @Inject constructor(
     override fun finishRent(params: FinishRentParams) : Flow<Result<RentStatus>> =
         callAction { service.finishRent(params.id, params) }
 
-    override fun chooseParking(rentId: Int, params: ChooseParkingParams) : Flow<Result<RentStatus>> =
+    override fun chooseParking(rentId: String, params: ChooseParkingParams) : Flow<Result<RentStatus>> =
         callAction { service.chooseParking(rentId, params) }
 
-    override fun uploadPhotoRent(rentId: Int, imagePath: String) : Flow<Result<Boolean>> {
+    override fun uploadPhotoRent(rentId: String, imagePath: String) : Flow<Result<Boolean>> {
         val image = File(imagePath)
         val requestBody = image.asRequestBody("image/jpeg".toMediaType())
         val filePart = MultipartBody.Part.createFormData(
@@ -67,6 +67,6 @@ class RentRepositoryImp @Inject constructor(
         return callAction { service.uploadPhotoRent(rentId, filePart) }
     }
 
-    override fun finishRentAfterUploadPhoto(rentId: Int) : Flow<Result<RentStatus>> =
+    override fun finishRentAfterUploadPhoto(rentId: String) : Flow<Result<RentStatus>> =
         callAction { service.finishRentAfterUploadPhoto(rentId) }
 }

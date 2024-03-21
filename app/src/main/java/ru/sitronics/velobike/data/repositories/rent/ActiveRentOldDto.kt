@@ -23,8 +23,7 @@ data class ActiveRentOldDto(
 ) : ResponseDto<ActiveRent> {
     override fun toModel(): ActiveRent =
         ActiveRent(
-            rentId = rentalStartId.toInt(),
-//            externalClientId = ,
+            rentId = rentalStartId,
             frameNumber = bikeId,
             startParkingId = startBikeParkingNumber,
             rentStatus = MainRentStatus.IN_PROGRESS,

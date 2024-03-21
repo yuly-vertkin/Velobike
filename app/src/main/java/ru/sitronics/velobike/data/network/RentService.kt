@@ -19,7 +19,7 @@ import ru.sitronics.velobike.domain.rent.StartRentParams
 
 interface RentService {
     @GET("api/rent/rents/{rentId}/checkRentStatus")
-    suspend fun checkStatus(@Path("rentId") rentId: Int, @Query("frameNumber") frameNumber: String) : RentStatus
+    suspend fun checkStatus(@Path("rentId") rentId: String, @Query("frameNumber") frameNumber: String) : RentStatus
 
     @GET("api/rent/rents/not-finished/user")
     suspend fun checkActiveRent() : List<ActiveRent>
@@ -34,15 +34,15 @@ interface RentService {
     suspend fun startRent(@Body params: StartRentParams) : RentStatus
 
     @POST("api/rent/rents/{rentId}/finishRent")
-    suspend fun finishRent(@Path("rentId") rentId: Int, @Body params: FinishRentParams) : RentStatus
+    suspend fun finishRent(@Path("rentId") rentId: String, @Body params: FinishRentParams) : RentStatus
 
     @Multipart
     @POST("api/rent/files/{rentId}/uploadPhoto")
-    suspend fun uploadPhotoRent(@Path("rentId") rentId: Int, @Part image: MultipartBody.Part) : Response<Unit>
+    suspend fun uploadPhotoRent(@Path("rentId") rentId: String, @Part image: MultipartBody.Part) : Response<Unit>
 
     @POST("api/rent/rents/{rentId}/finishRentAfterUploadPhoto")
-    suspend fun finishRentAfterUploadPhoto(@Path("rentId") rentId: Int) : RentStatus
+    suspend fun finishRentAfterUploadPhoto(@Path("rentId") rentId: String) : RentStatus
 
     @POST("api/rent/rents/{rentId}/commands/parkBikeToParking")
-    suspend fun chooseParking(@Path("rentId") rentId: Int, @Body params: ChooseParkingParams) : RentStatus
+    suspend fun chooseParking(@Path("rentId") rentId: String, @Body params: ChooseParkingParams) : RentStatus
 }

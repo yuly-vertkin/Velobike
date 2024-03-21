@@ -18,7 +18,7 @@ data class StartRentParams(
 )
 
 data class FinishRentParams(
-    val id: Int,
+    val id: String,
     val frameNumber: String,
     val deviceId: String,
     val clientGeoPosition: ClientGeoPosition,
@@ -30,7 +30,7 @@ data class ClientGeoPosition(
 )
 
 data class ActiveRent(
-    val rentId: Int,
+    val rentId: String,
     val externalClientId: String? = null,
     val frameNumber: String,
     val startParkingId: String,
@@ -47,7 +47,7 @@ data class ActiveRent(
 
 @Parcelize
 data class RentStatus(
-    val id: Int,
+    val id: String,
     val frameNumber: String? = null,
     val deviceId: String? = null,
     val status: MainRentStatus? = null,
@@ -56,8 +56,8 @@ data class RentStatus(
 ) : Parcelable
 
 data class FinishedRentOld(
-    @SerializedName("rental_start_id")
-    val rentalStartId : String,
+    @SerializedName("rental_id")
+    val rentId : String,
     @SerializedName("bike_id")
     val bikeId : String,
 )
