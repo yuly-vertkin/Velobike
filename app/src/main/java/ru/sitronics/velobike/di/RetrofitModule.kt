@@ -44,7 +44,7 @@ object RetrofitModule {
     fun provideOkHttpClient(authManager: AuthManager): OkHttpClient {
         val clientBuilder = OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(authManager))
-            .addInterceptor(SecureInterceptor())
+            .addInterceptor(SecureInterceptor(authManager))
 
         if (BuildConfig.DEBUG) {
             clientBuilder.addInterceptor(TestInterceptor())

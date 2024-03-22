@@ -90,8 +90,8 @@ fun MapScreen(
             onAction(MapIntent.OnTakePhoto(it))
         }
 
-        FinishedRentDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.ResetState) }) {
-            onAction(MapIntent.CloseFinishedRent)
+        FinishedRentDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.ResetState) }) { rent, rating ->
+            onAction(MapIntent.CloseFinishedRent(rent, rating))
         }
 
         ErrorDialog(mapUiState) { onAction(MapIntent.ResetState) }

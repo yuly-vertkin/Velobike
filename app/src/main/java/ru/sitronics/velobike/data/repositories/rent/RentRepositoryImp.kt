@@ -11,6 +11,8 @@ import ru.sitronics.velobike.data.network.RentService
 import ru.sitronics.velobike.data.repositories.BaseRepository
 import ru.sitronics.velobike.domain.rent.ActiveRent
 import ru.sitronics.velobike.domain.rent.ChooseParkingParams
+import ru.sitronics.velobike.domain.rent.Feedback
+import ru.sitronics.velobike.domain.rent.FeedbackRes
 import ru.sitronics.velobike.domain.rent.FinishRentParams
 import ru.sitronics.velobike.domain.rent.FinishedRentOld
 import ru.sitronics.velobike.domain.rent.RentData
@@ -69,4 +71,7 @@ class RentRepositoryImp @Inject constructor(
 
     override fun finishRentAfterUploadPhoto(rentId: String) : Flow<Result<RentStatus>> =
         callAction { service.finishRentAfterUploadPhoto(rentId) }
+
+    override fun sendFeedback(feedback: Feedback) : Flow<Result<FeedbackRes>> =
+        callAction { service.sendFeedback(feedback) }
 }

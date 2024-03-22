@@ -257,7 +257,9 @@ class MapViewModel @Inject constructor(
                     changeState(MapUiState.FinishingRent(true))
             }
             is MapIntent.CloseFinishedRent -> {
-                changeState(MapUiState.Normal)
+                rentUseCase.sendFeedback(intent.rent, intent.rating, { showError(it) }) {
+                    changeState(MapUiState.Normal)
+                }
             }
             is MapIntent.CloseError -> {
                 changeState(MapUiState.Normal)

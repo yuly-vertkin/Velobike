@@ -49,6 +49,6 @@ sealed class MapIntent {
     data class CloseChooseParking(val isClicked: Boolean = false) : MapIntent()
     object CloseWheelLock : MapIntent()
     data class OnTakePhoto(val filePath: String? = null) : MapIntent()
-    object CloseFinishedRent : MapIntent()
+    data class CloseFinishedRent(val rent: ActiveRent?, val rating: Int) : MapIntent()
     object CloseError : MapIntent()
 }

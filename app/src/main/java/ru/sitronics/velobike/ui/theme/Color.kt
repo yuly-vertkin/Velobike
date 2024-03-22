@@ -12,3 +12,4 @@ val Pink40 = Color(0xFF7D5260)
 
 val HeaderBackgroundColor = Color(0xFF004A8D)
 val LoadingBackgroundColor = Color(0x80000000)
+val LightGrayBackgroundColor = Color(0xFFE7E8EC)

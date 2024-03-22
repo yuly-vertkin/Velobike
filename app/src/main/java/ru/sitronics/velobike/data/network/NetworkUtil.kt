@@ -14,9 +14,8 @@ import ru.sitronics.velobike.tools.Md5Utils
 import timber.log.Timber
 import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
 import java.util.Date
-import javax.inject.Inject
 
-class SecureInterceptor @Inject constructor() : Interceptor {
+class SecureInterceptor(private val authManager: AuthManager) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
         val timestamp = (Date().time / 1000).toString()
@@ -37,7 +36,7 @@ class SecureInterceptor @Inject constructor() : Interceptor {
     }
 
     private fun getUserAgentInfo(): String {
-        return "${Build.MODEL};Android;${Build.VERSION.SDK_INT};${BuildConfig.VERSION_NAME}"
+        return "${Build.MODEL};Android;${Build.VERSION.SDK_INT};${BuildConfig.VERSION_NAME};${authManager.userId}"
     }
 
     companion object {

@@ -139,3 +139,24 @@ enum class FailedReason(@StringRes val messageIdStart: Int, @StringRes val messa
 data class ChooseParkingParams(
     val externalParkingId: String
 )
+
+data class Feedback(
+    val comments: String,
+    val customerExternalId: String,
+    val rate: String,
+    val rentId: String,
+    val vehicleFrameNumber: String,
+    val vehicleType: String,
+    val frontWheel: Boolean = false,
+    val handlebar: Boolean = false,
+    val backWheel: Boolean = false,
+    val chain: Boolean = false,
+    val chainLock: Boolean = false,
+    val pedal: Boolean = false,
+    val saddle: Boolean = false,
+    val tireLock: Boolean = false,
+)
+
+data class FeedbackRes(
+    val id: Int,
+)

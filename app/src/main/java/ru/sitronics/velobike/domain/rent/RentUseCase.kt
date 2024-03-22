@@ -119,7 +119,7 @@ class RentUseCase @Inject constructor(
     fun checkRentStatus(
         rentId: String, frameNumber: String,
         onError: ((String?) -> Unit)? = null, onSuccess: ((RentStatus) -> Unit)? = null
-        ) {
+    ) {
         Logg.d("!!!! checkRentStatus start")
         processNetworkCall(
             action = { rentRepository.checkStatus(rentId, frameNumber) },
@@ -213,6 +213,38 @@ class RentUseCase @Inject constructor(
             },
             callName = "finishRentAfterUploadPhoto"
         )
+    }
+
+    fun sendFeedback(
+        rent: ActiveRent?, rate: Int,
+        onError: (String?) -> Unit, onSuccess: () -> Unit
+    ) {
+        rent?.let {
+            val params = Feedback(
+                comments = "",
+                vehicleFrameNumber = it.frameNumber,
+                rentId = it.rentId,
+                rate = rate.toString(),
+                customerExternalId = authManager.userId.orEmpty(),
+                vehicleType = if (it.rentId.length > 6) "ELECTRICAL" else "OMNI",
+                // temp if rate < 5 it's needed to choose reason
+                handlebar = rate < 5
+            )
+
+            Logg.d("!!!! sendFeedback start")
+            processNetworkCall(
+                action = { rentRepository.sendFeedback(params) },
+                onSuccess = {
+                    Logg.d("!!!! sendFeedback success")
+                    onSuccess()
+                },
+                onError = {
+                    Logg.d("!!!! sendFeedback ERROR")
+                    onError(context.getString(R.string.error_unknown))
+                },
+                callName = "sendFeedback"
+            )
+        }
     }
 
     private fun getRentError(failedReason: FailedReason?, startRent: Boolean) : String {

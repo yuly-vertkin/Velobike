@@ -12,6 +12,8 @@ import retrofit2.http.Query
 import ru.sitronics.velobike.data.repositories.rent.ActiveRentOldDto
 import ru.sitronics.velobike.domain.rent.ActiveRent
 import ru.sitronics.velobike.domain.rent.ChooseParkingParams
+import ru.sitronics.velobike.domain.rent.Feedback
+import ru.sitronics.velobike.domain.rent.FeedbackRes
 import ru.sitronics.velobike.domain.rent.FinishRentParams
 import ru.sitronics.velobike.domain.rent.FinishedRentOld
 import ru.sitronics.velobike.domain.rent.RentStatus
@@ -45,4 +47,7 @@ interface RentService {
 
     @POST("api/rent/rents/{rentId}/commands/parkBikeToParking")
     suspend fun chooseParking(@Path("rentId") rentId: String, @Body params: ChooseParkingParams) : RentStatus
+
+    @POST("api/feedback/")
+    suspend fun sendFeedback(@Body feedback: Feedback): FeedbackRes
 }
