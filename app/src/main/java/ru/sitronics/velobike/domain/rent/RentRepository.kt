@@ -7,8 +7,8 @@ interface RentRepository {
     fun getData(): RentData
     fun saveData(data: RentData)
     fun checkStatus(rentId: String, frameNumber: String) : Flow<Result<RentStatus>>
-    fun checkActiveRent() : Flow<Result<List<ActiveRent>>>
-    fun checkActiveRentOld(uid: String) : Flow<Result<List<ActiveRent>>>
+    fun checkActiveRent() : Flow<Result<List<Rent>>>
+    fun checkActiveRentOld(uid: String) : Flow<Result<List<Rent>>>
     fun checkFinishedRentOld(customerId: String, rentId: String) : Flow<Result<List<FinishedRentOld>>>
     fun startRent(params: StartRentParams) : Flow<Result<RentStatus>>
     fun finishRent(params: FinishRentParams) : Flow<Result<RentStatus>>

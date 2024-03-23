@@ -22,7 +22,7 @@ import ru.sitronics.velobike.presentation.rent.FinishedRentDialog
 import ru.sitronics.velobike.presentation.rent.FinishingRentDialog
 import ru.sitronics.velobike.presentation.rent.LoadingBar
 import ru.sitronics.velobike.presentation.rent.ScanQrCodeDialog
-import ru.sitronics.velobike.presentation.rent.TakePhoto
+import ru.sitronics.velobike.presentation.rent.TakePhotoScreen
 import ru.sitronics.velobike.presentation.rent.WheelLockDialog
 import ru.sitronics.velobike.tools.Logg
 import ru.sitronics.velobike.tools.rememberLocationPermissionLauncher
@@ -46,7 +46,7 @@ fun MapScreen(
 
         BikeDetailDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.ResetState) }) { id, from ->
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
-                onAction(MapIntent.CloseBikeDetail(id, from, lat, lon))
+                onAction(MapIntent.BikeDetailAction(id, from, lat, lon))
             }
         }
 
@@ -54,7 +54,7 @@ fun MapScreen(
 
         ParkingDetailDialog(mapUiState, { padding = padding.copy(bottom = it) }) { onAction(MapIntent.ResetState) }
 
-        SearchDialog(mapUiState, { onAction(MapIntent.CloseSearch(it)) }) {
+        SearchDialog(mapUiState, { onAction(MapIntent.SearchAction(it)) }) {
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
                 onAction(MapIntent.Search(it, lat, lon))
             }
@@ -62,52 +62,40 @@ fun MapScreen(
 
         ScanQrCodeDialog(mapUiState, { onAction(MapIntent.ResetState) }) { id, from ->
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
-                onAction(MapIntent.CloseQrScan(id, from, lat, lon))
+                onAction(MapIntent.QrScanAction(id, from, lat, lon))
             }
         }
 
         ActiveRentBar(mapUiState, { padding = padding.copy(top = it) }) { onAction(MapIntent.ClickActiveRentBar) }
 
-        ActiveRentDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.CloseActiveRent()) }) {
+        ActiveRentDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.ActiveRentAction()) }) {
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
-                onAction(MapIntent.CloseActiveRent(true, lat, lon))
+                onAction(MapIntent.ActiveRentAction(true, lat, lon))
             }
         }
 
-        FinishingRentDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.CloseFinishingRent()) }) {
+        FinishingRentDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.FinishingRentAction()) }) {
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
-                onAction(MapIntent.CloseFinishingRent(true, lat, lon))
+                onAction(MapIntent.FinishingRentAction(true, lat, lon))
             }
         }
 
-        ChooseParkingDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.CloseChooseParking()) }) {
-            onAction(MapIntent.CloseChooseParking(true))
+        ChooseParkingDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.ChooseParkingAction()) }) {
+            onAction(MapIntent.ChooseParkingAction(true))
         }
 
-        WheelLockDialog(mapUiState) { onAction(MapIntent.CloseWheelLock) }
+        WheelLockDialog(mapUiState) { onAction(MapIntent.WheelLockAction) }
 
-        TakePhoto(mapUiState, { onAction(MapIntent.OnTakePhoto()) }) {
+        TakePhotoScreen(mapUiState, { onAction(MapIntent.OnTakePhoto()) }) {
             onAction(MapIntent.OnTakePhoto(it))
         }
 
         FinishedRentDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.ResetState) }) { rent, rating ->
-            onAction(MapIntent.CloseFinishedRent(rent, rating))
+            onAction(MapIntent.FinishedRentAction(rent, rating))
         }
 
         ErrorDialog(mapUiState) { onAction(MapIntent.ResetState) }
 
         LoadingBar(mapUiState)
-
-/*
-            if (uiState.dialogState) {
-                SimpleDialog(
-                    onDismissRequest = { onAction(MainIntent.Dialog(true)) },
-                    onConfirmation = { onAction(MainIntent.Dialog(true)) },
-                    dialogTitle = "Alert dialog example",
-                    dialogText = "This is an example of an alert dialog with buttons.",
-                    icon = Icons.Default.Info
-                )
-            }
-*/
     }
 }

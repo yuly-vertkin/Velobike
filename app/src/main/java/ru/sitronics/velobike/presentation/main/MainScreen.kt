@@ -27,10 +27,10 @@ import ru.sitronics.velobike.presentation.profile.ProfileScreen
 import ru.sitronics.velobike.ui.theme.VelobikeTheme
 
 sealed class AppScreen {
-    object Map : AppScreen()
-    object History : AppScreen()
-    object Profile : AppScreen()
-    object Help : AppScreen()
+    data object Map : AppScreen()
+    data object History : AppScreen()
+    data object Profile : AppScreen()
+    data object Help : AppScreen()
 }
 
 @Composable

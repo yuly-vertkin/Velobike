@@ -33,16 +33,16 @@ class LoginViewModel @Inject constructor(
 
     fun handleIntent(intent: LoginIntent) {
         when (intent) {
-            is LoginIntent.OnLogin -> {
+            is LoginIntent.LoginAction -> {
                 loginUser(intent.login, intent.password)
             }
             is LoginIntent.ShowRegister -> {
-                changeState(LoginUiState.ShowRegister)
+                changeState(LoginUiState.Register)
             }
-            is LoginIntent.OnRegister -> {
+            is LoginIntent.RegisterAction -> {
                 registerUser(intent.registerData)
             }
-            is LoginIntent.OnMessage -> {
+            is LoginIntent.MessageAction -> {
                 changeState(LoginUiState.Normal(
                     login = authRepository.getData().login ?: "",
                     password = authRepository.getData().password ?: "",
@@ -87,13 +87,13 @@ class LoginViewModel @Inject constructor(
 
     private fun onRegisterSuccess(status: Register) {
         Logg.d("!!! register status ${status.code}")
-        changeState(LoginUiState.ShowMessage(context.getString(
+        changeState(LoginUiState.Message(context.getString(
             if (status.isSuccess()) R.string.register_success else R.string.error_unknown)))
     }
 
     private fun onError(e: Throwable) {
         val text = if (e is ResponseException) e.errorMessage else e.message
-        changeState(LoginUiState.ShowMessage(text))
+        changeState(LoginUiState.Message(text))
     }
 
     private fun changeState(uiState: LoginUiState) {

@@ -9,7 +9,7 @@ import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.data.network.RentService
 import ru.sitronics.velobike.data.repositories.BaseRepository
-import ru.sitronics.velobike.domain.rent.ActiveRent
+import ru.sitronics.velobike.domain.rent.Rent
 import ru.sitronics.velobike.domain.rent.ChooseParkingParams
 import ru.sitronics.velobike.domain.rent.Feedback
 import ru.sitronics.velobike.domain.rent.FeedbackRes
@@ -40,10 +40,10 @@ class RentRepositoryImp @Inject constructor(
     override fun checkStatus(rentId: String, frameNumber: String) : Flow<Result<RentStatus>> =
         callAction { service.checkStatus(rentId, frameNumber) }
 
-    override fun checkActiveRent() : Flow<Result<List<ActiveRent>>> =
+    override fun checkActiveRent() : Flow<Result<List<Rent>>> =
         callAction { service.checkActiveRent() }
 
-    override fun checkActiveRentOld(uid: String) : Flow<Result<List<ActiveRent>>> =
+    override fun checkActiveRentOld(uid: String) : Flow<Result<List<Rent>>> =
         callAction { service.checkActiveRentOld("eq.$uid") }
 
     override fun checkFinishedRentOld(customerId: String, rentId: String) : Flow<Result<List<FinishedRentOld>>> =

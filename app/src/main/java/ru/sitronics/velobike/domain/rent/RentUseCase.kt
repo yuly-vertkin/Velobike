@@ -25,9 +25,9 @@ class RentUseCase @Inject constructor(
     private val authManager: AuthManager,
     appContextProvider: AppContextProvider,
 ) : BaseUseCase(appContextProvider) {
-    var activeRent: ActiveRent? = null
+    var rent: Rent? = null
         private set
-    private var finishedRent: ActiveRent? = null
+    private var finishedRent: Rent? = null
     private var rentStatus: RentStatus? = null
     private var activeRentUpdateTask: TimerTask? = null
 
@@ -38,7 +38,7 @@ class RentUseCase @Inject constructor(
 
     fun startRent(
         bikeId: String, latitude: Double?, longitude: Double?,
-        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit
+        onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit
     ) {
         val params = StartRentParams(
             frameNumber = bikeId,
@@ -78,14 +78,14 @@ class RentUseCase @Inject constructor(
 
     fun finishRent(
         latitude: Double?, longitude: Double?,
-        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit
+        onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit
     ) {
-        if (activeRent == null) return
+        if (rent == null) return
 
         val params = FinishRentParams(
-            id = activeRent?.rentId.orEmpty(),
-            frameNumber = activeRent?.frameNumber ?: "",
-            deviceId = activeRent?.bike?.deviceId ?: "",
+            id = rent?.rentId.orEmpty(),
+            frameNumber = rent?.frameNumber ?: "",
+            deviceId = rent?.bike?.deviceId ?: "",
             clientGeoPosition = ClientGeoPosition(
                 lat = latitude ?: 0.0,
                 lon = longitude ?: 0.0,
@@ -181,7 +181,7 @@ class RentUseCase @Inject constructor(
         processNetworkCall(
             action = {
                 rentRepository.uploadPhotoRent(
-                    activeRent?.rentId.orEmpty(),
+                    rent?.rentId.orEmpty(),
                     filePath
                 )
             },
@@ -202,7 +202,7 @@ class RentUseCase @Inject constructor(
     ) {
         Logg.d("!!!! finishRentAfterUploadPhoto start")
         processNetworkCall(
-            action = { rentRepository.finishRentAfterUploadPhoto(activeRent?.rentId.orEmpty()) },
+            action = { rentRepository.finishRentAfterUploadPhoto(rent?.rentId.orEmpty()) },
             onSuccess = {
                 Logg.d("!!!! finishRentAfterUploadPhoto success $it")
                 onSuccess(it)
@@ -216,7 +216,7 @@ class RentUseCase @Inject constructor(
     }
 
     fun sendFeedback(
-        rent: ActiveRent?, rate: Int,
+        rent: Rent?, rate: Int,
         onError: (String?) -> Unit, onSuccess: () -> Unit
     ) {
         rent?.let {
@@ -255,7 +255,7 @@ class RentUseCase @Inject constructor(
 
     fun updateActiveRent(
         isStart: Boolean,
-        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit, onFinish: (ActiveRent?) -> Unit
+        onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit, onFinish: (Rent?) -> Unit
     ) {
         if (isStart && activeRentUpdateTask == null) {
             activeRentUpdateTask = Timer().schedule(0, CHECK_ACTIVE_RENT_DELAY) {
@@ -268,7 +268,7 @@ class RentUseCase @Inject constructor(
     }
 
     private fun checkActiveRent(
-        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit, onFinish: ((ActiveRent?) -> Unit)? = null
+        onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit, onFinish: ((Rent?) -> Unit)? = null
     ) {
         processNetworkCall(
             action = { rentRepository.checkActiveRent() },
@@ -277,8 +277,8 @@ class RentUseCase @Inject constructor(
                 val rent = rents.firstOrNull()
 
                 // check if rent has just finished
-                if (rent == null && activeRent?.isOld == false) {
-                    val finRent = activeRent
+                if (rent == null && this.rent?.isOld == false) {
+                    val finRent = this.rent
                     onCheckActiveRentSuccess(null, onSuccess)
                     onFinish?.invoke(finRent)
                     return@processNetworkCall
@@ -297,7 +297,7 @@ class RentUseCase @Inject constructor(
     }
 
     private fun checkActiveRentOld(
-        onError: (String?) -> Unit, onSuccess: (ActiveRent?) -> Unit, onFinish: ((ActiveRent?) -> Unit)? = null
+        onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit, onFinish: ((Rent?) -> Unit)? = null
     ) {
         authManager.userId?.let {
             processNetworkCall(
@@ -308,8 +308,8 @@ class RentUseCase @Inject constructor(
                     rent?.isOld = true
 
                     // check if old rent has just finished
-                    if (rent == null && activeRent?.isOld == true)
-                        finishedRent = activeRent
+                    if (rent == null && this.rent?.isOld == true)
+                        finishedRent = this.rent
 
                     onCheckActiveRentSuccess(rent, onSuccess)
 
@@ -330,7 +330,7 @@ class RentUseCase @Inject constructor(
     }
 
     private fun checkFinishedRentOld(
-        onFinish: ((ActiveRent?) -> Unit)?
+        onFinish: ((Rent?) -> Unit)?
     ) {
         authManager.userId?.let { userId ->
             finishedRent?.let {
@@ -354,12 +354,12 @@ class RentUseCase @Inject constructor(
     }
 
     private fun onCheckActiveRentSuccess(
-        rent: ActiveRent?, onSuccess: (ActiveRent?) -> Unit
+        rent: Rent?, onSuccess: (Rent?) -> Unit
     ) {
-        Logg.d("!!!! checkActiveRent ${activeRent?.rentStatus?.name} ${rent?.rentStatus?.name}")
+        Logg.d("!!!! checkActiveRent ${this.rent?.rentStatus?.name} ${rent?.rentStatus?.name}")
 
-        activeRent = rent
-        activeRent?.let {
+        this.rent = rent
+        this.rent?.let {
             profileUseCase.calculateRentCost(it.startTime, it.isOld) { cost ->
                 it.cost = cost
             }
@@ -367,21 +367,21 @@ class RentUseCase @Inject constructor(
 
         if (rent != null && !rent.isOld)
             runWithBike(rent.frameNumber) { bike ->
-                activeRent?.bike = bike
-                onSuccess(activeRent)
+                this.rent?.bike = bike
+                onSuccess(this.rent)
             }
         else
-            onSuccess(activeRent)
+            onSuccess(this.rent)
     }
 
     private fun runWithBike(id: String, action: (Bike?) -> Unit) {
-        var bike = rentRepository.getData().activeRentBike
+        var bike = rentRepository.getData().rentBike
         if (bike != null) {
             action(bike)
         } else {
             bike = mapContentRepository.getData().bikes?.find { it.id == id }
             if (bike != null) {
-                rentRepository.saveData(rentRepository.getData().copy(activeRentBike = bike))
+                rentRepository.saveData(rentRepository.getData().copy(rentBike = bike))
                 action(bike)
             } else {
                 Logg.d("!1 runWithBike processNetworkCall $id")
@@ -389,7 +389,7 @@ class RentUseCase @Inject constructor(
                     action = { mapContentRepository.getBike(id) },
                     onSuccess = {
                         Logg.d("!1 runWithBike success ${it.id}")
-                        rentRepository.saveData(rentRepository.getData().copy(activeRentBike = it))
+                        rentRepository.saveData(rentRepository.getData().copy(rentBike = it))
                         action(it)
                     },
                     onError = { Logg.d("!1 runWithBike ERROR") },

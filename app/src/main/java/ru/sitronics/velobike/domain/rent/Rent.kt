@@ -8,7 +8,7 @@ import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.map.Bike
 
 data class RentData(
-    val activeRentBike: Bike? = null,
+    val rentBike: Bike? = null,
 )
 
 data class StartRentParams(
@@ -29,7 +29,7 @@ data class ClientGeoPosition(
     val lon: Double
 )
 
-data class ActiveRent(
+data class Rent(
     val rentId: String,
     val externalClientId: String? = null,
     val frameNumber: String,

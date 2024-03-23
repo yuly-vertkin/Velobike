@@ -52,15 +52,15 @@ fun LoginScreen(
                 onAction(intent)
             }
         }
-        is LoginUiState.ShowMessage -> {
-            val uiState = loginUiState as LoginUiState.ShowMessage
+        is LoginUiState.Message -> {
+            val uiState = loginUiState as LoginUiState.Message
             ShowMessageDialog(uiState.msg) {
-                onAction(LoginIntent.OnMessage)
+                onAction(LoginIntent.MessageAction)
             }
         }
-        is LoginUiState.ShowRegister -> {
-            RegisterScreen(onDismiss = { onAction(LoginIntent.OnMessage) }) {
-                onAction(LoginIntent.OnRegister(it))
+        is LoginUiState.Register -> {
+            RegisterScreen(onDismiss = { onAction(LoginIntent.MessageAction) }) {
+                onAction(LoginIntent.RegisterAction(it))
             }
         }
         is LoginUiState.Close -> onLoginClosed()
@@ -132,7 +132,7 @@ fun LoginScreenInt(
                 .background(Color.White)
         ) {
             Button(
-                onClick = { loading = true; onAction(LoginIntent.OnLogin(login, password)) },
+                onClick = { loading = true; onAction(LoginIntent.LoginAction(login, password)) },
                 enabled = !loading && login.isNotEmpty() && password.isNotEmpty(),
                 modifier = Modifier
                     .width(300.dp)

@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
-import ru.sitronics.velobike.domain.rent.ActiveRent
+import ru.sitronics.velobike.domain.rent.Rent
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
 import ru.sitronics.velobike.presentation.map.DialogState.SHOW
@@ -50,8 +50,8 @@ import ru.sitronics.velobike.ui.theme.LightGrayBackgroundColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FinishedRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismiss: () -> Unit, onClick: (ActiveRent?, Int) -> Unit) {
-    var activeRent by remember { mutableStateOf<ActiveRent?>(null) }
+fun FinishedRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismiss: () -> Unit, onClick: (Rent?, Int) -> Unit) {
+    var rent by remember { mutableStateOf<Rent?>(null) }
     var state by remember { mutableStateOf(CLOSE) }
     var rating by remember { mutableStateOf(1f) } //default rating will be 1
     val context = LocalContext.current
@@ -60,13 +60,13 @@ fun FinishedRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDism
     sheetState.onSizeChanged(onSizeChanged)
 
     if (uiState is FinishedRent && state != CLOSING) {
-        activeRent = uiState.activeRent
+        rent = uiState.rent
         state = true.toDialogState()
     } else if (uiState !is FinishedRent && state == CLOSING)
         state = CLOSE
 
     if (state == SHOW) {
-        activeRent?.let {
+        rent?.let {
             ModalBottomSheet(
                 onDismissRequest = { state = CLOSING; onDismiss() },
                 sheetState = sheetState
@@ -136,7 +136,7 @@ fun FinishedRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDism
                             scope.launch { sheetState.hide() }.invokeOnCompletion {
                                 if (!sheetState.isVisible) {
                                     state = CLOSING
-                                    onClick(activeRent, rating.toInt())
+                                    onClick(rent, rating.toInt())
                                 }
                             }
                         },

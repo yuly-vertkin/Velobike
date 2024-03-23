@@ -20,13 +20,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
-import ru.sitronics.velobike.domain.rent.ActiveRent
+import ru.sitronics.velobike.domain.rent.Rent
 import ru.sitronics.velobike.presentation.details.BikeChargeSection
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
 import ru.sitronics.velobike.presentation.map.DialogState.SHOW
 import ru.sitronics.velobike.presentation.map.MapUiState
-import ru.sitronics.velobike.presentation.map.MapUiState.CurrentRent
+import ru.sitronics.velobike.presentation.map.MapUiState.ActiveRent
 import ru.sitronics.velobike.presentation.map.toDialogState
 import ru.sitronics.velobike.tools.getTimeStr
 import ru.sitronics.velobike.tools.onSizeChanged
@@ -34,21 +34,21 @@ import ru.sitronics.velobike.tools.onSizeChanged
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActiveRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismiss: () -> Unit, onClick: () -> Unit) {
-    var activeRent by remember { mutableStateOf<ActiveRent?>(null) }
+    var rent by remember { mutableStateOf<Rent?>(null) }
     var state by remember { mutableStateOf(CLOSE) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
     sheetState.onSizeChanged(onSizeChanged)
 
-    if (uiState is CurrentRent && state != CLOSING) {
-        activeRent = uiState.activeRent
+    if (uiState is ActiveRent && state != CLOSING) {
+        rent = uiState.rent
         state = uiState.show.toDialogState()
-    } else if (uiState !is CurrentRent && state == CLOSING)
+    } else if (uiState !is ActiveRent && state == CLOSING)
         state = CLOSE
 
     if (state == SHOW)
-        activeRent?.let {
+        rent?.let {
             ModalBottomSheet(
                 onDismissRequest = { state = CLOSING; onDismiss() },
                 sheetState = sheetState

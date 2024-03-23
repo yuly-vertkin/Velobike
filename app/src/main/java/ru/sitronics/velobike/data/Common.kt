@@ -6,7 +6,7 @@ const val ERROR_UNKNOWN = -1
 const val ERROR_NO_NETWORK = 5000
 
 sealed class Result<out T> {
-    object Loading: Result<Nothing>()
+    data object Loading: Result<Nothing>()
     data class Success<out T>(val data: T): Result<T>()
     data class Error(val error: Throwable): Result<Nothing>()
 }

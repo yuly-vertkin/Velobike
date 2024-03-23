@@ -46,7 +46,7 @@ class ProfileViewModel @Inject constructor(
                 if (intent.tariff != null)
                     profileUseCase.getCards { cards ->
                         profileUseCase.payTariff(intent.tariff.id, cards, { showError(it) }) {
-                            changeState(ProfileUiState.ShowMessage(context.getString(R.string.success), it.orEmpty()))
+                            changeState(ProfileUiState.Message(context.getString(R.string.success), it.orEmpty()))
                         }
                     }
                 else if (intent.canBuy)
@@ -63,7 +63,7 @@ class ProfileViewModel @Inject constructor(
                     changeState(ProfileUiState.Cards(it))
                 }
             }
-            is ProfileIntent.CloseMessage -> {
+            is ProfileIntent.MessageAction -> {
                 profileUseCase.getProfileData {
                     changeState(ProfileUiState.Normal(it))
                 }
@@ -72,7 +72,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     private fun showError(msg: String?) {
-        msg?.let { changeState(ProfileUiState.ShowMessage(context.getString(R.string.error_title), it)) }
+        msg?.let { changeState(ProfileUiState.Message(context.getString(R.string.error_title), it)) }
     }
 
     private fun changeState(uiState: ProfileUiState) {

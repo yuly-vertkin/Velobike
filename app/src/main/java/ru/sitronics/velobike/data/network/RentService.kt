@@ -10,7 +10,7 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 import ru.sitronics.velobike.data.repositories.rent.ActiveRentOldDto
-import ru.sitronics.velobike.domain.rent.ActiveRent
+import ru.sitronics.velobike.domain.rent.Rent
 import ru.sitronics.velobike.domain.rent.ChooseParkingParams
 import ru.sitronics.velobike.domain.rent.Feedback
 import ru.sitronics.velobike.domain.rent.FeedbackRes
@@ -24,7 +24,7 @@ interface RentService {
     suspend fun checkStatus(@Path("rentId") rentId: String, @Query("frameNumber") frameNumber: String) : RentStatus
 
     @GET("api/rent/rents/not-finished/user")
-    suspend fun checkActiveRent() : List<ActiveRent>
+    suspend fun checkActiveRent() : List<Rent>
 
     @GET("api/supabase/rest/v1/rental_start?select=%2A&bike_type=lte.1")
     suspend fun checkActiveRentOld(@Query("customer_id") uid: String) : List<ActiveRentOldDto>

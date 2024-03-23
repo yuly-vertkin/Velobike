@@ -23,7 +23,7 @@ import ru.sitronics.velobike.tools.runWithCamera
 import java.io.File
 
 @Composable
-fun TakePhoto(uiState: MapUiState, onDismiss: () -> Unit, onSuccess: (String) -> Unit) {
+fun TakePhotoScreen(uiState: MapUiState, onDismiss: () -> Unit, onSuccess: (String) -> Unit) {
     var state by remember { mutableStateOf(CLOSE) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()

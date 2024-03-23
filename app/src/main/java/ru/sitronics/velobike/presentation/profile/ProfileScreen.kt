@@ -62,13 +62,13 @@ fun ProfileScreen(
         is ProfileUiState.Cards -> {
             val cards = (profileUiState as? ProfileUiState.Cards)?.cards ?: emptyList()
             BankCardsScreen(cards) {
-                onAction(ProfileIntent.CloseMessage)
+                onAction(ProfileIntent.MessageAction)
             }
         }
-        is ProfileUiState.ShowMessage -> {
-            val uiState = profileUiState as ProfileUiState.ShowMessage
+        is ProfileUiState.Message -> {
+            val uiState = profileUiState as ProfileUiState.Message
             ShowMessageDialog(uiState.text) {
-                onAction(ProfileIntent.CloseMessage)
+                onAction(ProfileIntent.MessageAction)
             }
         }
     }

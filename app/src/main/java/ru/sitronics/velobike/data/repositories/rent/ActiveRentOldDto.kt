@@ -2,7 +2,7 @@ package ru.sitronics.velobike.data.repositories.rent
 
 import com.google.gson.annotations.SerializedName
 import ru.sitronics.velobike.data.repositories.ResponseDto
-import ru.sitronics.velobike.domain.rent.ActiveRent
+import ru.sitronics.velobike.domain.rent.Rent
 import ru.sitronics.velobike.domain.rent.MainRentStatus
 
 data class ActiveRentOldDto(
@@ -20,9 +20,9 @@ data class ActiveRentOldDto(
     val remainFreeTime : Int,
     @SerializedName("spent_free_time_secs")
     val spentFreeTime: Int,
-) : ResponseDto<ActiveRent> {
-    override fun toModel(): ActiveRent =
-        ActiveRent(
+) : ResponseDto<Rent> {
+    override fun toModel(): Rent =
+        Rent(
             rentId = rentalStartId,
             frameNumber = bikeId,
             startParkingId = startBikeParkingNumber,

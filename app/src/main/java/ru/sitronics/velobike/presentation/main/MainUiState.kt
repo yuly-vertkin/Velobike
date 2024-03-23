@@ -1,11 +1,11 @@
 package ru.sitronics.velobike.presentation.main
 
 sealed class MainUiState {
-    object Splash : MainUiState()
-    object Login : MainUiState()
-    object Normal : MainUiState()
+    data object Splash : MainUiState()
+    data object Login : MainUiState()
+    data object Normal : MainUiState()
 }
 
 sealed class MainIntent {
-    object Logged : MainIntent()
+    data object Logged : MainIntent()
 }
