@@ -17,10 +17,10 @@ import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.chat.ChatManager
 import ru.sitronics.velobike.domain.map.MapContentUseCase
-import ru.sitronics.velobike.domain.rent.Rent
 import ru.sitronics.velobike.domain.rent.ChooseParkingParams
 import ru.sitronics.velobike.domain.rent.MainRentStatus
 import ru.sitronics.velobike.domain.rent.ProgressStatus
+import ru.sitronics.velobike.domain.rent.Rent
 import ru.sitronics.velobike.domain.rent.RentUseCase
 import ru.sitronics.velobike.presentation.BaseViewModel
 import ru.sitronics.velobike.tools.Logg
@@ -39,9 +39,7 @@ class MapViewModel @Inject constructor(
     private lateinit var mapUiStatesJob: Job
     private val _mapUiState: MutableStateFlow<MapUiState> = MutableStateFlow(MapUiState.Normal)
     val mapUiState: StateFlow<MapUiState> = _mapUiState.asStateFlow()
-    private var showActiveRentBar: Boolean = false
-    private var showWheelLock: Boolean = false
-    private var chooseParking: Boolean = false
+    private var dialogState: MapDialogState = MapDialogState.NONE
 
     init {
         rentUseCase.initScope(viewModelScope)
@@ -166,14 +164,17 @@ class MapViewModel @Inject constructor(
                         Location.distanceBetween(intent.latitude!!, intent.longitude!!, it.latitude, it.longitude, res)
                     it.distance = if (isLocation) res[0] else null
                 }
+                dialogState = MapDialogState.SEARCH
+                handleActiveRent(rentUseCase.rent)
                 changeState(MapUiState.Search(parkings))
             }
             is MapIntent.SearchAction -> {
-                showStationDetail(intent.id)
+                dialogState = MapDialogState.ACTIVE_RENT_BAR
+                intent.id?.let {
+                    showStationDetail(it)
+                }
             }
             is MapIntent.ActiveRentAction -> {
-                showActiveRentBar = !intent.isClicked
-
                 if (intent.isClicked) {
                     changeState(MapUiState.Loading(true))
                     rentUseCase.finishRent(
@@ -183,12 +184,11 @@ class MapViewModel @Inject constructor(
                         changeState(MapUiState.FinishingRent(true), true)
                     }
                 } else {
+                    dialogState = MapDialogState.ACTIVE_RENT_BAR
                     changeState(MapUiState.ActiveRentBar(true))
                 }
             }
             is MapIntent.FinishingRentAction -> {
-                showActiveRentBar = !intent.isClicked
-
                 if (intent.isClicked) {
                     rentUseCase.rent?.let { rent ->
                         changeState(MapUiState.Loading(true))
@@ -200,12 +200,12 @@ class MapViewModel @Inject constructor(
 
                             when (it.processStatus) {
                                 ProgressStatus.WAIT_PARKING_FROM_CLIENT -> {
-                                    chooseParking = true
+                                    dialogState = MapDialogState.CHOOSE_PARKING
                                     changeState(MapUiState.FinishingRent(false))
                                     changeState(MapUiState.ChooseParking)
                                 }
                                 ProgressStatus.WAIT_CLOSE_LOCK -> {
-                                    showWheelLock = true
+                                    dialogState = MapDialogState.WHEEL_LOCK
                                     changeState(MapUiState.WheelLock)
                                 }
                                 ProgressStatus.WAIT_UPLOAD_PHOTO ->
@@ -215,12 +215,13 @@ class MapViewModel @Inject constructor(
                         }
                     }
                 } else {
+                    dialogState = MapDialogState.ACTIVE_RENT_BAR
                     changeState(MapUiState.ActiveRentBar(true))
                 }
             }
             is MapIntent.ClickActiveRentBar -> {
                 rentUseCase.rent?.let {
-                    showActiveRentBar = false
+                    dialogState = MapDialogState.NONE
                     viewModelScope.launch {
                         handleActiveRent(it)
                     }
@@ -233,12 +234,12 @@ class MapViewModel @Inject constructor(
                     changeState(MapUiState.Normal)
                     viewModelScope.launch {
                         delay(CHOOSE_PARKING_TIME)
-                        chooseParking = false
+                        dialogState = MapDialogState.NONE
                     }
                 }
             }
             is MapIntent.WheelLockAction -> {
-                showWheelLock = false
+                dialogState = MapDialogState.NONE
                 changeState(MapUiState.FinishingRent(true))
             }
             is MapIntent.OnTakePhoto -> {
@@ -271,13 +272,13 @@ class MapViewModel @Inject constructor(
     }
 
     private fun handleActiveRent(rent: Rent?) {
-        if (rent == null) showActiveRentBar = false
-        var show = !showActiveRentBar && rent?.rentStatus == MainRentStatus.IN_PROGRESS
+        if (rent == null && dialogState == MapDialogState.ACTIVE_RENT_BAR)
+            dialogState = MapDialogState.NONE
+        var show = dialogState.isNone() && rent?.rentStatus == MainRentStatus.IN_PROGRESS
         changeState(MapUiState.ActiveRent(rent, show))
-        show = !showActiveRentBar && !showWheelLock && !chooseParking &&
-                rent?.rentStatus == MainRentStatus.CHECK_END
+        show = dialogState.isNone() && rent?.rentStatus == MainRentStatus.CHECK_END
         changeState(MapUiState.FinishingRent(show))
-        changeState(MapUiState.ActiveRentBar(showActiveRentBar))
+        changeState(MapUiState.ActiveRentBar(dialogState == MapDialogState.ACTIVE_RENT_BAR))
         changeState(MapUiState.QrScanButton(rent == null))
     }
 
@@ -290,7 +291,7 @@ class MapViewModel @Inject constructor(
 
     private fun showStationDetail(id: String) {
         Logg.d("!!! showStationDetail $id")
-        if (chooseParking)
+        if (dialogState == MapDialogState.CHOOSE_PARKING)
             handleChooseParking(id)
         else
             mapContentUseCase.getStation(id)?.let { station ->
@@ -306,7 +307,7 @@ class MapViewModel @Inject constructor(
     }
 
     private fun handleChooseParking(id: String = UNDEFINED_PARKING) {
-        chooseParking = false
+        dialogState = MapDialogState.NONE
 
         rentUseCase.rent?.let { rent ->
             changeState(MapUiState.Loading(true))

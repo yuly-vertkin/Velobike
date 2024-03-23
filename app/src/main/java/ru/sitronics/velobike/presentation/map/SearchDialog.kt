@@ -32,7 +32,7 @@ import ru.sitronics.velobike.tools.BackPressHandler
 import ru.sitronics.velobike.tools.getNumberStr
 
 @Composable
-fun SearchDialog(uiState: MapUiState, onClick: (String) -> Unit, onChange: (String) -> Unit) {
+fun SearchDialog(uiState: MapUiState, onAction: (String?) -> Unit, onChange: (String) -> Unit) {
     var state by remember { mutableStateOf(CLOSE) }
     var searchStr by remember { mutableStateOf("") }
     var parkings by remember { mutableStateOf<List<Parking>>(emptyList()) }
@@ -65,7 +65,7 @@ fun SearchDialog(uiState: MapUiState, onClick: (String) -> Unit, onChange: (Stri
             LazyColumn {
                 items(parkings) {
                     Column(
-                        modifier = Modifier.clickable { state = CLOSING; searchStr = ""; onClick(it.id) }
+                        modifier = Modifier.clickable { state = CLOSING; searchStr = ""; onAction(it.id) }
                     ) {
                         HorizontalDivider(Modifier.padding(vertical = 8.dp), 1.dp, Color.LightGray)
                         Text(text = "№ ${it.id} ${it.address}    ${getDistanceStr(it.distance)}")
@@ -74,7 +74,7 @@ fun SearchDialog(uiState: MapUiState, onClick: (String) -> Unit, onChange: (Stri
             }
         }
 
-        BackPressHandler(onBackPressed = { state = CLOSING; searchStr = "" })
+        BackPressHandler(onBackPressed = { state = CLOSING; searchStr = ""; onAction(null) })
     }
 }
 

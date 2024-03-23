@@ -40,7 +40,7 @@ sealed class MapIntent {
     data object QrScanTap : MapIntent()
     data class ChatTap(val context: Context) : MapIntent()
     data class Search(val searchStr: String, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
-    data class SearchAction(val id: String) : MapIntent()
+    data class SearchAction(val id: String?) : MapIntent()
     data class BikeDetailAction(val id: String?, val fromQrScan: Boolean, val latitude: Double?, val longitude: Double?) : MapIntent()
     data class QrScanAction(val id: String? = null, val fromBikeDetail: Boolean, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
     data class ActiveRentAction(val isClicked: Boolean = false, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
@@ -51,4 +51,10 @@ sealed class MapIntent {
     data class OnTakePhoto(val filePath: String? = null) : MapIntent()
     data class FinishedRentAction(val rent: Rent?, val rating: Int) : MapIntent()
     data object ErrorAction : MapIntent()
+}
+
+enum class MapDialogState {
+    NONE, ACTIVE_RENT_BAR, WHEEL_LOCK, CHOOSE_PARKING, SEARCH;
+
+    fun isNone() = this == NONE
 }
