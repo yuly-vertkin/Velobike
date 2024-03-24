@@ -74,9 +74,9 @@ fun MapScreen(
             }
         }
 
-        FinishingRentDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.FinishingRentAction()) }) {
+        FinishingRentDialog(mapUiState, { padding = padding.copy(bottom = it) }) {
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
-                onAction(MapIntent.FinishingRentAction(true, lat, lon))
+                onAction(MapIntent.FinishingRentAction(it, lat, lon))
             }
         }
 

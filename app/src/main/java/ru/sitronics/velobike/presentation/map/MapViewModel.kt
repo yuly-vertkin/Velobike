@@ -143,8 +143,8 @@ class MapViewModel @Inject constructor(
                         rentUseCase.startRent(
                             id, intent.latitude, intent.longitude,
                             { showError(it) }
-                        ) { activeRent ->
-                            changeState(MapUiState.ActiveRent(activeRent, true), true)
+                        ) {
+                            changeState(MapUiState.ActiveRent(it, true), true)
                         }
                     } else {
                         mapContentUseCase.runWithBike(id) { bike ->
@@ -180,7 +180,7 @@ class MapViewModel @Inject constructor(
                     rentUseCase.finishRent(
                         intent.latitude, intent.longitude,
                         { showError(it) }
-                    ) { activeRent ->
+                    ) {
                         changeState(MapUiState.FinishingRent(true), true)
                     }
                 } else {
@@ -189,35 +189,7 @@ class MapViewModel @Inject constructor(
                 }
             }
             is MapIntent.FinishingRentAction -> {
-                if (intent.isClicked) {
-                    rentUseCase.rent?.let { rent ->
-                        changeState(MapUiState.Loading(true))
-                        rentUseCase.checkRentStatus(
-                            rent.rentId, rent.frameNumber,
-                            { showError(it) }
-                        ) {
-                            changeState(MapUiState.Loading(false))
-
-                            when (it.processStatus) {
-                                ProgressStatus.WAIT_PARKING_FROM_CLIENT -> {
-                                    dialogState = MapDialogState.CHOOSE_PARKING
-                                    changeState(MapUiState.FinishingRent(false))
-                                    changeState(MapUiState.ChooseParking)
-                                }
-                                ProgressStatus.WAIT_CLOSE_LOCK -> {
-                                    dialogState = MapDialogState.WHEEL_LOCK
-                                    changeState(MapUiState.WheelLock)
-                                }
-                                ProgressStatus.WAIT_UPLOAD_PHOTO ->
-                                    changeState(MapUiState.TakePhoto)
-                                else -> {}
-                            }
-                        }
-                    }
-                } else {
-                    dialogState = MapDialogState.ACTIVE_RENT_BAR
-                    changeState(MapUiState.ActiveRentBar(true))
-                }
+                handleFinishingRentAction(intent.action)
             }
             is MapIntent.ClickActiveRentBar -> {
                 rentUseCase.rent?.let {
@@ -267,6 +239,54 @@ class MapViewModel @Inject constructor(
             }
             is MapIntent.ChatTap -> {
                 chatManager.showChat(intent.context)
+            }
+        }
+    }
+
+    private fun handleFinishingRentAction(action: DialogAction) {
+        rentUseCase.rent?.let { rent ->
+            when (action) {
+                DialogAction.CLICK -> {
+                    changeState(MapUiState.Loading(true))
+                    rentUseCase.checkRentStatus(
+                        rent.rentId, rent.frameNumber,
+                        { showError(it) }
+                    ) {
+                        changeState(MapUiState.Loading(false))
+
+                        when (it.processStatus) {
+                            ProgressStatus.WAIT_PARKING_FROM_CLIENT -> {
+                                dialogState = MapDialogState.CHOOSE_PARKING
+                                changeState(MapUiState.FinishingRent(false))
+                                changeState(MapUiState.ChooseParking)
+                            }
+
+                            ProgressStatus.WAIT_CLOSE_LOCK -> {
+                                dialogState = MapDialogState.WHEEL_LOCK
+                                changeState(MapUiState.WheelLock)
+                            }
+
+                            ProgressStatus.WAIT_UPLOAD_PHOTO ->
+                                changeState(MapUiState.TakePhoto)
+
+                            else -> {}
+                        }
+                    }
+                }
+
+                DialogAction.BACK -> {
+                    changeState(MapUiState.Loading(true))
+                    rentUseCase.returnToActiveRent(
+                        rent.rentId, { showError(it) }
+                    ) {
+                        changeState(MapUiState.ActiveRent(rent, true), true)
+                    }
+                }
+
+                else -> {
+                    dialogState = MapDialogState.ACTIVE_RENT_BAR
+                    changeState(MapUiState.ActiveRentBar(true))
+                }
             }
         }
     }

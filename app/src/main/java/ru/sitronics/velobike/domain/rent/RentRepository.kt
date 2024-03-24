@@ -16,4 +16,5 @@ interface RentRepository {
     fun uploadPhotoRent(rentId: String, imagePath: String) : Flow<Result<Boolean>>
     fun finishRentAfterUploadPhoto(rentId: String) : Flow<Result<RentStatus>>
     fun sendFeedback(feedback: Feedback) : Flow<Result<FeedbackRes>>
+    fun returnToActiveRent(rentId: String) : Flow<Result<RentStatus>>
 }

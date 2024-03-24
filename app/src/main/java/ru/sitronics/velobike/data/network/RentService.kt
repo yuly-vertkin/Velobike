@@ -10,12 +10,12 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 import ru.sitronics.velobike.data.repositories.rent.ActiveRentOldDto
-import ru.sitronics.velobike.domain.rent.Rent
 import ru.sitronics.velobike.domain.rent.ChooseParkingParams
 import ru.sitronics.velobike.domain.rent.Feedback
 import ru.sitronics.velobike.domain.rent.FeedbackRes
 import ru.sitronics.velobike.domain.rent.FinishRentParams
 import ru.sitronics.velobike.domain.rent.FinishedRentOld
+import ru.sitronics.velobike.domain.rent.Rent
 import ru.sitronics.velobike.domain.rent.RentStatus
 import ru.sitronics.velobike.domain.rent.StartRentParams
 
@@ -49,5 +49,8 @@ interface RentService {
     suspend fun chooseParking(@Path("rentId") rentId: String, @Body params: ChooseParkingParams) : RentStatus
 
     @POST("api/feedback/")
-    suspend fun sendFeedback(@Body feedback: Feedback): FeedbackRes
+    suspend fun sendFeedback(@Body feedback: Feedback) : FeedbackRes
+
+    @POST("api/rent/rents/{rentId}/returnToActiveRent")
+    suspend fun returnToActiveRent(@Path("rentId") rentId: String) : RentStatus
 }

@@ -74,4 +74,7 @@ class RentRepositoryImp @Inject constructor(
 
     override fun sendFeedback(feedback: Feedback) : Flow<Result<FeedbackRes>> =
         callAction { service.sendFeedback(feedback) }
+
+    override fun returnToActiveRent(rentId: String) : Flow<Result<RentStatus>> =
+        callAction { service.returnToActiveRent(rentId) }
 }

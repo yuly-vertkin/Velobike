@@ -45,12 +45,16 @@ sealed class MapIntent {
     data class QrScanAction(val id: String? = null, val fromBikeDetail: Boolean, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
     data class ActiveRentAction(val isClicked: Boolean = false, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
     data object ClickActiveRentBar : MapIntent()
-    data class FinishingRentAction(val isClicked: Boolean = false, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
+    data class FinishingRentAction(val action: DialogAction, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
     data class ChooseParkingAction(val isClicked: Boolean = false) : MapIntent()
     data object WheelLockAction : MapIntent()
     data class OnTakePhoto(val filePath: String? = null) : MapIntent()
     data class FinishedRentAction(val rent: Rent?, val rating: Int) : MapIntent()
     data object ErrorAction : MapIntent()
+}
+
+enum class DialogAction {
+    CLICK, DISSMISS, BACK
 }
 
 enum class MapDialogState {

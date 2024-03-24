@@ -247,6 +247,27 @@ class RentUseCase @Inject constructor(
         }
     }
 
+    fun returnToActiveRent(
+        rentId: String, onError: (String?) -> Unit, onSuccess: (RentStatus) -> Unit
+    ) {
+        Logg.d("!!!! returnToActiveRent start")
+        processNetworkCall(
+            action = { rentRepository.returnToActiveRent(rentId) },
+            onSuccess = {
+                Logg.d("!!!! returnToActiveRent success, status ${it.status}, ${it.processStatus}")
+                if (it.failedReason == null)
+                    onSuccess(it)
+                else
+                    onError(getRentError(it.failedReason, false))
+            },
+            onError = {
+                Logg.d("!!!! ERROR returnToActiveRent() ${it.message}")
+                onError(context.getString(R.string.error_unknown))
+            },
+            callName = "returnToActiveRent"
+        )
+    }
+
     private fun getRentError(failedReason: FailedReason?, startRent: Boolean) : String {
         return failedReason?.let {
             context.getString( if (startRent) it.messageIdStart else it.messageIdFinish)
