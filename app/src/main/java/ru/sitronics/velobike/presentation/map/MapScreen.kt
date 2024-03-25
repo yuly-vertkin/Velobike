@@ -44,9 +44,9 @@ fun MapScreen(
 
         MapViewContainer(mapUiState, padding, onAction)
 
-        BikeDetailDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.ResetState) }) { id, from ->
+        BikeDetailDialog(mapUiState, { padding = padding.copy(bottom = it) }) { action, id, from ->
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
-                onAction(MapIntent.BikeDetailAction(id, from, lat, lon))
+                onAction(MapIntent.BikeDetailAction(action, id, from, lat, lon))
             }
         }
 
@@ -60,38 +60,36 @@ fun MapScreen(
             }
         }
 
-        ScanQrCodeDialog(mapUiState, { onAction(MapIntent.ResetState) }) { id, from ->
+        ScanQrCodeDialog(mapUiState) { action, id, from ->
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
-                onAction(MapIntent.QrScanAction(id, from, lat, lon))
+                onAction(MapIntent.ScanQrAction(action, id, from, lat, lon))
             }
         }
 
         ActiveRentBar(mapUiState, { padding = padding.copy(top = it) }) { onAction(MapIntent.ClickActiveRentBar) }
 
-        ActiveRentDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.ActiveRentAction()) }) {
+        ActiveRentDialog(mapUiState, { padding = padding.copy(bottom = it) }) {
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
-                onAction(MapIntent.ActiveRentAction(true, lat, lon))
+                onAction(MapIntent.ActiveRentAction(it, lat, lon))
             }
         }
 
         FinishingRentDialog(mapUiState, { padding = padding.copy(bottom = it) }) {
-            locationPermissionLauncher.runWithLocation(context) { lat, lon ->
-                onAction(MapIntent.FinishingRentAction(it, lat, lon))
-            }
+            onAction(MapIntent.FinishingRentAction(it))
         }
 
-        ChooseParkingDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.ChooseParkingAction()) }) {
-            onAction(MapIntent.ChooseParkingAction(true))
+        ChooseParkingDialog(mapUiState, { padding = padding.copy(bottom = it) }) {
+            onAction(MapIntent.ChooseParkingAction(it))
         }
 
         WheelLockDialog(mapUiState) { onAction(MapIntent.WheelLockAction) }
 
-        TakePhotoScreen(mapUiState, { onAction(MapIntent.OnTakePhoto()) }) {
-            onAction(MapIntent.OnTakePhoto(it))
+        TakePhotoScreen(mapUiState) { action, path ->
+            onAction(MapIntent.OnTakePhoto(action, path))
         }
 
-        FinishedRentDialog(mapUiState, { padding = padding.copy(bottom = it) }, { onAction(MapIntent.ResetState) }) { rent, rating ->
-            onAction(MapIntent.FinishedRentAction(rent, rating))
+        FinishedRentDialog(mapUiState, { padding = padding.copy(bottom = it) }) { action, rent, rating ->
+            onAction(MapIntent.FinishedRentAction(action, rent, rating))
         }
 
         ErrorDialog(mapUiState) { onAction(MapIntent.ResetState) }

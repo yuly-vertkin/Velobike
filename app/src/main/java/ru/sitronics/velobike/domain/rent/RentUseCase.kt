@@ -248,7 +248,7 @@ class RentUseCase @Inject constructor(
     }
 
     fun returnToActiveRent(
-        rentId: String, onError: (String?) -> Unit, onSuccess: (RentStatus) -> Unit
+        rentId: String, onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit
     ) {
         Logg.d("!!!! returnToActiveRent start")
         processNetworkCall(
@@ -256,7 +256,7 @@ class RentUseCase @Inject constructor(
             onSuccess = {
                 Logg.d("!!!! returnToActiveRent success, status ${it.status}, ${it.processStatus}")
                 if (it.failedReason == null)
-                    onSuccess(it)
+                    checkActiveRent(onError, onSuccess)
                 else
                     onError(getRentError(it.failedReason, false))
             },

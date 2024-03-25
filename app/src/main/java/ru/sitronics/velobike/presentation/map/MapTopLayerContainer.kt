@@ -127,7 +127,7 @@ fun BoxScope.MapTopLayerContainer(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .offset(y = (-16).dp),
-                onClick = { onAction(MapIntent.QrScanTap) },
+                onClick = { onAction(MapIntent.ScanQrTap) },
                 shape = CircleShape,
                 containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
                 elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),

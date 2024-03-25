@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
+import ru.sitronics.velobike.presentation.map.DialogAction
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
 import ru.sitronics.velobike.presentation.map.DialogState.SHOW
@@ -33,7 +34,7 @@ import ru.sitronics.velobike.tools.onSizeChanged
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChooseParkingDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismiss: () -> Unit, onClick: () -> Unit) {
+fun ChooseParkingDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAction: (DialogAction) -> Unit) {
     var state by remember { mutableStateOf(CLOSE) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -47,7 +48,7 @@ fun ChooseParkingDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDis
 
     if (state == SHOW) {
         ModalBottomSheet(
-            onDismissRequest = { state = CLOSING; onDismiss() },
+            onDismissRequest = { state = CLOSING; onAction(DialogAction.DISSMISS) },
             sheetState = sheetState
         ) {
             Text(
@@ -74,7 +75,7 @@ fun ChooseParkingDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDis
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
                             state = CLOSING
-                            onClick()
+                            onAction(DialogAction.CLICK)
                         }
                     }
                 },

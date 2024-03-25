@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.rent.Rent
 import ru.sitronics.velobike.presentation.details.BikeChargeSection
+import ru.sitronics.velobike.presentation.map.DialogAction
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
 import ru.sitronics.velobike.presentation.map.DialogState.SHOW
@@ -33,7 +34,7 @@ import ru.sitronics.velobike.tools.onSizeChanged
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ActiveRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismiss: () -> Unit, onClick: () -> Unit) {
+fun ActiveRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAction: (DialogAction) -> Unit) {
     var rent by remember { mutableStateOf<Rent?>(null) }
     var state by remember { mutableStateOf(CLOSE) }
     val context = LocalContext.current
@@ -50,7 +51,7 @@ fun ActiveRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismis
     if (state == SHOW)
         rent?.let {
             ModalBottomSheet(
-                onDismissRequest = { state = CLOSING; onDismiss() },
+                onDismissRequest = { state = CLOSING; onAction(DialogAction.DISSMISS) },
                 sheetState = sheetState
             ) {
                 Row(
@@ -91,7 +92,7 @@ fun ActiveRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismis
                             scope.launch { sheetState.hide() }.invokeOnCompletion {
                                 if (!sheetState.isVisible) {
                                     state = CLOSING
-                                    onClick()
+                                    onAction(DialogAction.CLICK)
                                 }
                             }
                         },

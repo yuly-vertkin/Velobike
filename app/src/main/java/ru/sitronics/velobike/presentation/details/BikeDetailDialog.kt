@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.map.Bike
+import ru.sitronics.velobike.presentation.map.DialogAction
 import ru.sitronics.velobike.presentation.map.MapUiState
 import ru.sitronics.velobike.presentation.map.MapUiState.BikeDetail
 import ru.sitronics.velobike.presentation.map.DialogState.SHOW
@@ -42,9 +43,10 @@ import kotlin.time.Duration.Companion.minutes
 @SuppressLint("StringFormatInvalid")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BikeDetailDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismiss: () -> Unit, onClick: (String?, Boolean) -> Unit) {
+fun BikeDetailDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAction: (DialogAction, String?, Boolean) -> Unit) {
     var bike by remember { mutableStateOf<Bike?>(null) }
     var fromQrScan by remember { mutableStateOf(false) }
+    var enableAction by remember { mutableStateOf(false) }
     var state by remember { mutableStateOf(CLOSE) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -54,13 +56,14 @@ fun BikeDetailDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismis
     if (uiState is BikeDetail && state != CLOSING) {
         bike = uiState.bike
         fromQrScan = uiState.fromQrScan
+        enableAction = uiState.enableAction
         state = true.toDialogState()
     } else if (uiState !is BikeDetail && state == CLOSING)
         state = CLOSE
 
     if (state == SHOW) {
         ModalBottomSheet(
-            onDismissRequest = { state = CLOSING; onDismiss() },
+            onDismissRequest = { state = CLOSING; onAction(DialogAction.DISSMISS, bike?.id, fromQrScan) },
             sheetState = sheetState
         ) {
             Text(
@@ -89,10 +92,11 @@ fun BikeDetailDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismis
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
                             state = CLOSING
-                            onClick(bike?.id, fromQrScan)
+                            onAction(DialogAction.CLICK, bike?.id, fromQrScan)
                         }
                     }
                 },
+                enabled = enableAction,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .padding(horizontal = 32.dp)

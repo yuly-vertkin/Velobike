@@ -117,7 +117,141 @@ class MapViewModel @Inject constructor(
                     null -> {}
                 }
             }
+            is MapIntent.ChatTap -> {
+                chatManager.showChat(intent.context)
+            }
+            is MapIntent.Search -> {
+                handleSearch(intent)
+            }
+            is MapIntent.SearchAction -> {
+                handleSearchAction(intent)
+            }
+            is MapIntent.ScanQrTap -> {
+                changeState(MapUiState.QrScan(true))
+            }
+            is MapIntent.ScanQrAction -> {
+                handleScanQrAction(intent)
+            }
             is MapIntent.BikeDetailAction -> {
+                handleBikeDetailAction(intent)
+            }
+            is MapIntent.ActiveRentAction -> {
+                handleActiveRentAction(intent)
+            }
+            is MapIntent.FinishingRentAction -> {
+                handleFinishingRentAction(intent)
+            }
+            is MapIntent.ClickActiveRentBar -> {
+                rentUseCase.rent?.let {
+                    dialogState = MapDialogState.NONE
+                    viewModelScope.launch {
+                        handleActiveRent(it)
+                    }
+                }
+            }
+            is MapIntent.ChooseParkingAction -> {
+                handleChooseParkingAction(intent)
+            }
+            is MapIntent.WheelLockAction -> {
+                dialogState = MapDialogState.NONE
+                changeState(MapUiState.FinishingRent(true))
+            }
+            is MapIntent.OnTakePhoto -> {
+                handleOnTakePhoto(intent)
+            }
+            is MapIntent.FinishedRentAction -> {
+                handleFinishedRentAction(intent)
+            }
+            is MapIntent.ErrorAction -> {
+                changeState(MapUiState.Normal)
+            }
+        }
+    }
+
+    private fun showBikeDetail(id: String) {
+        Logg.d("!!! showBikeDetail $id")
+        mapContentUseCase.getBike(id)?.let { bike ->
+            changeState(MapUiState.BikeDetail(bike, false, rentUseCase.rent == null))
+        }
+    }
+
+    private fun showStationDetail(id: String) {
+        Logg.d("!!! showStationDetail $id")
+        if (dialogState == MapDialogState.CHOOSE_PARKING)
+            handleChooseParking(id)
+        else
+            mapContentUseCase.getStation(id)?.let { station ->
+                changeState(MapUiState.StationDetail(station))
+            }
+    }
+
+    private fun showParkingDetail(id: String) {
+        Logg.d("!!! showParkingDetail $id")
+        mapContentUseCase.getParking(id)?.let { parking ->
+            changeState(MapUiState.ParkingDetail(parking))
+        }
+    }
+
+    private fun handleSearch(intent: MapIntent.Search) {
+        val parkings = if (intent.searchStr.length > 1) mapContentUseCase.findParking(intent.searchStr)
+                       else emptyList()
+        // calculate distance
+        val isLocation = intent.latitude != null && intent.longitude != null
+        val res = FloatArray(1)
+        parkings.forEach {
+            if (isLocation)
+                Location.distanceBetween(
+                    intent.latitude!!, intent.longitude!!,
+                    it.latitude, it.longitude, res
+                )
+            it.distance = if (isLocation) res[0] else null
+        }
+        dialogState = MapDialogState.SEARCH
+        handleActiveRent(rentUseCase.rent)
+        changeState(MapUiState.Search(parkings))
+    }
+
+    private fun handleSearchAction(intent: MapIntent.SearchAction) {
+        dialogState = if (rentUseCase.rent != null) MapDialogState.ACTIVE_RENT_BAR
+                      else MapDialogState.NONE
+        intent.id?.let {
+            showStationDetail(it)
+        }
+    }
+
+    private fun handleScanQrAction(intent: MapIntent.ScanQrAction) {
+        changeState(MapUiState.QrScan(false))
+
+        when (intent.action) {
+            DialogAction.CLICK -> {
+                intent.id?.let { id ->
+                    if (intent.fromBikeDetail) {
+                        changeState(MapUiState.Loading(true))
+                        rentUseCase.startRent(
+                            id, intent.latitude, intent.longitude,
+                            { showError(it) }
+                        ) {
+                            changeState(MapUiState.ActiveRent(it, true), true)
+                        }
+                    } else {
+                        mapContentUseCase.runWithBike(id) { bike ->
+                            changeState(MapUiState.BikeDetail(bike, true, rentUseCase.rent == null))
+                        }
+                    }
+                }
+            }
+
+            DialogAction.DISSMISS -> {
+                changeState(MapUiState.Normal)
+            }
+
+            else -> {}
+        }
+    }
+
+    private fun handleBikeDetailAction(intent: MapIntent.BikeDetailAction) {
+        when (intent.action) {
+            DialogAction.CLICK -> {
                 intent.id?.let { id ->
                     if (intent.fromQrScan) {
                         changeState(MapUiState.Loading(true))
@@ -132,120 +266,48 @@ class MapViewModel @Inject constructor(
                     }
                 }
             }
-            is MapIntent.QrScanTap -> {
-                changeState(MapUiState.QrScan(true))
-            }
-            is MapIntent.QrScanAction -> {
-                changeState(MapUiState.QrScan(false))
-                intent.id?.let { id ->
-                    if (intent.fromBikeDetail) {
-                        changeState(MapUiState.Loading(true))
-                        rentUseCase.startRent(
-                            id, intent.latitude, intent.longitude,
-                            { showError(it) }
-                        ) {
-                            changeState(MapUiState.ActiveRent(it, true), true)
-                        }
-                    } else {
-                        mapContentUseCase.runWithBike(id) { bike ->
-                            changeState(MapUiState.BikeDetail(bike, fromQrScan = true))
-                        }
-                    }
-                }
-            }
-            is MapIntent.Search -> {
-                val parkings = if (intent.searchStr.length > 1) mapContentUseCase.findParking(intent.searchStr)
-                               else emptyList()
-                // calculate distance
-                val isLocation = intent.latitude != null && intent.longitude != null
-                val res = FloatArray(1)
-                parkings.forEach {
-                    if (isLocation)
-                        Location.distanceBetween(intent.latitude!!, intent.longitude!!, it.latitude, it.longitude, res)
-                    it.distance = if (isLocation) res[0] else null
-                }
-                dialogState = MapDialogState.SEARCH
-                handleActiveRent(rentUseCase.rent)
-                changeState(MapUiState.Search(parkings))
-            }
-            is MapIntent.SearchAction -> {
-                dialogState = MapDialogState.ACTIVE_RENT_BAR
-                intent.id?.let {
-                    showStationDetail(it)
-                }
-            }
-            is MapIntent.ActiveRentAction -> {
-                if (intent.isClicked) {
-                    changeState(MapUiState.Loading(true))
-                    rentUseCase.finishRent(
-                        intent.latitude, intent.longitude,
-                        { showError(it) }
-                    ) {
-                        changeState(MapUiState.FinishingRent(true), true)
-                    }
-                } else {
-                    dialogState = MapDialogState.ACTIVE_RENT_BAR
-                    changeState(MapUiState.ActiveRentBar(true))
-                }
-            }
-            is MapIntent.FinishingRentAction -> {
-                handleFinishingRentAction(intent.action)
-            }
-            is MapIntent.ClickActiveRentBar -> {
-                rentUseCase.rent?.let {
-                    dialogState = MapDialogState.NONE
-                    viewModelScope.launch {
-                        handleActiveRent(it)
-                    }
-                }
-            }
-            is MapIntent.ChooseParkingAction -> {
-                if (intent.isClicked) {
-                    handleChooseParking()
-                } else {
-                    changeState(MapUiState.Normal)
-                    viewModelScope.launch {
-                        delay(CHOOSE_PARKING_TIME)
-                        dialogState = MapDialogState.NONE
-                    }
-                }
-            }
-            is MapIntent.WheelLockAction -> {
-                dialogState = MapDialogState.NONE
-                changeState(MapUiState.FinishingRent(true))
-            }
-            is MapIntent.OnTakePhoto -> {
-                if (intent.filePath != null) {
-                    changeState(MapUiState.Loading(true))
-                    rentUseCase.uploadPhotoAndFinishRent(
-                        intent.filePath,
-                        { showError(it) }
-                    ) {
-                        if (it.status?.isDone() == true) {
-                            changeState(MapUiState.FinishingRent(false), true)
-                        } else
-                            showError(context.getString(R.string.error_unknown))
-                    }
-                } else
-                    changeState(MapUiState.FinishingRent(true))
-            }
-            is MapIntent.FinishedRentAction -> {
-                rentUseCase.sendFeedback(intent.rent, intent.rating, { showError(it) }) {
-                    changeState(MapUiState.Normal)
-                }
-            }
-            is MapIntent.ErrorAction -> {
+
+            DialogAction.DISSMISS -> {
                 changeState(MapUiState.Normal)
             }
-            is MapIntent.ChatTap -> {
-                chatManager.showChat(intent.context)
-            }
+
+            else -> {}
         }
     }
 
-    private fun handleFinishingRentAction(action: DialogAction) {
+    private fun handleActiveRentAction(intent: MapIntent.ActiveRentAction) {
+        when (intent.action) {
+            DialogAction.CLICK -> {
+                changeState(MapUiState.Loading(true))
+                rentUseCase.finishRent(
+                    intent.latitude, intent.longitude,
+                    { showError(it) }
+                ) {
+                    changeState(MapUiState.FinishingRent(true), true)
+                }
+            }
+            DialogAction.DISSMISS -> {
+                dialogState = MapDialogState.ACTIVE_RENT_BAR
+                changeState(MapUiState.ActiveRentBar(true))
+            }
+            else -> {}
+        }
+    }
+
+    private fun handleActiveRent(rent: Rent?) {
+        if (rent == null && dialogState == MapDialogState.ACTIVE_RENT_BAR)
+            dialogState = MapDialogState.NONE
+        var show = dialogState.isNone() && rent?.rentStatus == MainRentStatus.IN_PROGRESS
+        changeState(MapUiState.ActiveRent(rent, show))
+        show = dialogState.isNone() && rent?.rentStatus == MainRentStatus.CHECK_END
+        changeState(MapUiState.FinishingRent(show))
+        changeState(MapUiState.ActiveRentBar(dialogState == MapDialogState.ACTIVE_RENT_BAR))
+        changeState(MapUiState.QrScanButton(rent == null))
+    }
+
+    private fun handleFinishingRentAction(intent: MapIntent.FinishingRentAction) {
         rentUseCase.rent?.let { rent ->
-            when (action) {
+            when (intent.action) {
                 DialogAction.CLICK -> {
                     changeState(MapUiState.Loading(true))
                     rentUseCase.checkRentStatus(
@@ -279,11 +341,12 @@ class MapViewModel @Inject constructor(
                     rentUseCase.returnToActiveRent(
                         rent.rentId, { showError(it) }
                     ) {
-                        changeState(MapUiState.ActiveRent(rent, true), true)
+                        changeState(MapUiState.Loading(false))
+                        handleActiveRent(it)
                     }
                 }
 
-                else -> {
+                DialogAction.DISSMISS -> {
                     dialogState = MapDialogState.ACTIVE_RENT_BAR
                     changeState(MapUiState.ActiveRentBar(true))
                 }
@@ -291,38 +354,15 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    private fun handleActiveRent(rent: Rent?) {
-        if (rent == null && dialogState == MapDialogState.ACTIVE_RENT_BAR)
-            dialogState = MapDialogState.NONE
-        var show = dialogState.isNone() && rent?.rentStatus == MainRentStatus.IN_PROGRESS
-        changeState(MapUiState.ActiveRent(rent, show))
-        show = dialogState.isNone() && rent?.rentStatus == MainRentStatus.CHECK_END
-        changeState(MapUiState.FinishingRent(show))
-        changeState(MapUiState.ActiveRentBar(dialogState == MapDialogState.ACTIVE_RENT_BAR))
-        changeState(MapUiState.QrScanButton(rent == null))
-    }
-
-    private fun showBikeDetail(id: String) {
-        Logg.d("!!! showBikeDetail $id")
-        mapContentUseCase.getBike(id)?.let { bike ->
-            changeState(MapUiState.BikeDetail(bike))
-        }
-    }
-
-    private fun showStationDetail(id: String) {
-        Logg.d("!!! showStationDetail $id")
-        if (dialogState == MapDialogState.CHOOSE_PARKING)
-            handleChooseParking(id)
-        else
-            mapContentUseCase.getStation(id)?.let { station ->
-                changeState(MapUiState.StationDetail(station))
+    private fun handleChooseParkingAction(intent: MapIntent.ChooseParkingAction) {
+        if (intent.action == DialogAction.CLICK) {
+            handleChooseParking()
+        } else {
+            changeState(MapUiState.Normal)
+            viewModelScope.launch {
+                delay(CHOOSE_PARKING_TIME)
+                dialogState = MapDialogState.NONE
             }
-    }
-
-    private fun showParkingDetail(id: String) {
-        Logg.d("!!! showParkingDetail $id")
-        mapContentUseCase.getParking(id)?.let { parking ->
-            changeState(MapUiState.ParkingDetail(parking))
         }
     }
 
@@ -337,6 +377,49 @@ class MapViewModel @Inject constructor(
             ) {
                 changeState(MapUiState.FinishingRent(true), true)
             }
+        }
+    }
+
+    private fun handleOnTakePhoto(intent: MapIntent.OnTakePhoto) {
+        when (intent.action) {
+            DialogAction.CLICK -> {
+                if (intent.filePath.isNotEmpty()) {
+                    changeState(MapUiState.Loading(true))
+                    rentUseCase.uploadPhotoAndFinishRent(
+                        intent.filePath,
+                        { showError(it) }
+                    ) {
+                        if (it.status?.isDone() == true) {
+                            changeState(MapUiState.FinishingRent(false), true)
+                        } else
+                            showError(context.getString(R.string.error_unknown))
+                    }
+                }
+            }
+
+            DialogAction.DISSMISS -> {
+                changeState(MapUiState.FinishingRent(true))
+            }
+
+            else -> {}
+        }
+    }
+
+    private fun handleFinishedRentAction(intent: MapIntent.FinishedRentAction) {
+        when (intent.action) {
+            DialogAction.CLICK -> {
+                rentUseCase.sendFeedback(
+                    intent.rent, intent.rating ?: 0, { showError(it) }
+                ) {
+                    changeState(MapUiState.Normal)
+                }
+            }
+
+            DialogAction.DISSMISS -> {
+                changeState(MapUiState.Normal)
+            }
+
+            else -> {}
         }
     }
 

@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.rent.Rent
+import ru.sitronics.velobike.presentation.map.DialogAction
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
 import ru.sitronics.velobike.presentation.map.DialogState.SHOW
@@ -50,7 +51,7 @@ import ru.sitronics.velobike.ui.theme.LightGrayBackgroundColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FinishedRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismiss: () -> Unit, onClick: (Rent?, Int) -> Unit) {
+fun FinishedRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAction: (DialogAction, Rent?, Int?) -> Unit) {
     var rent by remember { mutableStateOf<Rent?>(null) }
     var state by remember { mutableStateOf(CLOSE) }
     var rating by remember { mutableStateOf(1f) } //default rating will be 1
@@ -68,7 +69,7 @@ fun FinishedRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDism
     if (state == SHOW) {
         rent?.let {
             ModalBottomSheet(
-                onDismissRequest = { state = CLOSING; onDismiss() },
+                onDismissRequest = { state = CLOSING; onAction(DialogAction.DISSMISS, null, null) },
                 sheetState = sheetState
             ) {
                 Text(
@@ -136,7 +137,7 @@ fun FinishedRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDism
                             scope.launch { sheetState.hide() }.invokeOnCompletion {
                                 if (!sheetState.isVisible) {
                                     state = CLOSING
-                                    onClick(rent, rating.toInt())
+                                    onAction(DialogAction.CLICK, rent, rating.toInt())
                                 }
                             }
                         },

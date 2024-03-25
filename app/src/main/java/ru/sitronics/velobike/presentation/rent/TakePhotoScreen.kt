@@ -12,6 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.BuildConfig
+import ru.sitronics.velobike.presentation.map.DialogAction
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
 import ru.sitronics.velobike.presentation.map.DialogState.SHOW
@@ -23,7 +24,7 @@ import ru.sitronics.velobike.tools.runWithCamera
 import java.io.File
 
 @Composable
-fun TakePhotoScreen(uiState: MapUiState, onDismiss: () -> Unit, onSuccess: (String) -> Unit) {
+fun TakePhotoScreen(uiState: MapUiState, onAction: (DialogAction, String) -> Unit /*onDismiss: () -> Unit, onSuccess: (String) -> Unit*/) {
     var state by remember { mutableStateOf(CLOSE) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -32,9 +33,9 @@ fun TakePhotoScreen(uiState: MapUiState, onDismiss: () -> Unit, onSuccess: (Stri
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         state = CLOSING
         if (success) {
-            onSuccess(filePath)
+            onAction(DialogAction.CLICK, filePath)
         } else {
-            onDismiss()
+            onAction(DialogAction.DISSMISS, "")
         }
     }
 

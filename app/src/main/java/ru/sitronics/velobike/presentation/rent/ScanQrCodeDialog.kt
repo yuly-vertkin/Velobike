@@ -27,11 +27,12 @@ import com.budiyev.android.codescanner.DecodeCallback
 import com.budiyev.android.codescanner.ErrorCallback
 import com.budiyev.android.codescanner.ScanMode
 import ru.sitronics.velobike.R
+import ru.sitronics.velobike.presentation.map.DialogAction
+import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
+import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
+import ru.sitronics.velobike.presentation.map.DialogState.SHOW
 import ru.sitronics.velobike.presentation.map.MapUiState
 import ru.sitronics.velobike.presentation.map.MapUiState.QrScan
-import ru.sitronics.velobike.presentation.map.DialogState.SHOW
-import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
-import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
 import ru.sitronics.velobike.presentation.map.toDialogState
 import ru.sitronics.velobike.tools.BackPressHandler
 import ru.sitronics.velobike.tools.Logg
@@ -40,7 +41,7 @@ import ru.sitronics.velobike.tools.rememberCameraPermissionLauncher
 import ru.sitronics.velobike.tools.runWithCamera
 
 @Composable
-fun ScanQrCodeDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: (String?, Boolean) -> Unit) {
+fun ScanQrCodeDialog(uiState: MapUiState, onAction: (DialogAction, String?, Boolean) -> Unit) {
     var fromBikeDetail by remember { mutableStateOf(false) }
     var state by remember { mutableStateOf(CLOSE) }
     val context = LocalContext.current
@@ -48,7 +49,7 @@ fun ScanQrCodeDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: (Strin
 
     if (uiState is QrScan && state != CLOSING) {
         fromBikeDetail = uiState.fromBikeDetail
-        state = true.toDialogState()
+        state = uiState.show.toDialogState()
     } else if (uiState !is QrScan && state == CLOSING)
         state = CLOSE
 
@@ -75,12 +76,12 @@ fun ScanQrCodeDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: (Strin
                 val parts = result.text.split("{", "}")
                 val bikeNumber = if (parts.isNotEmpty()) parts.last { it.isNotEmpty() } else ""
                 state = CLOSING
-                onClick(bikeNumber, fromBikeDetail)
+                onAction(DialogAction.CLICK, bikeNumber, fromBikeDetail)
             }
             codeScanner.errorCallback = ErrorCallback { // or ErrorCallback.SUPPRESS
                 Logg.d("!!!! Camera initialization error: ${it.message}")
                 state = CLOSING
-                onDismiss()
+                onAction(DialogAction.DISSMISS, null, fromBikeDetail)
             }
 
             val bikeNumber = qrCodeScannerView.findViewById<EditText>(R.id.bike_number)
@@ -88,7 +89,7 @@ fun ScanQrCodeDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: (Strin
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     hideKeyboard(context, bikeNumber)
                     state = CLOSING
-                    onClick(view.text.toString(), fromBikeDetail)
+                    onAction(DialogAction.CLICK, view.text.toString(), fromBikeDetail)
                     true
                 } else false
             }
@@ -96,7 +97,7 @@ fun ScanQrCodeDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: (Strin
             qrCodeScannerView.findViewById<ImageView>(R.id.next_btn).setOnClickListener {
                 hideKeyboard(context, bikeNumber)
                 state = CLOSING
-                onClick(bikeNumber.text.toString(), fromBikeDetail)
+                onAction(DialogAction.CLICK, bikeNumber.text.toString(), fromBikeDetail)
             }
 
 //        scannerView.setOnClickListener {
@@ -135,7 +136,7 @@ fun ScanQrCodeDialog(uiState: MapUiState, onDismiss: () -> Unit, onClick: (Strin
             }
         }
 
-        BackPressHandler(onBackPressed = { state = CLOSING; onDismiss() })
+        BackPressHandler(onBackPressed = { state = CLOSING; onAction(DialogAction.DISSMISS, null, fromBikeDetail) })
     }
 }
 
