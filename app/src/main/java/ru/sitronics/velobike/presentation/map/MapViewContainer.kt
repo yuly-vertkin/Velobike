@@ -106,31 +106,33 @@ fun BoxScope.MapViewContainer(
     val parkingPlacemarks = remember { hashMapOf<String, PlacemarkMapObject>() }
 
     val slowZoneCollection = remember { mapView.mapWindow.map.mapObjects.addCollection() }
-    val slowZonePolygons = remember { mutableListOf<PolygonMapObject>() }
+    val slowZonePolygons = remember { hashMapOf<Int, PolygonMapObject>() }
+//    val slowZonePolygons = remember { mutableListOf<PolygonMapObject>() }
     val slowZoneMarkerCollection = remember { mapView.mapWindow.map.mapObjects.addCollection() }
-    val slowZoneMarkerPlacemarks = remember { mutableListOf<PlacemarkMapObject>() }
+    val slowZoneMarkerPlacemarks = remember { hashMapOf<Int, PlacemarkMapObject>() }
+//    val slowZoneMarkerPlacemarks = remember { mutableListOf<PlacemarkMapObject>() }
     val moveZoneCollection = remember { mapView.mapWindow.map.mapObjects.addCollection() }
     val moveZonePolygons = remember { mutableListOf<PolygonMapObject>() }
 
     when(uiState) {
+/*
         is MapUiState.MapContent -> {
             updateBikes(LocalContext.current, uiState.bikes, bikeClusterCollection, bikePlacemarks, tapListener)
             updateStations(LocalContext.current, uiState.stations, stationClusterCollection, stationPlacemarks, tapListener)
             updateParkings(LocalContext.current, uiState.parkings, parkingCollection, parkingPlacemarks, tapListener)
             updateSlowZones(LocalContext.current, uiState.slowZones, uiState.showMarkers, slowZoneCollection, slowZonePolygons, slowZoneMarkerCollection, slowZoneMarkerPlacemarks, tapListener)
         }
-/*
-        is MapUiState.BikesUpdated -> {
+*/
+        is MapUiState.Bikes -> {
             updateBikes(LocalContext.current, uiState.bikes, bikeClusterCollection, bikePlacemarks, tapListener)
         }
-        is MapUiState.ParkingsUpdated -> {
+        is MapUiState.Parkings -> {
             updateStations(LocalContext.current, uiState.stations, stationClusterCollection, stationPlacemarks, tapListener)
             updateParkings(LocalContext.current, uiState.parkings, parkingCollection, parkingPlacemarks, tapListener)
         }
-        is MapUiState.ShowSlowZones -> {
+        is MapUiState.SlowZones -> {
             updateSlowZones(LocalContext.current, uiState.slowZones, uiState.showMarkers, slowZoneCollection, slowZonePolygons, slowZoneMarkerCollection, slowZoneMarkerPlacemarks, tapListener)
         }
-*/
         is MapUiState.MoveZones -> {
             updateMoveZones(LocalContext.current, uiState.moveZone, moveZoneCollection, moveZonePolygons, tapListener)
         }
@@ -266,6 +268,68 @@ private fun updateParkings(
 
 private fun updateSlowZones(
     context: Context,
+    zones: List<SlowZoneObject>?,
+    showMarkers: Boolean,
+    zoneCollection: MapObjectCollection,
+    polygons: HashMap<Int, PolygonMapObject>,
+    markerCollection: MapObjectCollection,
+    markerPlacemarks: HashMap<Int, PlacemarkMapObject>,
+    tapListener: MapObjectTapListener,
+) {
+    if (zones.isNullOrEmpty()) {
+        zoneCollection.clear()
+        polygons.clear()
+        markerCollection.clear()
+        markerPlacemarks.clear()
+        return
+    }
+
+    val currentIds = mutableListOf<Int>()
+    val slowZoneBitmap = context.getBitmapFromVectorDrawable(R.drawable.slow_zone)
+    val slowZoneTimeBitmap = context.getBitmapFromVectorDrawable(R.drawable.slow_zone_time)
+
+    zones.forEach { zone ->
+        val id = zone.id
+        currentIds.add(id)
+
+        if (id !in polygons) {
+            polygons[id] = zoneCollection.addPolygon(zone.polygon).apply {
+                zIndex = 1f
+                strokeWidth = 1f
+                strokeColor = ContextCompat.getColor(context, R.color.slow_zone_stroke)
+                fillColor = ContextCompat.getColor(context, R.color.slow_zone_fillcolor)
+                isDraggable = false
+                userData = MarkerUserData.SlowZone(zone.id)
+                addTapListener(tapListener)
+            }
+
+            val text = context.getString(R.string.speed_limit, zone.speedLimit)
+            val scheduled = zone.startTime > 0
+            val bitmap = (if (scheduled) slowZoneTimeBitmap else slowZoneBitmap)
+                .drawText(context, text, TEXT_SIZE, Color.BLACK, scheduled)
+
+            markerPlacemarks[id] = markerCollection.addPlacemark().apply {
+                geometry = zone.markerPoint
+                setIcon(ImageProvider.fromBitmap(bitmap))
+            }
+        }
+        markerPlacemarks[id]?.isVisible = showMarkers
+    }
+
+    val removedIds = polygons.keys.filter { !currentIds.contains(it) }
+    removedIds.forEach { key ->
+        polygons.remove(key)?.let {
+            zoneCollection.remove(it)
+        }
+        markerPlacemarks.remove(key)?.let {
+            markerCollection.remove(it)
+        }
+    }
+}
+
+/*
+private fun updateSlowZones(
+    context: Context,
     objects: List<SlowZoneObject>?,
     showMarkers: Boolean,
     zoneCollection: MapObjectCollection,
@@ -303,6 +367,7 @@ private fun updateSlowZones(
             val scheduled = obj.startTime > 0
             val bitmap = (if (scheduled) slowZoneTimeBitmap else slowZoneBitmap)
                 .drawText(context, text, TEXT_SIZE, Color.BLACK, scheduled)
+
             markerCollection.addPlacemark().apply {
                 geometry = obj.markerPoint
                 setIcon(ImageProvider.fromBitmap(bitmap))
@@ -311,6 +376,7 @@ private fun updateSlowZones(
         }
     }
 }
+*/
 
 private fun updateMoveZones(
     context: Context,

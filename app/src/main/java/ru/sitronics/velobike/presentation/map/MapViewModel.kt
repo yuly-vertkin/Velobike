@@ -78,6 +78,7 @@ class MapViewModel @Inject constructor(
             }
             is MapIntent.ChangeMapPosition -> {
                 Logg.d("!!!! MapIntent.ChangeMapPosition ${intent.mapRect}")
+/*
                 mapContentUseCase.updateMapContent(intent.mapRect, intent.zoom) {
                     changeState(MapUiState.MapContent(
                         bikes = it.bikes,
@@ -87,25 +88,24 @@ class MapViewModel @Inject constructor(
                         showMarkers = it.showMarkers,
                     ))
                 }
-/*
+*/
                 mapContentUseCase.updateBikes(
                     intent.mapRect, intent.zoom,
-                    { changeState(MapUiState.BikesUpdated(it)) },
+                    { changeState(MapUiState.Bikes(it)) },
                     { showError(it) }
                 )
 
                 mapContentUseCase.updateParkings(
                     intent.mapRect, intent.zoom,
-                    { stations, parkings -> changeState(MapUiState.ParkingsUpdated(stations, parkings)) },
+                    { stations, parkings -> changeState(MapUiState.Parkings(stations, parkings)) },
                     { showError(it) }
                 )
 
                 mapContentUseCase.updateSlowZones(
                     intent.zoom,
-                    { slowZones, showMarkers -> changeState(MapUiState.ShowSlowZones(filterSlowZones(slowZones), showMarkers)) },
+                    { slowZones, showMarkers -> changeState(MapUiState.SlowZones(filterSlowZones(slowZones), showMarkers)) },
                     { showError(it) }
                 )
-*/
             }
             is MapIntent.MapObjectTap -> {
                 when (intent.userData) {

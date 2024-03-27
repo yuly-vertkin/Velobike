@@ -26,7 +26,11 @@ class MapContentRepositoryImp @Inject constructor(
 ) : BaseRepository<MapContentData>(appContextProvider, gson), MapContentRepository {
 
     override fun getData() : MapContentData =
-        super.getData() ?: MapContentData()
+        super.getData() ?: run {
+            val data = MapContentData()
+            saveData(data)
+            data
+        }
 
     override fun saveData(data: MapContentData) {
         super.saveData(data)

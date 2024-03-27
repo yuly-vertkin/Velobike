@@ -12,10 +12,11 @@ class MapContentUseCase @Inject constructor(
     private val mapContentRepository: MapContentRepository,
     appContextProvider: AppContextProvider,
 ) : BaseUseCase(appContextProvider) {
-    private var mapContentCounter = 0
+//    private var mapContentCounter = 0
 //    private var showSlowZones: Boolean = false
 //    private var showSlowZoneMarkers: Boolean = false
 
+/*
     fun updateMapContent(
         mapRect: MapRect, zoom: Float,
         onReady: (MapContent) -> Unit
@@ -58,6 +59,7 @@ class MapContentUseCase @Inject constructor(
         if (mapContentCounter == 0)
             onReady()
     }
+*/
 
     fun getBike(id: String) : Bike? =
         mapContentRepository.getData().bikes?.find { it.id == id }
@@ -97,16 +99,13 @@ class MapContentUseCase @Inject constructor(
             action = { mapContentRepository.getBikes(mapRect) },
             onSuccess = { bikes ->
                 Logg.d("!!! getBikes() ${bikes.size}")
-                mapContentRepository.saveData(mapContentRepository.getData().copy(
-                    bikes = bikes
-                ))
+                mapContentRepository.getData().bikes = bikes
                 onSuccess(bikes)
             },
             onError = {
                 Logg.d("!!! ERROR getBikes()")
                 onError(null)
             },
-            force = true,
             callName = "getBikes"
         )
     }
@@ -123,17 +122,14 @@ class MapContentUseCase @Inject constructor(
                 val stations = items.filter { it.type.isStation() }
                 val parkings = items.filter { it.type.isParking() }
                 Logg.d("!!! getParkings() stations: ${stations.size}, parkings: ${parkings.size}")
-                mapContentRepository.saveData(mapContentRepository.getData().copy(
-                    stations = stations,
-                    parkings = parkings,
-                ))
+                mapContentRepository.getData().stations = stations
+                mapContentRepository.getData().parkings = parkings
                 onSuccess(stations, if (zoom >= SHOW_PARKINGS_ZOOM) parkings else emptyList())
             },
             onError = {
                 Logg.d("!!! ERROR getParkings() ${it.message}")
                 onError(null)
             },
-            force = true,
             callName = "getParkings"
         )
     }
@@ -150,11 +146,7 @@ class MapContentUseCase @Inject constructor(
                 action = { mapContentRepository.getSlowZones() },
                 onSuccess = {
                     Logg.d("!!! getSlowZones() ${it.size}")
-                    mapContentRepository.saveData(
-                        mapContentRepository.getData().copy(
-                            slowZones = it
-                        )
-                    )
+                    mapContentRepository.getData().slowZones = it
                     onSuccess(it, showMarkers)
                 },
                 onError = {
@@ -180,11 +172,7 @@ class MapContentUseCase @Inject constructor(
                 action = { mapContentRepository.getMoveZones() },
                 onSuccess = {
                     Logg.d("!!! getMoveZones() ${it.size}")
-                    mapContentRepository.saveData(
-                        mapContentRepository.getData().copy(
-                            moveZones = it
-                        )
-                    )
+                    mapContentRepository.getData().moveZones = it
                     onSuccess(it)
                 },
                 onError = {
