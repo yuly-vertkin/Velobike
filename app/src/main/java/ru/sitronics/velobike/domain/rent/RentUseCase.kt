@@ -275,14 +275,21 @@ class RentUseCase @Inject constructor(
     }
 
     fun updateActiveRent(
-        isStart: Boolean,
-        onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit, onFinish: (Rent?) -> Unit
+        needStop: Boolean,
+        onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit, onFinish: ((Rent?) -> Unit)? = null
     ) {
-        if (isStart && activeRentUpdateTask == null) {
+        var needStart = !needStop
+
+        if (activeRentUpdateTask == null) {
             activeRentUpdateTask = Timer().schedule(0, CHECK_ACTIVE_RENT_DELAY) {
-                checkActiveRent(onError, onSuccess, onFinish)
+                if (needStart || rent != null) {
+                    checkActiveRent(onError, onSuccess, onFinish)
+                    needStart = false
+                }
             }
-        } else if (!isStart) {
+        }
+
+        if (needStop) {
             activeRentUpdateTask?.cancel()
             activeRentUpdateTask = null
         }
@@ -295,17 +302,17 @@ class RentUseCase @Inject constructor(
             action = { rentRepository.checkActiveRent() },
             onSuccess = { rents ->
                 Logg.d("!!!! checkActiveRent found ${rents.size}")
-                val rent = rents.firstOrNull()
+                val curRent = rents.firstOrNull()
 
-                // check if rent has just finished
-                if (rent == null && this.rent?.isOld == false) {
-                    val finRent = this.rent
+                // check if rent (not old) has just finished
+                if (curRent == null && rent?.isOld == false) {
+                    val finRent = rent
                     onCheckActiveRentSuccess(null, onSuccess)
                     onFinish?.invoke(finRent)
                     return@processNetworkCall
                 }
 
-                rent?.let {
+                curRent?.let {
                     onCheckActiveRentSuccess(it, onSuccess)
                 } ?: checkActiveRentOld(onError, onSuccess, onFinish)
             },
@@ -325,14 +332,14 @@ class RentUseCase @Inject constructor(
                 action = { rentRepository.checkActiveRentOld(it) },
                 onSuccess = {
                     Logg.d("!!!! checkActiveRentOld found ${it.size}")
-                    val rent = it.firstOrNull()
-                    rent?.isOld = true
+                    val curRent = it.firstOrNull()
+                    curRent?.isOld = true
 
                     // check if old rent has just finished
-                    if (rent == null && this.rent?.isOld == true)
-                        finishedRent = this.rent
+                    if (curRent == null && rent?.isOld == true)
+                        finishedRent = rent
 
-                    onCheckActiveRentSuccess(rent, onSuccess)
+                    onCheckActiveRentSuccess(curRent, onSuccess)
 
                     finishedRent?.let {
                         checkFinishedRentOld(onFinish)

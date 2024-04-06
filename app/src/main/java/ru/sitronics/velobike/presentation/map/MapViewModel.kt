@@ -62,7 +62,7 @@ class MapViewModel @Inject constructor(
                     changeState(MapUiState.MoveZones(filterMoveZones(moveZones)))
                 }
 
-                rentUseCase.updateActiveRent(true,
+                rentUseCase.updateActiveRent(false,
                     { showError(it) },
                     { handleActiveRent(it) },
                     { changeState(MapUiState.FinishedRent(it)) })
@@ -72,7 +72,7 @@ class MapViewModel @Inject constructor(
                 }
             }
             is MapIntent.MapStop -> {
-                rentUseCase.updateActiveRent(false, {}, {}) { _ -> }
+                rentUseCase.updateActiveRent(true, {}, {}, {})
 
                 chatManager.addUnreadMessagesCountListener {}
             }
@@ -156,8 +156,8 @@ class MapViewModel @Inject constructor(
                 dialogState = MapDialogState.NONE
                 changeState(MapUiState.FinishingRent(true))
             }
-            is MapIntent.OnTakePhoto -> {
-                handleOnTakePhoto(intent)
+            is MapIntent.TakePhotoAction -> {
+                handleTakePhotoAction(intent)
             }
             is MapIntent.FinishedRentAction -> {
                 handleFinishedRentAction(intent)
@@ -259,7 +259,8 @@ class MapViewModel @Inject constructor(
                             id, intent.latitude, intent.longitude,
                             { showError(it) }
                         ) {
-                            changeState(MapUiState.ActiveRent(it, true), true)
+                            changeState(MapUiState.Loading(false))
+                            handleActiveRent(it)
                         }
                     } else {
                         changeState(MapUiState.QrScan(show = true, fromBikeDetail = true))
@@ -283,7 +284,8 @@ class MapViewModel @Inject constructor(
                     intent.latitude, intent.longitude,
                     { showError(it) }
                 ) {
-                    changeState(MapUiState.FinishingRent(true), true)
+                    changeState(MapUiState.Loading(false))
+                    handleActiveRent(it)
                 }
             }
             DialogAction.DISSMISS -> {
@@ -313,10 +315,10 @@ class MapViewModel @Inject constructor(
                     rentUseCase.checkRentStatus(
                         rent.rentId, rent.frameNumber,
                         { showError(it) }
-                    ) {
+                    ) { status ->
                         changeState(MapUiState.Loading(false))
 
-                        when (it.processStatus) {
+                        when (status.processStatus) {
                             ProgressStatus.WAIT_PARKING_FROM_CLIENT -> {
                                 dialogState = MapDialogState.CHOOSE_PARKING
                                 changeState(MapUiState.FinishingRent(false))
@@ -330,6 +332,17 @@ class MapViewModel @Inject constructor(
 
                             ProgressStatus.WAIT_UPLOAD_PHOTO ->
                                 changeState(MapUiState.TakePhoto)
+
+                            ProgressStatus.PHOTO_WAS_UPLOADED -> {
+                                changeState(MapUiState.Loading(true))
+                                rentUseCase.finishRentAfterUploadPhoto({ showError(it) }) {
+                                    if (it.status?.isDone() == true) {
+                                        changeState(MapUiState.FinishingRent(false), true)
+                                        changeState(MapUiState.FinishedRent(rentUseCase.rent))
+                                    } else
+                                        showError(context.getString(R.string.error_unknown))
+                                }
+                            }
 
                             else -> {}
                         }
@@ -380,7 +393,7 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    private fun handleOnTakePhoto(intent: MapIntent.OnTakePhoto) {
+    private fun handleTakePhotoAction(intent: MapIntent.TakePhotoAction) {
         when (intent.action) {
             DialogAction.CLICK -> {
                 if (intent.filePath.isNotEmpty()) {
@@ -391,6 +404,7 @@ class MapViewModel @Inject constructor(
                     ) {
                         if (it.status?.isDone() == true) {
                             changeState(MapUiState.FinishingRent(false), true)
+                            changeState(MapUiState.FinishedRent(rentUseCase.rent))
                         } else
                             showError(context.getString(R.string.error_unknown))
                     }

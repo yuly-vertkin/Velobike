@@ -48,7 +48,7 @@ sealed class MapIntent {
     data class FinishingRentAction(val action: DialogAction) : MapIntent()
     data class ChooseParkingAction(val action: DialogAction) : MapIntent()
     data object WheelLockAction : MapIntent()
-    data class OnTakePhoto(val action: DialogAction, val filePath: String) : MapIntent()
+    data class TakePhotoAction(val action: DialogAction, val filePath: String) : MapIntent()
     data class FinishedRentAction(val action: DialogAction, val rent: Rent?, val rating: Int?) : MapIntent()
     data object ErrorAction : MapIntent()
 }

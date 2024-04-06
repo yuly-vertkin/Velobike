@@ -85,7 +85,7 @@ fun MapScreen(
         WheelLockDialog(mapUiState) { onAction(MapIntent.WheelLockAction) }
 
         TakePhotoScreen(mapUiState) { action, path ->
-            onAction(MapIntent.OnTakePhoto(action, path))
+            onAction(MapIntent.TakePhotoAction(action, path))
         }
 
         FinishedRentDialog(mapUiState, { padding = padding.copy(bottom = it) }) { action, rent, rating ->

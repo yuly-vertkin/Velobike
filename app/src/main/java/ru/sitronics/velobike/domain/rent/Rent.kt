@@ -107,6 +107,8 @@ enum class ProgressStatus {
     WAIT_UPLOAD_PHOTO,
     @SerializedName("WAIT_PARKING_FROM_CLIENT")
     WAIT_PARKING_FROM_CLIENT,
+    @SerializedName("PHOTO_WAS_UPLOADED")
+    PHOTO_WAS_UPLOADED
 }
 
 enum class FailedReason(@StringRes val messageIdStart: Int, @StringRes val messageIdFinish: Int) {
