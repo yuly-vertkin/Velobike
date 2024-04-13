@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
+import ru.sitronics.velobike.domain.auth.AuthManager
 import ru.sitronics.velobike.domain.profile.Profile
 import ru.sitronics.velobike.domain.profile.ProfileUseCase
 import ru.sitronics.velobike.presentation.BaseViewModel
@@ -15,6 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val profileUseCase: ProfileUseCase,
+    private val authManager: AuthManager,
     appContextProvider: AppContextProvider,
 ) : BaseViewModel(appContextProvider) {
     private val _profileUiState: MutableStateFlow<ProfileUiState> = MutableStateFlow(ProfileUiState.Normal(Profile()))
@@ -67,6 +69,9 @@ class ProfileViewModel @Inject constructor(
                 profileUseCase.getProfileData {
                     changeState(ProfileUiState.Normal(it))
                 }
+            }
+            is ProfileIntent.Logout -> {
+                authManager.needReLogin()
             }
         }
     }

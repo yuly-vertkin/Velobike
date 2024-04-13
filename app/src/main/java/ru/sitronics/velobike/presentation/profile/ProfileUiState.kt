@@ -17,5 +17,6 @@ sealed class ProfileIntent {
     data class GetTariff(val tariff: Tariff? = null, val canBuy: Boolean) : ProfileIntent()
     data class BuyTariff(val tariff: Tariff? = null, val canBuy: Boolean) : ProfileIntent()
     data object GetCards : ProfileIntent()
+    data object Logout : ProfileIntent()
     data object MessageAction : ProfileIntent()
 }

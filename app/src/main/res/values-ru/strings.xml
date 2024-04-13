@@ -112,6 +112,7 @@
     <string name="error_no_active_card">Не найдено активной карты</string>
     <string name="my_bank_cards">Мои банковские карты</string>
     <string name="no_bank_cards">Активных карт не найдено.\nПривяжите вашу карту, чтобы оплачивать доступ к велопрокату.</string>
+    <string name="logout">Выход</string>
 
     <!-- Help -->
     <string name="help">Помощь</string>

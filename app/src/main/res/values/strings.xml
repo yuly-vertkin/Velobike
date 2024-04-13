@@ -113,6 +113,7 @@
     <string name="error_no_active_card">No active card found</string>
     <string name="my_bank_cards">My bank cards</string>
     <string name="no_bank_cards">No active cards found.\nAttach your card to pay for access to the bike.</string>
+    <string name="logout">Logout</string>
 
     <!-- Help -->
     <string name="help">Help</string>

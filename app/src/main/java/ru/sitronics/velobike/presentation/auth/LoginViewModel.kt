@@ -1,9 +1,12 @@
 package ru.sitronics.velobike.presentation.auth
 
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.ResponseException
@@ -12,7 +15,6 @@ import ru.sitronics.velobike.domain.auth.AuthRepository
 import ru.sitronics.velobike.domain.auth.Register
 import ru.sitronics.velobike.domain.auth.RegisterData
 import ru.sitronics.velobike.domain.auth.UserToken
-import ru.sitronics.velobike.domain.chat.ChatManager
 import ru.sitronics.velobike.presentation.BaseViewModel
 import ru.sitronics.velobike.tools.Logg
 import javax.inject.Inject
@@ -21,14 +23,11 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val authManager: AuthManager,
-    private val chatManager: ChatManager,
     appContextProvider: AppContextProvider,
 ) : BaseViewModel(appContextProvider) {
     private val _loginUiState: MutableStateFlow<LoginUiState> = MutableStateFlow(
-        LoginUiState.Normal(
-            login = authRepository.getData().login ?: "",
-            password = authRepository.getData().password ?: "",
-    ))
+        initNormalState()
+    )
     val loginUiState: StateFlow<LoginUiState> = _loginUiState.asStateFlow()
 
     fun handleIntent(intent: LoginIntent) {
@@ -79,10 +78,12 @@ class LoginViewModel @Inject constructor(
     private fun onLoginSuccess(response: UserToken) {
         Logg.d("!!! Login success")
         authManager.setToken(response.accessToken)
-        authManager.userId?.let {
-            chatManager.login(it)
-        }
         changeState(LoginUiState.Close)
+
+        viewModelScope.launch {
+            delay(1000)
+            changeState(initNormalState())
+        }
     }
 
     private fun onRegisterSuccess(status: Register) {
@@ -99,4 +100,9 @@ class LoginViewModel @Inject constructor(
     private fun changeState(uiState: LoginUiState) {
         _loginUiState.value = uiState
     }
+
+    private fun initNormalState() = LoginUiState.Normal(
+        login = authRepository.getData().login ?: "",
+        password = authRepository.getData().password ?: "",
+    )
 }

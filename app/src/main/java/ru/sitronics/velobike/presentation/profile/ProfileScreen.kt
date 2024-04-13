@@ -123,6 +123,7 @@ fun ProfileScreenInt(
         TariffSection(profile, isOld = false, onAction)
 
         MenuItem(R.string.my_bank_cards, R.drawable.card) { onAction(ProfileIntent.GetCards) }
+        MenuItem(R.string.logout, R.drawable.exit) { onAction(ProfileIntent.Logout) }
     }
 }
 
