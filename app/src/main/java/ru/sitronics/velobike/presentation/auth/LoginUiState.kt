@@ -11,6 +11,7 @@ sealed class LoginUiState {
 
 sealed class LoginIntent {
     data class LoginAction(val login: String, val password: String) : LoginIntent()
+    data class LoginBiometricAction(val isSuccess: Boolean) : LoginIntent()
     data object ShowRegister : LoginIntent()
     data class RegisterAction(val registerData: RegisterData) : LoginIntent()
     data object MessageAction : LoginIntent()

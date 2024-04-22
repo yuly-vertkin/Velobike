@@ -19,6 +19,8 @@
     <string name="login">Login</string>
     <string name="password">Password</string>
     <string name="warning">Warning</string>
+    <string name="biometric_auth">Biometric authentication</string>
+    <string name="use_credentials">Use login</string>
 
 <!-- Register -->
     <string name="registration">Registration</string>

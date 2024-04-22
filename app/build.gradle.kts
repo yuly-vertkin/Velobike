@@ -121,6 +121,9 @@ dependencies {
     implementation("com.jakewharton.timber:timber:5.0.1")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
+    // biometric auth
+    implementation( "androidx.biometric:biometric:1.1.0")
+
     // QR code
     implementation("com.github.yuriy-budiyev:code-scanner:2.3.2")
 

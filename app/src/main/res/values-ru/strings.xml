@@ -19,6 +19,8 @@
     <string name="login">Логин</string>
     <string name="password">Пароль</string>
     <string name="warning">Внимание</string>
+    <string name="biometric_auth">Биометрическая авторизация</string>
+    <string name="use_credentials">Войти по логину</string>
 
 <!-- Register -->
     <string name="registration">Регистрация</string>

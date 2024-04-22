@@ -2,6 +2,7 @@ package ru.sitronics.velobike.presentation.auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,6 +32,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.sitronics.velobike.R
@@ -148,6 +150,22 @@ fun LoginScreenInt(
                     .align(Alignment.CenterHorizontally)
             ) {
                 Text(text = context.getString(R.string.register))
+            }
+
+            if (loginStr.isNotEmpty() && passwordStr.isNotEmpty()) {
+                Image(
+                    painter = painterResource(id = R.drawable.biometric),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(vertical = 8.dp)
+                        .align(Alignment.CenterHorizontally)
+                        .clickable {
+                            biometricAuth(context as FragmentActivity) {
+                                loading = it
+                                onAction(LoginIntent.LoginBiometricAction(it))
+                            }
+                        }
+                )
             }
         }
 

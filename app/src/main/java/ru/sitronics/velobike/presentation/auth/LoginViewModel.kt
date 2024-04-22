@@ -35,6 +35,15 @@ class LoginViewModel @Inject constructor(
             is LoginIntent.LoginAction -> {
                 loginUser(intent.login, intent.password)
             }
+            is LoginIntent.LoginBiometricAction -> {
+                val login = authRepository.getData().login ?: ""
+                val password = authRepository.getData().password ?: ""
+
+                if (intent.isSuccess)
+                    loginUser(login, password)
+                else
+                    changeState(LoginUiState.Normal(login, password))
+            }
             is LoginIntent.ShowRegister -> {
                 changeState(LoginUiState.Register)
             }
