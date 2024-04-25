@@ -122,7 +122,9 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     // biometric auth
-    implementation( "androidx.biometric:biometric:1.1.0")
+    implementation("androidx.biometric:biometric:1.1.0")
+    // Secure Device Storage
+    implementation("de.adorsys.android:securestoragelibrary:1.2.4")
 
     // QR code
     implementation("com.github.yuriy-budiyev:code-scanner:2.3.2")

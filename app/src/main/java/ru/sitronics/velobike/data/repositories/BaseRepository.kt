@@ -4,23 +4,21 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import de.adorsys.android.securestoragelibrary.SecurePreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import retrofit2.Response
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.SHARED_PREFERENCES_NAME
-import ru.sitronics.velobike.data.network.isNetworkAvailable
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.BusinessErrorResponse
 import ru.sitronics.velobike.data.ERROR_NO_NETWORK
-import ru.sitronics.velobike.data.ErrorResponse
 import ru.sitronics.velobike.data.ERROR_UNKNOWN
+import ru.sitronics.velobike.data.ErrorResponse
 import ru.sitronics.velobike.data.ResponseException
 import ru.sitronics.velobike.data.Result
+import ru.sitronics.velobike.data.network.isNetworkAvailable
 import ru.sitronics.velobike.tools.Logg
 import java.lang.reflect.Type
 
@@ -128,6 +126,16 @@ open class BaseRepository<T>(
                 putString(key, it)
                 apply()
             }
+        }
+    }
+
+    protected fun getSecureStringPreference(key: String): String {
+        return SecurePreferences.getStringValue(context, key, null) ?: ""
+    }
+
+    protected fun setSecureStringPreference(key: String, value: String?) {
+        value?.let {
+            SecurePreferences.setValue(context, key, it)
         }
     }
 

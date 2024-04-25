@@ -10,6 +10,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        jcenter()
         maven(url = "https://jitpack.io")
         maven(url = "https://maven-pub.edna.ru/repository/maven-public/")
     }
