@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,7 +45,7 @@ fun SupportScreen(
             .padding(horizontal = 16.dp)
     ) {
         Text(
-            text = context.getString(R.string.support),
+            text = stringResource(R.string.support),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier

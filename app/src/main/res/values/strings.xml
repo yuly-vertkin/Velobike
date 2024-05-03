@@ -59,6 +59,7 @@
 <!-- Rent -->
     <string name="return_to_active_ride">Return to active ride</string>
     <string name="active_rent_btn">Complete</string>
+    <string name="rent_fine">The allowed rental time of 48 hours has been exceeded\nA fine of 30,000 ₽ will be debited from your bank card</string>
     <string name="finish_rent">End of the trip</string>
     <string name="choose_parking_title">Select parking on the map</string>
     <string name="choose_parking_text">Unfortunately, we were unable to locate the bike. Please select the parking lot where you are located on the map</string>

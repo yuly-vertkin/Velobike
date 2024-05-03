@@ -21,8 +21,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -33,7 +33,6 @@ import ru.sitronics.velobike.tools.BackPressHandler
 
 @Composable
 fun RegisterScreen(onDismiss: () -> Unit, onClick: (RegisterData) -> Unit) {
-    val context = LocalContext.current
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
@@ -55,7 +54,7 @@ fun RegisterScreen(onDismiss: () -> Unit, onClick: (RegisterData) -> Unit) {
                 .background(Color.White)
         ) {
             Text(
-                text = context.getString(R.string.registration),
+                text = stringResource(R.string.registration),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -66,7 +65,7 @@ fun RegisterScreen(onDismiss: () -> Unit, onClick: (RegisterData) -> Unit) {
             OutlinedTextField(
                 value = firstName,
                 onValueChange = { firstName = it },
-                label = { Text(context.getString(R.string.name)) },
+                label = { Text(stringResource(R.string.name)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 modifier = Modifier
@@ -77,7 +76,7 @@ fun RegisterScreen(onDismiss: () -> Unit, onClick: (RegisterData) -> Unit) {
             OutlinedTextField(
                 value = lastName,
                 onValueChange = { lastName = it },
-                label = { Text(context.getString(R.string.surname)) },
+                label = { Text(stringResource(R.string.surname)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 modifier = Modifier
@@ -88,7 +87,7 @@ fun RegisterScreen(onDismiss: () -> Unit, onClick: (RegisterData) -> Unit) {
             OutlinedTextField(
                 value = phone,
                 onValueChange = { phone = it },
-                label = { Text(context.getString(R.string.phone)) },
+                label = { Text(stringResource(R.string.phone)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 modifier = Modifier
@@ -99,7 +98,7 @@ fun RegisterScreen(onDismiss: () -> Unit, onClick: (RegisterData) -> Unit) {
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text(context.getString(R.string.email)) },
+                label = { Text(stringResource(R.string.email)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier
@@ -119,7 +118,7 @@ fun RegisterScreen(onDismiss: () -> Unit, onClick: (RegisterData) -> Unit) {
                     onCheckedChange = { agree = it }
                 )
                 Text(
-                    text = context.getString(R.string.agree),
+                    text = stringResource(R.string.agree),
                     modifier = Modifier.padding(start = 16.dp)
                 )
             }
@@ -139,7 +138,7 @@ fun RegisterScreen(onDismiss: () -> Unit, onClick: (RegisterData) -> Unit) {
                 .width(300.dp)
                 .align(Alignment.BottomCenter)
         ) {
-            Text(text = context.getString(R.string.register))
+            Text(text = stringResource(R.string.register))
         }
     }
 

@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -94,7 +95,7 @@ fun LoginScreenInt(
                 .background(Color.White)
         ) {
             Text(
-                text = context.getString(R.string.entrance),
+                text = stringResource(R.string.entrance),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -105,7 +106,7 @@ fun LoginScreenInt(
             OutlinedTextField(
                 value = login,
                 onValueChange = { login = it },
-                label = { Text(context.getString(R.string.login)) },
+                label = { Text(stringResource(R.string.login)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier
@@ -116,7 +117,7 @@ fun LoginScreenInt(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text(context.getString(R.string.password)) },
+                label = { Text(stringResource(R.string.password)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 visualTransformation = PasswordVisualTransformation(),
@@ -140,7 +141,7 @@ fun LoginScreenInt(
                     .width(300.dp)
                     .align(Alignment.CenterHorizontally)
             ) {
-                Text(text = context.getString(R.string.enter))
+                Text(text = stringResource(R.string.enter))
             }
 
             Button(
@@ -149,7 +150,7 @@ fun LoginScreenInt(
                     .width(300.dp)
                     .align(Alignment.CenterHorizontally)
             ) {
-                Text(text = context.getString(R.string.register))
+                Text(text = stringResource(R.string.register))
             }
 
             if (loginStr.isNotEmpty() && passwordStr.isNotEmpty()) {
@@ -183,13 +184,11 @@ fun LoginScreenInt(
 
 @Composable
 fun ShowMessageDialog(msg: String?, onClick: () -> Unit) {
-    val context = LocalContext.current
-
     SimpleDialog(
         onDismissRequest = { onClick() },
         onConfirmation = { onClick() },
-        dialogTitle = context.getString(R.string.warning),
-        dialogText = msg ?: context.getString(R.string.warning),
+        dialogTitle = stringResource(R.string.warning),
+        dialogText = msg ?: stringResource(R.string.warning),
         icon = Icons.Default.Warning
     )
 }

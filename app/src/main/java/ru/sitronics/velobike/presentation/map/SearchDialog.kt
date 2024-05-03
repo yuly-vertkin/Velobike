@@ -19,8 +19,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.map.Parking
@@ -36,7 +36,6 @@ fun SearchDialog(uiState: MapUiState, onAction: (String?) -> Unit, onChange: (St
     var state by remember { mutableStateOf(CLOSE) }
     var searchStr by remember { mutableStateOf("") }
     var parkings by remember { mutableStateOf<List<Parking>>(emptyList()) }
-    val context = LocalContext.current
 
     if (uiState is Search && state != CLOSING) {
         parkings = uiState.parkings.orEmpty()
@@ -54,7 +53,7 @@ fun SearchDialog(uiState: MapUiState, onAction: (String?) -> Unit, onChange: (St
             OutlinedTextField(
                 value = searchStr,
                 onValueChange = { searchStr = it; onChange(it) },
-                label = { Text(context.getString(R.string.search_label)) },
+                label = { Text(stringResource(R.string.search_label)) },
                 leadingIcon = { Icon(painterResource(R.drawable.search_gray), null) },
                 singleLine = true,
                 modifier = Modifier

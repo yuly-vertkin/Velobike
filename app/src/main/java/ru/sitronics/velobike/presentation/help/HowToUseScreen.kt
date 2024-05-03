@@ -30,8 +30,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,7 +48,6 @@ enum class HowToUseScreen {
 fun HowToUseScreen(
     onBack: () -> Unit,
 ) {
-    val context = LocalContext.current
     var showScreen: HowToUseScreen by remember { mutableStateOf(HowToUseScreen.BASE) }
 
     Column (
@@ -58,7 +57,7 @@ fun HowToUseScreen(
             .padding(top = 16.dp)
     ) {
         Text(
-            text = context.getString(R.string.how_to_use),
+            text = stringResource(R.string.how_to_use),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
@@ -87,8 +86,6 @@ private fun HowToUseItem(
     @StringRes textId: Int, @StringRes addTextId: Int, @DrawableRes imageId: Int,
     onClick: () -> Unit
 ) {
-    val context = LocalContext.current
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -101,12 +98,12 @@ private fun HowToUseItem(
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = context.getString(textId),
+                text = stringResource(textId),
                 lineHeight = 16.sp,
             )
 
             Text(
-                text = context.getString(addTextId),
+                text = stringResource(addTextId),
                 fontSize = 14.sp,
                 lineHeight = 14.sp,
                 color = Color.LightGray,
@@ -137,7 +134,6 @@ fun FirstTripScreen(
         FirstTripSlide(R.string.first_trip_slide3_4_5_6, R.string.first_trip_slide6_desc, R.drawable.first_trip_slide6),
     )}
     val pagerState = rememberPagerState(pageCount = { FIRST_TRIP_SLIDE_NUM })
-    val context = LocalContext.current
 
     Column (
         modifier = Modifier
@@ -150,14 +146,14 @@ fun FirstTripScreen(
         HorizontalPager(state = pagerState) { page ->
             Column {
                 Text(
-                    text = context.getString(slides[page].textId),
+                    text = stringResource(slides[page].textId),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .padding(vertical = 8.dp)
                 )
                 Text(
-                    text = context.getString(slides[page].textDescId),
+                    text = stringResource(slides[page].textDescId),
                     modifier = Modifier
                         .padding(vertical = 8.dp)
                 )

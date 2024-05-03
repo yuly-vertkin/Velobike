@@ -11,19 +11,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import ru.sitronics.velobike.R
-import ru.sitronics.velobike.presentation.map.MapUiState.Error
-import ru.sitronics.velobike.presentation.map.DialogState.SHOW
-import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
+import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
+import ru.sitronics.velobike.presentation.map.DialogState.SHOW
+import ru.sitronics.velobike.presentation.map.MapUiState.Error
 
 @Composable
 fun ErrorDialog(uiState: MapUiState, onAction: () -> Unit) {
     var title by remember { mutableStateOf<String>("") }
     var text by remember { mutableStateOf<String>("") }
     var state by remember { mutableStateOf(CLOSE) }
-    val context = LocalContext.current
 
     if (uiState is Error && state != CLOSING) {
         title = uiState.title
@@ -42,7 +41,7 @@ fun ErrorDialog(uiState: MapUiState, onAction: () -> Unit) {
                 TextButton(
                     onClick = { state = CLOSING; onAction() }
                 ) {
-                    Text(context.getString(R.string.ok_btn))
+                    Text(stringResource(R.string.ok_btn))
                 }
             },
         )

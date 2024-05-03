@@ -18,8 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,14 +37,13 @@ fun TariffsScreen(
     tariffs: List<Tariff>,
     onAction: (Tariff?) -> Unit,
 ) {
-    val context = LocalContext.current
-    val tabData = listOf(context.getString(R.string.old_bike_tab), context.getString(R.string.new_bike_tab))
+    val tabData = listOf(stringResource(R.string.old_bike_tab), stringResource(R.string.new_bike_tab))
     val pagerState = rememberPagerState(pageCount = { tabData.size })
     val scope = rememberCoroutineScope()
 
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
-            text = context.getString(R.string.choose_tariff),
+            text = stringResource(R.string.choose_tariff),
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier

@@ -15,7 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,7 +29,6 @@ enum class HelpScreen {
 
 @Composable
 fun HelpScreen(contentPadding: PaddingValues) {
-    val context = LocalContext.current
     var showScreen: HelpScreen by remember { mutableStateOf(HelpScreen.BASE) }
 
     Box(
@@ -44,7 +43,7 @@ fun HelpScreen(contentPadding: PaddingValues) {
                 .padding(horizontal = 16.dp)
         ) {
             Text(
-                text = context.getString(R.string.help),
+                text = stringResource(R.string.help),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -56,7 +55,7 @@ fun HelpScreen(contentPadding: PaddingValues) {
             MenuItem(R.string.support, R.drawable.support) { showScreen = HelpScreen.SUPPORT }
         }
         Text(
-            text = context.getString(R.string.version, BuildConfig.VERSION_NAME),
+            text = stringResource(R.string.version, BuildConfig.VERSION_NAME),
             color = Color.LightGray,
             modifier = Modifier
                 .padding(bottom = 8.dp)

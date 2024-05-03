@@ -1,15 +1,23 @@
 package ru.sitronics.velobike.presentation.map
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.sitronics.velobike.presentation.details.BikeDetailDialog
@@ -39,7 +47,13 @@ fun MapScreen(
     val locationPermissionLauncher = rememberLocationPermissionLauncher()
     var padding by remember { mutableStateOf(Padding(0, 0)) }
 
-    Box(modifier = Modifier.padding(contentPadding)) {
+    var testClick by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .padding(contentPadding)
+            .clickable { testClick = true }
+    ) {
         Logg.d("!!!! MapScreen ${mapUiState.javaClass.name}")
 
         MapViewContainer(mapUiState, padding, onAction)
@@ -95,5 +109,34 @@ fun MapScreen(
         ErrorDialog(mapUiState) { onAction(MapIntent.ResetState) }
 
         LoadingBar(mapUiState)
+
+//        Testt(contentPadding)
+    }
+}
+
+@Composable
+private fun Testt(contentPadding: PaddingValues) {
+//    stringResource(R.string.close)
+    var testClick by remember { mutableStateOf(false) }
+
+    if (!testClick) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding)
+                .clickable { testClick = true }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomStart)
+                    .clickable { }
+            ) {
+                Text("test1")
+                Text("test2")
+                Text("test3")
+                Text("test4")
+            }
+        }
     }
 }

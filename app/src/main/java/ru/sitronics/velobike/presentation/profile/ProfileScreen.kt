@@ -20,7 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -80,15 +80,13 @@ fun ProfileScreenInt(
     profile: Profile,
     onAction: (ProfileIntent) -> Unit,
 ) {
-    val context = LocalContext.current
-
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(contentPadding)
         .padding(horizontal = 16.dp)
     ) {
         Text(
-            text = context.getString(R.string.profile_title),
+            text = stringResource(R.string.profile_title),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
@@ -105,11 +103,11 @@ fun ProfileScreenInt(
                     .border(1.dp, Color.LightGray, CircleShape)
             )
             Text(
-                text = context.getString(R.string.profile_login, profile.login),
+                text = stringResource(R.string.profile_login, profile.login),
                 modifier = Modifier.padding(16.dp)
             )
             Text(
-                text = context.getString(R.string.profile_password, "...."),
+                text = stringResource(R.string.profile_password, "...."),
                 modifier = Modifier.padding(16.dp)
             )
         }
@@ -129,10 +127,8 @@ fun ProfileScreenInt(
 
 @Composable
 private fun TariffSection(profile: Profile, isOld: Boolean, onAction: (ProfileIntent) -> Unit) {
-    val context = LocalContext.current
-
     Text(
-        text = context.getString(if (isOld) R.string.old_bike_tab else R.string.new_bike_tab),
+        text = stringResource(if (isOld) R.string.old_bike_tab else R.string.new_bike_tab),
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(top = 16.dp)
     )
@@ -146,7 +142,7 @@ private fun TariffSection(profile: Profile, isOld: Boolean, onAction: (ProfileIn
         if (isTariff) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = context.getString(R.string.tariff_name, if (isOld) profile.oldTariffName else profile.tariffName),
+                    text = stringResource(R.string.tariff_name, if (isOld) profile.oldTariffName else profile.tariffName),
                     fontSize = 14.sp,
                 )
 
@@ -160,7 +156,7 @@ private fun TariffSection(profile: Profile, isOld: Boolean, onAction: (ProfileIn
                 )
 
                 Text(
-                    text = context.getString(R.string.tariff_end, getDateStr(
+                    text = stringResource(R.string.tariff_end, getDateStr(
                         if (isOld) profile.oldTariffEnd else profile.tariffEnd
                     )),
                     fontSize = 14.sp,
@@ -168,7 +164,7 @@ private fun TariffSection(profile: Profile, isOld: Boolean, onAction: (ProfileIn
             }
         } else {
             Text(
-                text = context.getString(R.string.no_tariff),
+                text = stringResource(R.string.no_tariff),
                 fontSize = 14.sp,
                 modifier = Modifier.weight(1f)
             )
@@ -183,7 +179,7 @@ private fun TariffSection(profile: Profile, isOld: Boolean, onAction: (ProfileIn
             val textId = if (isOld && profile.oldTariffId.isNotEmpty() ||
                              !isOld && profile.tariffId.isNotEmpty()) R.string.tariff
                          else R.string.buy_tariff
-            Text(text = context.getString(textId))
+            Text(text = stringResource(textId))
         }
     }
 
@@ -192,13 +188,11 @@ private fun TariffSection(profile: Profile, isOld: Boolean, onAction: (ProfileIn
 
 @Composable
 fun ShowMessageDialog(msg: String?, onClick: () -> Unit) {
-    val context = LocalContext.current
-
     SimpleDialog(
         onDismissRequest = { onClick() },
         onConfirmation = { onClick() },
-        dialogTitle = context.getString(R.string.warning),
-        dialogText = msg ?: context.getString(R.string.warning),
+        dialogTitle = stringResource(R.string.warning),
+        dialogText = msg ?: stringResource(R.string.warning),
         icon = Icons.Default.Warning
     )
 }

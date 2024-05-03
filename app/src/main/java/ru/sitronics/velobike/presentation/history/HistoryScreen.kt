@@ -23,7 +23,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,8 +45,7 @@ fun HistoryScreen(
 ) {
     val historyTripItems = historyViewModel.historyTripItems.collectAsLazyPagingItems()
     val historyPayItems = historyViewModel.historyPayItems.collectAsLazyPagingItems()
-    val context = LocalContext.current
-    val tabData = listOf(context.getString(R.string.trip_tab), context.getString(R.string.pay_tab))
+    val tabData = listOf(stringResource(R.string.trip_tab), stringResource(R.string.pay_tab))
     val pagerState = rememberPagerState(pageCount = { tabData.size })
     val scope = rememberCoroutineScope()
 
@@ -56,7 +55,7 @@ fun HistoryScreen(
             .padding(contentPadding)
     ) {
         Text(
-            text = context.getString(R.string.history_title),
+            text = stringResource(R.string.history_title),
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
@@ -121,8 +120,6 @@ fun HistoryPagingScreen(historyItems: LazyPagingItems<HistoryItem>, page: Int) {
 
 @Composable
 fun RideItemContent(item: HistoryItem, index: Int) {
-    val context = LocalContext.current
-
     Column (
         modifier = Modifier
             .fillMaxWidth()
@@ -140,7 +137,7 @@ fun RideItemContent(item: HistoryItem, index: Int) {
         ) {
             val endDate = Date(item.startDate.time + (item.duration?.let { it.time } ?: 0 ))
             Text(
-                text = context.getString(R.string.str_str,
+                text = stringResource(R.string.str_str,
                     getDateTimeStr(item.startDate, "HH:mm"),
                     getDateTimeStr(endDate, "HH:mm")
                 ),
@@ -207,8 +204,6 @@ fun RideItemContent(item: HistoryItem, index: Int) {
 
 @Composable
 fun PayItemContent(item: HistoryItem, index: Int) {
-    val context = LocalContext.current
-
     Column (
         modifier = Modifier
             .fillMaxWidth()
@@ -234,7 +229,7 @@ fun PayItemContent(item: HistoryItem, index: Int) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = context.getString(R.string.pay_tariff),
+                text = stringResource(R.string.pay_tariff),
                 fontSize = 12.sp,
             )
 

@@ -1,26 +1,25 @@
 package ru.sitronics.velobike.presentation.rent
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.rent.Rent
+import ru.sitronics.velobike.presentation.SimpleBottomDialog
 import ru.sitronics.velobike.presentation.details.BikeChargeSection
 import ru.sitronics.velobike.presentation.map.DialogAction
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
@@ -30,17 +29,11 @@ import ru.sitronics.velobike.presentation.map.MapUiState
 import ru.sitronics.velobike.presentation.map.MapUiState.ActiveRent
 import ru.sitronics.velobike.presentation.map.toDialogState
 import ru.sitronics.velobike.tools.getTimeStr
-import ru.sitronics.velobike.tools.onSizeChanged
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActiveRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAction: (DialogAction) -> Unit) {
     var rent by remember { mutableStateOf<Rent?>(null) }
     var state by remember { mutableStateOf(CLOSE) }
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState()
-    sheetState.onSizeChanged(onSizeChanged)
 
     if (uiState is ActiveRent && state != CLOSING) {
         rent = uiState.rent
@@ -50,16 +43,15 @@ fun ActiveRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAction
 
     if (state == SHOW)
         rent?.let {
-            ModalBottomSheet(
+            SimpleBottomDialog(
+                onSizeChanged = onSizeChanged,
                 onDismissRequest = { state = CLOSING; onAction(DialogAction.DISSMISS) },
-                sheetState = sheetState
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 32.dp)
+                        .padding(all = 16.dp)
                 ) {
                     Text(
                         text = "${it.cost} ₽",
@@ -86,22 +78,30 @@ fun ActiveRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAction
                     BikeChargeSection(it)
                 }
 
+                if (it.showFine) {
+                    Text(
+                        text = stringResource(R.string.rent_fine),
+                        color = Color.White,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .padding(bottom = 16.dp)
+                            .background(Color.Red, RoundedCornerShape(16.dp))
+                            .padding(all = 16.dp)
+                    )
+                }
+
                 if (!it.isOld) {
                     Button(
                         onClick = {
-                            scope.launch { sheetState.hide() }.invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    state = CLOSING
-                                    onAction(DialogAction.CLICK)
-                                }
-                            }
+                            state = CLOSING; onSizeChanged(0)
+                            onAction(DialogAction.CLICK)
                         },
                         modifier = Modifier
                             .align(Alignment.CenterHorizontally)
                             .padding(horizontal = 32.dp)
-                            .padding(vertical = 32.dp)
+                            .padding(bottom = 16.dp)
                     ) {
-                        Text(context.getString(R.string.active_rent_btn))
+                        Text(stringResource(R.string.active_rent_btn))
                     }
                 }
             }

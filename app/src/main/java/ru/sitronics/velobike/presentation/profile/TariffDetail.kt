@@ -17,8 +17,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,7 +33,6 @@ fun TariffDetail(
     canBuy: Boolean,
     onAction: (Tariff?) -> Unit,
 ) {
-    val context = LocalContext.current
     var agree by remember { mutableStateOf(false) }
 
     Column(
@@ -55,7 +54,7 @@ fun TariffDetail(
         )
 
         Text(
-            text = context.getString(R.string.access_cost),
+            text = stringResource(R.string.access_cost),
             modifier = Modifier.padding(vertical = 16.dp)
         )
 
@@ -80,7 +79,7 @@ fun TariffDetail(
                     onCheckedChange = { agree = it }
                 )
                 Text(
-                    text = context.getString(R.string.agree),
+                    text = stringResource(R.string.agree),
                     modifier = Modifier.padding(start = 16.dp)
                 )
             }
@@ -92,7 +91,7 @@ fun TariffDetail(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
             ) {
-                Text(text = context.getString(R.string.buy_tariff))
+                Text(text = stringResource(R.string.buy_tariff))
             }
         }
     }

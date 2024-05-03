@@ -181,8 +181,14 @@ class ProfileUseCase  @Inject constructor(
         }
     }
 
+    fun isFine(startTime: Long) : Boolean {
+        val duration = System.currentTimeMillis() - startTime
+        val time = TimeUnit.MILLISECONDS.toMinutes(duration).toInt()
+        return time > MAX_RIDE_TIME
+    }
+
     companion object {
-        private const val MAX_RIDE_TIME = 2800
+        private const val MAX_RIDE_TIME = 2880
         private const val FINE_AMOUNT = 30000
     }
 }

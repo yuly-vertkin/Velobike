@@ -5,53 +5,43 @@ import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.map.Bike
+import ru.sitronics.velobike.presentation.SimpleBottomDialog
 import ru.sitronics.velobike.presentation.map.DialogAction
+import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
+import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
+import ru.sitronics.velobike.presentation.map.DialogState.SHOW
 import ru.sitronics.velobike.presentation.map.MapUiState
 import ru.sitronics.velobike.presentation.map.MapUiState.BikeDetail
-import ru.sitronics.velobike.presentation.map.DialogState.SHOW
-import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
-import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
 import ru.sitronics.velobike.presentation.map.toDialogState
-import ru.sitronics.velobike.tools.onSizeChanged
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.minutes
 
 @SuppressLint("StringFormatInvalid")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BikeDetailDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAction: (DialogAction, String?, Boolean) -> Unit) {
     var bike by remember { mutableStateOf<Bike?>(null) }
     var fromQrScan by remember { mutableStateOf(false) }
     var enableAction by remember { mutableStateOf(false) }
     var state by remember { mutableStateOf(CLOSE) }
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState()
-    sheetState.onSizeChanged(onSizeChanged)
 
     if (uiState is BikeDetail && state != CLOSING) {
         bike = uiState.bike
@@ -62,18 +52,17 @@ fun BikeDetailDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAction
         state = CLOSE
 
     if (state == SHOW) {
-        ModalBottomSheet(
+        SimpleBottomDialog(
+            onSizeChanged = onSizeChanged,
             onDismissRequest = { state = CLOSING; onAction(DialogAction.DISSMISS, bike?.id, fromQrScan) },
-            sheetState = sheetState
         ) {
             Text(
-                text = context.getString(R.string.bike_detail_title, bike?.id),
+                text = stringResource(R.string.bike_detail_title, bike?.id.orEmpty()),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .padding(horizontal = 32.dp)
-                    .offset(y = (-12).dp)
+                    .padding(all = 16.dp)
             )
 
             Image(
@@ -89,12 +78,8 @@ fun BikeDetailDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAction
 
             Button(
                 onClick = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            state = CLOSING
-                            onAction(DialogAction.CLICK, bike?.id, fromQrScan)
-                        }
-                    }
+                    state = CLOSING; onSizeChanged(0)
+                    onAction(DialogAction.CLICK, bike?.id, fromQrScan)
                 },
                 enabled = enableAction,
                 modifier = Modifier
@@ -102,7 +87,7 @@ fun BikeDetailDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAction
                     .padding(horizontal = 32.dp)
                     .padding(vertical = 32.dp)
             ) {
-                Text(context.getString(R.string.start_ride_btn))
+                Text(stringResource(R.string.start_ride_btn))
             }
         }
     }
@@ -111,8 +96,6 @@ fun BikeDetailDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAction
 @SuppressLint("StringFormatInvalid")
 @Composable
 fun BikeChargeSection(bike: Bike?) {
-    val context = LocalContext.current
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -120,14 +103,14 @@ fun BikeChargeSection(bike: Bike?) {
             .padding(horizontal = 16.dp)
     ) {
         Text(
-            text = context.getString(R.string.battery_power_percent, bike?.batteryPower),
+            text = stringResource(R.string.battery_power_percent, bike?.batteryPower ?: 0),
             modifier = Modifier
                 .padding(start = 32.dp)
                 .weight(1f)
         )
 
         Text(
-            text = getPowerReserveText(context, bike),
+            text = getPowerReserveText(LocalContext.current, bike),
             modifier = Modifier
                 .padding(start = 32.dp)
         )
