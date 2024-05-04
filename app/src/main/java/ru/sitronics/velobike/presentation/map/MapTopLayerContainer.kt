@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -30,6 +31,7 @@ import ru.sitronics.velobike.tools.drawChatBitmap
 import ru.sitronics.velobike.tools.getBitmapFromVectorDrawable
 import ru.sitronics.velobike.tools.rememberLocationPermissionLauncher
 import ru.sitronics.velobike.tools.runWithLocation
+import ru.sitronics.velobike.tools.toDp
 
 @Composable
 fun BoxScope.MapTopLayerContainer(
@@ -44,6 +46,7 @@ fun BoxScope.MapTopLayerContainer(
     val chatDefaultBitmap = remember { context.getBitmapFromVectorDrawable(R.drawable.chat).asImageBitmap() }
     val chatUnreadMessagesBitmap = remember { context.getBitmapFromVectorDrawable(R.drawable.chat).drawChatBitmap().asImageBitmap() }
     val chatBitmap = remember { mutableStateOf(chatDefaultBitmap) }
+    var height by remember { mutableStateOf(0) }
 
     if (uiState is MapUiState.QrScanButton) {
         showQrScanButton = uiState.show
@@ -58,6 +61,10 @@ fun BoxScope.MapTopLayerContainer(
             .matchParentSize()
             .padding(top = padding.top.dp)
             .padding(bottom = padding.bottom.dp)
+            .onGloballyPositioned { coordinates ->
+                height = coordinates.size.height.toDp(context)
+            }
+
     ) {
         FloatingActionButton(
             modifier = Modifier
@@ -98,28 +105,30 @@ fun BoxScope.MapTopLayerContainer(
             Icon(painterResource(R.drawable.layers), "")
         }
 
-        FloatingActionButton(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .offset(x = (-8).dp, y = (-32).dp),
-            onClick = { moveMap(mapView, changeZoom = CHANGE_ZOOM) },
-            shape = CircleShape,
-            containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
-            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
-        ) {
-            Icon(painterResource(R.drawable.plus), "")
-        }
+        if (height >= MIN_HEIGHT_FOR_ZOOM_BUTTONS) {
+            FloatingActionButton(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .offset(x = (-8).dp, y = (-32).dp),
+                onClick = { moveMap(mapView, changeZoom = CHANGE_ZOOM) },
+                shape = CircleShape,
+                containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+            ) {
+                Icon(painterResource(R.drawable.plus), "")
+            }
 
-        FloatingActionButton(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .offset(x = (-8).dp, y = 32.dp),
-            onClick = { moveMap(mapView, changeZoom = -CHANGE_ZOOM) },
-            shape = CircleShape,
-            containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
-            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
-        ) {
-            Icon(painterResource(R.drawable.minus), "")
+            FloatingActionButton(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .offset(x = (-8).dp, y = 32.dp),
+                onClick = { moveMap(mapView, changeZoom = -CHANGE_ZOOM) },
+                shape = CircleShape,
+                containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+            ) {
+                Icon(painterResource(R.drawable.minus), "")
+            }
         }
 
         if (showQrScanButton) {

@@ -109,34 +109,5 @@ fun MapScreen(
         ErrorDialog(mapUiState) { onAction(MapIntent.ResetState) }
 
         LoadingBar(mapUiState)
-
-//        Testt(contentPadding)
-    }
-}
-
-@Composable
-private fun Testt(contentPadding: PaddingValues) {
-//    stringResource(R.string.close)
-    var testClick by remember { mutableStateOf(false) }
-
-    if (!testClick) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding)
-                .clickable { testClick = true }
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomStart)
-                    .clickable { }
-            ) {
-                Text("test1")
-                Text("test2")
-                Text("test3")
-                Text("test4")
-            }
-        }
     }
 }

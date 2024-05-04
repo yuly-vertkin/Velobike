@@ -6,6 +6,7 @@ import com.yandex.mapkit.geometry.Polygon
 const val MOSCOW_LAT = 55.75222
 const val MOSCOW_LON = 37.61556
 const val TEXT_SIZE = 14
+const val MIN_HEIGHT_FOR_ZOOM_BUTTONS = 280
 
 data class SlowZoneObject(
     val id: Int,
