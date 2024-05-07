@@ -17,6 +17,7 @@ import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.chat.ChatManager
 import ru.sitronics.velobike.domain.map.MapContentUseCase
+import ru.sitronics.velobike.domain.map.Parking
 import ru.sitronics.velobike.domain.rent.ChooseParkingParams
 import ru.sitronics.velobike.domain.rent.MainRentStatus
 import ru.sitronics.velobike.domain.rent.ProgressStatus
@@ -39,7 +40,7 @@ class MapViewModel @Inject constructor(
     private lateinit var mapUiStatesJob: Job
     private val _mapUiState: MutableStateFlow<MapUiState> = MutableStateFlow(MapUiState.Normal)
     val mapUiState: StateFlow<MapUiState> = _mapUiState.asStateFlow()
-    private var dialogState: MapDialogState = MapDialogState.NONE
+    private var dialogState: RentDialogState = RentDialogState.NONE
 
     init {
         rentUseCase.initScope(viewModelScope)
@@ -143,17 +144,16 @@ class MapViewModel @Inject constructor(
             }
             is MapIntent.ClickActiveRentBar -> {
                 rentUseCase.rent?.let {
-                    dialogState = MapDialogState.NONE
-                    viewModelScope.launch {
-                        handleActiveRent(it)
-                    }
+                    changeState(MapUiState.CloseAllDetails)
+                    dialogState = RentDialogState.NONE
+                    handleActiveRent(it)
                 }
             }
             is MapIntent.ChooseParkingAction -> {
                 handleChooseParkingAction(intent)
             }
             is MapIntent.WheelLockAction -> {
-                dialogState = MapDialogState.NONE
+                dialogState = RentDialogState.NONE
                 changeState(MapUiState.FinishingRent(true))
             }
             is MapIntent.TakePhotoAction -> {
@@ -177,7 +177,7 @@ class MapViewModel @Inject constructor(
 
     private fun showStationDetail(id: String) {
         Logg.d("!!! showStationDetail $id")
-        if (dialogState == MapDialogState.CHOOSE_PARKING)
+        if (dialogState == RentDialogState.CHOOSE_PARKING)
             handleChooseParking(id)
         else
             mapContentUseCase.getStation(id)?.let { station ->
@@ -206,14 +206,14 @@ class MapViewModel @Inject constructor(
                 )
             it.distance = if (isLocation) res[0] else null
         }
-        dialogState = MapDialogState.SEARCH
+        dialogState = RentDialogState.SEARCH
         handleActiveRent(rentUseCase.rent)
         changeState(MapUiState.Search(parkings))
     }
 
     private fun handleSearchAction(intent: MapIntent.SearchAction) {
-        dialogState = if (rentUseCase.rent != null) MapDialogState.ACTIVE_RENT_BAR
-                      else MapDialogState.NONE
+        dialogState = if (rentUseCase.rent != null) RentDialogState.ACTIVE_RENT_BAR
+                      else RentDialogState.NONE
         intent.id?.let {
             showStationDetail(it)
         }
@@ -276,20 +276,42 @@ class MapViewModel @Inject constructor(
         }
     }
 
+    private fun getNearestStation(lat: Double?, lon: Double?) : Parking? {
+        if (lat == null || lon == null) return null
+        val res = FloatArray(1)
+
+        return mapContentUseCase.getStations()?.filter {
+            !it.isLocked && it.freeNonElectricSlots + it.freeElectricSlots > 0
+        }?.minByOrNull {
+            Location.distanceBetween(lat, lon, it.latitude, it.longitude, res)
+            if (res[0] != 0f) res[0] else Float.MAX_VALUE
+        }
+    }
+
     private fun handleActiveRentAction(intent: MapIntent.ActiveRentAction) {
         when (intent.action) {
             DialogAction.CLICK -> {
-                changeState(MapUiState.Loading(true))
-                rentUseCase.finishRent(
-                    intent.latitude, intent.longitude,
-                    { showError(it) }
-                ) {
-                    changeState(MapUiState.Loading(false))
-                    handleActiveRent(it)
+                rentUseCase.rent?.let {
+                    if (!it.isOld) {
+                        changeState(MapUiState.Loading(true))
+                        rentUseCase.finishRent(
+                            intent.latitude, intent.longitude,
+                            { showError(it) }
+                        ) {
+                            changeState(MapUiState.Loading(false))
+                            handleActiveRent(it)
+                        }
+                    } else {
+                        getNearestStation(intent.latitude, intent.longitude)?.let { station ->
+                            dialogState = RentDialogState.ACTIVE_RENT_BAR
+                            changeState(MapUiState.ActiveRentBar(true))
+                            changeState(MapUiState.StationDetail(station))
+                        }
+                    }
                 }
             }
             DialogAction.DISSMISS -> {
-                dialogState = MapDialogState.ACTIVE_RENT_BAR
+                dialogState = RentDialogState.ACTIVE_RENT_BAR
                 changeState(MapUiState.ActiveRentBar(true))
             }
             else -> {}
@@ -297,13 +319,13 @@ class MapViewModel @Inject constructor(
     }
 
     private fun handleActiveRent(rent: Rent?) {
-        if (rent == null && dialogState == MapDialogState.ACTIVE_RENT_BAR)
-            dialogState = MapDialogState.NONE
+        if (rent == null && dialogState == RentDialogState.ACTIVE_RENT_BAR)
+            dialogState = RentDialogState.NONE
         var show = dialogState.isNone() && rent?.rentStatus == MainRentStatus.IN_PROGRESS
         changeState(MapUiState.ActiveRent(rent, show))
         show = dialogState.isNone() && rent?.rentStatus == MainRentStatus.CHECK_END
         changeState(MapUiState.FinishingRent(show))
-        changeState(MapUiState.ActiveRentBar(dialogState == MapDialogState.ACTIVE_RENT_BAR))
+        changeState(MapUiState.ActiveRentBar(dialogState == RentDialogState.ACTIVE_RENT_BAR))
         changeState(MapUiState.QrScanButton(rent == null))
     }
 
@@ -320,13 +342,13 @@ class MapViewModel @Inject constructor(
 
                         when (status.processStatus) {
                             ProgressStatus.WAIT_PARKING_FROM_CLIENT -> {
-                                dialogState = MapDialogState.CHOOSE_PARKING
+                                dialogState = RentDialogState.CHOOSE_PARKING
                                 changeState(MapUiState.FinishingRent(false))
                                 changeState(MapUiState.ChooseParking)
                             }
 
                             ProgressStatus.WAIT_CLOSE_LOCK -> {
-                                dialogState = MapDialogState.WHEEL_LOCK
+                                dialogState = RentDialogState.WHEEL_LOCK
                                 changeState(MapUiState.WheelLock)
                             }
 
@@ -360,7 +382,7 @@ class MapViewModel @Inject constructor(
                 }
 
                 DialogAction.DISSMISS -> {
-                    dialogState = MapDialogState.ACTIVE_RENT_BAR
+                    dialogState = RentDialogState.ACTIVE_RENT_BAR
                     changeState(MapUiState.ActiveRentBar(true))
                 }
             }
@@ -374,13 +396,13 @@ class MapViewModel @Inject constructor(
             changeState(MapUiState.Normal)
             viewModelScope.launch {
                 delay(CHOOSE_PARKING_TIME)
-                dialogState = MapDialogState.NONE
+                dialogState = RentDialogState.NONE
             }
         }
     }
 
     private fun handleChooseParking(id: String = UNDEFINED_PARKING) {
-        dialogState = MapDialogState.NONE
+        dialogState = RentDialogState.NONE
 
         rentUseCase.rent?.let { rent ->
             changeState(MapUiState.Loading(true))

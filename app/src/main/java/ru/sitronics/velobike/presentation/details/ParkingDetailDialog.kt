@@ -26,6 +26,7 @@ import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
 import ru.sitronics.velobike.presentation.map.DialogState.SHOW
 import ru.sitronics.velobike.presentation.map.MapUiState
 import ru.sitronics.velobike.presentation.map.MapUiState.ParkingDetail
+import ru.sitronics.velobike.presentation.map.MapUiState.CloseAllDetails
 import ru.sitronics.velobike.presentation.map.toDialogState
 import ru.sitronics.velobike.ui.theme.HeaderBackgroundColor
 
@@ -39,7 +40,9 @@ fun ParkingDetailDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDis
     if (uiState is ParkingDetail && state != CLOSING) {
         parking = uiState.parking
         state = true.toDialogState()
-    } else if (uiState !is ParkingDetail && state == CLOSING)
+    } else if (uiState is CloseAllDetails)
+        state = CLOSE
+    else if (uiState !is ParkingDetail && state == CLOSING)
         state = CLOSE
 
     if (state == SHOW) {

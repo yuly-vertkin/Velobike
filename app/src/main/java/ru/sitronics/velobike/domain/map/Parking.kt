@@ -15,7 +15,7 @@ data class Parking(
     val availableNonElectricBikes: Int,
     val availableElectricBikes: Int,
     val availableOmniBikes: Int,
-    val status: Int,
+    val isLocked: Boolean,
     var distance: Float? = null,
 )
 

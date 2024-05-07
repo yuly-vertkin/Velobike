@@ -61,6 +61,8 @@
     <string name="active_rent_btn">Complete</string>
     <string name="rent_fine">The allowed rental time of 48 hours has been exceeded\nA fine of 30,000 ₽ will be debited from your bank card</string>
     <string name="finish_rent">End of the trip</string>
+    <string name="park_btn">Park with Port +</string>
+    <string name="near_free_btn">Nearby empty racks</string>
     <string name="choose_parking_title">Select parking on the map</string>
     <string name="choose_parking_text">Unfortunately, we were unable to locate the bike. Please select the parking lot where you are located on the map</string>
     <string name="choose_parking_btn">I can\'t find parking</string>
@@ -93,6 +95,13 @@
     <string name="finish_omni_failed_restarted">Error. Ride resumed</string>
     <string name="finish_omni_failed_default">Error</string>
     <string name="omni_ride_not_found_error">Ride not found</string>
+
+    <!-- Port plus -->
+    <string name="port_plus_title">Park with Port+</string>
+    <string name="port_plus_topic_1">What is Port+ and when is it needed?</string>
+    <string name="port_plus_text_1">— The "Port +" function allows you to complete the rental if the station is completely filled with bicycles;\n\n— The "Port+" function is only available for mechanical bikes.</string>
+    <string name="port_plus_topic_2">How to use "Port+"?</string>
+    <string name="port_plus_text_2">1. Park the bike to the left of the bike already parked in the station.\n\n2. Press the "OK" button on the panel located on the handlebars of the bicycle. Then press the "1" button corresponding to the "Port+" function.\n\n3. Press the button inside the left handlebar and remove the cable from the right handlebar.\n\n4. Wrap the cable around the frame next to the parked bike and insert the cable into the lock.</string>
 
 <!-- History -->
     <string name="history_title">History</string>

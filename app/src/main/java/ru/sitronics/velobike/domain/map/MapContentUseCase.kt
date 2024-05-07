@@ -82,6 +82,8 @@ class MapContentUseCase @Inject constructor(
             )
         }
     }
+    fun getStations() : List<Parking>? =
+        mapContentRepository.getData().stations
 
     fun getStation(id: String) : Parking? =
         mapContentRepository.getData().stations?.find { it.id == id }

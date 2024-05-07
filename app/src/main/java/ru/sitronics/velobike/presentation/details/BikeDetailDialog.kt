@@ -31,6 +31,7 @@ import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
 import ru.sitronics.velobike.presentation.map.DialogState.SHOW
 import ru.sitronics.velobike.presentation.map.MapUiState
 import ru.sitronics.velobike.presentation.map.MapUiState.BikeDetail
+import ru.sitronics.velobike.presentation.map.MapUiState.CloseAllDetails
 import ru.sitronics.velobike.presentation.map.toDialogState
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.minutes
@@ -48,7 +49,9 @@ fun BikeDetailDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAction
         fromQrScan = uiState.fromQrScan
         enableAction = uiState.enableAction
         state = true.toDialogState()
-    } else if (uiState !is BikeDetail && state == CLOSING)
+    } else if (uiState is CloseAllDetails)
+        state = CLOSE
+    else if (uiState !is BikeDetail && state == CLOSING)
         state = CLOSE
 
     if (state == SHOW) {

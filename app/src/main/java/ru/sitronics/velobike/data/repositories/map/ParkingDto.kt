@@ -74,7 +74,7 @@ data class ParkingDto(
             availableNonElectricBikes = numOfAvailableNonElectricBikes ?: 0,
             availableElectricBikes = numOfAvailableElectricBikes ?: 0,
             availableOmniBikes = numOfAvailableOmniBikes ?: 0,
-            status = stationStatus ?: 0,
+            isLocked = stationStatus == null || stationStatus == 0,
         )
     }
 }

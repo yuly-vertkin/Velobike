@@ -16,6 +16,7 @@ sealed class MapUiState {
     data class BikeDetail(val bike: Bike, val fromQrScan: Boolean, val enableAction: Boolean) : MapUiState()
     data class StationDetail(val station: Parking) : MapUiState()
     data class ParkingDetail(val parking: Parking) : MapUiState()
+    data object CloseAllDetails : MapUiState()
     data class QrScan(val show: Boolean, val fromBikeDetail: Boolean = false) : MapUiState()
     data class Search(val parkings: List<Parking>?) : MapUiState()
     data class ActiveRent(val rent: Rent?, val show: Boolean) : MapUiState()
@@ -57,7 +58,7 @@ enum class DialogAction {
     CLICK, DISSMISS, BACK
 }
 
-enum class MapDialogState {
+enum class RentDialogState {
     NONE, ACTIVE_RENT_BAR, WHEEL_LOCK, CHOOSE_PARKING, SEARCH;
 
     fun isNone() = this == NONE

@@ -10,20 +10,21 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class DateDeserializer: JsonDeserializer<Date> {
+class DateDeserializer: JsonDeserializer<Date?> {
     @Throws(JsonParseException::class)
     override fun deserialize(
         jsonElement: JsonElement, typeOF: Type, context: JsonDeserializationContext
-    ): Date {
+    ): Date? {
         for (format in dateFormats) {
             try {
                 return SimpleDateFormat(format, Locale.getDefault()).parse(jsonElement.asString)
             } catch (_: ParseException) { }
         }
-        throw JsonParseException(
-            "Unparseable date: \"" + jsonElement.asString +
-            "\". Supported formats: " + dateFormats.joinToString { x -> x }
-        )
+        return null
+//        throw JsonParseException(
+//            "Unparseable date: \"" + jsonElement.asString +
+//            "\". Supported formats: " + dateFormats.joinToString { x -> x }
+//        )
     }
 
     companion object{

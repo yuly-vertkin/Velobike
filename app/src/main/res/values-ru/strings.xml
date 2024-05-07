@@ -60,6 +60,8 @@
     <string name="active_rent_btn">Завершить</string>
     <string name="rent_fine">Превышено допустимое время проката 48 часов\nШтраф 30 000 ₽ будет списан с вашей банковской карты</string>
     <string name="finish_rent">Завершение поездки</string>
+    <string name="park_btn">Паркуйтесь с Порт +</string>
+    <string name="near_free_btn">Ближайшие свободные стойки</string>
     <string name="choose_parking_title">Выберите парковку на карте</string>
     <string name="choose_parking_text">К сожалению, мы не смогли определить местоположение велосипеда. Пожалуйста выберите на карте парковку на которой вы находитесь</string>
     <string name="choose_parking_btn">Не могу найти парковку</string>
@@ -92,6 +94,13 @@
     <string name="finish_omni_failed_restarted">Ошибка. Поездка возобновлена</string>
     <string name="finish_omni_failed_default">Ошибка</string>
     <string name="omni_ride_not_found_error">Аренда не найдена</string>
+
+    <!-- Port plus -->
+    <string name="port_plus_title">Паркуйтесь с Порт+</string>
+    <string name="port_plus_topic_1">Что такое «Порт+» и когда он необходим?</string>
+    <string name="port_plus_text_1">—Функция «Порт+» позволяет завершить прокат, если станция полностью заполнена велосипедами;\n\n—Функция «Порт+» доступна только для механических велосипедов.</string>
+    <string name="port_plus_topic_2">Как использовать «Порт+»?</string>
+    <string name="port_plus_text_2">1. Поставьте велосипед слева от уже припаркованного в станцию велосипеда.\n\n2. Нажмите кнопку «ОК» на панели, расположенной на руле велосипеда. Затем нажмите кнопку «1», соответствующую функции «Порт+».\n\n3. Нажмите кнопку внутри левой ручки руля и достаньте трос из правой ручки руля.\n\n4. Оберните трос вокруг рамы рядом припаркованного велосипеда и вставьте трос в замок.</string>
 
 <!-- History -->
     <string name="history_title">История</string>
