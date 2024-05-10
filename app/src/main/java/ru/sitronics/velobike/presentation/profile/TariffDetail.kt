@@ -96,5 +96,5 @@ fun TariffDetail(
         }
     }
 
-    BackPressHandler(onBackPressed = { onAction(null) })
+    BackPressHandler { onAction(null) }
 }

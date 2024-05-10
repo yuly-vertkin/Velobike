@@ -51,7 +51,7 @@ fun ActiveRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAction
         rent?.let {
             if (!showPortPlus) {
                 SimpleBottomDialog(
-                    onSizeChanged = onSizeChanged,
+                    onSizeChanged = { onSizeChanged(it.height) },
                     onDismissRequest = { state = CLOSING; onAction(DialogAction.DISSMISS) },
                 ) {
                     Row(

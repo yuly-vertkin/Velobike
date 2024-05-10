@@ -1,7 +1,6 @@
 package ru.sitronics.velobike.presentation.rent
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -38,7 +37,7 @@ fun ChooseParkingDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAct
 
     if (state == SHOW) {
         SimpleBottomDialog(
-            onSizeChanged = onSizeChanged,
+            onSizeChanged = { onSizeChanged(it.height) },
             onDismissRequest = { state = CLOSING; onAction(DialogAction.DISSMISS) },
         ) {
             Text(

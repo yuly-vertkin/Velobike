@@ -444,10 +444,11 @@ class MapViewModel @Inject constructor(
     private fun handleFinishedRentAction(intent: MapIntent.FinishedRentAction) {
         when (intent.action) {
             DialogAction.CLICK -> {
+                changeState(MapUiState.Loading(true))
                 rentUseCase.sendFeedback(
                     intent.rent, intent.rating ?: 0, { showError(it) }
                 ) {
-                    changeState(MapUiState.Normal)
+                    changeState(MapUiState.Normal, true)
                 }
             }
 

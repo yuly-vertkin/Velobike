@@ -17,6 +17,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
+import com.yandex.mapkit.ScreenPoint
+import com.yandex.mapkit.ScreenRect
+import com.yandex.mapkit.geometry.Point
+import com.yandex.mapkit.mapview.MapView
+import ru.sitronics.velobike.presentation.map.DialogSize
+import ru.sitronics.velobike.presentation.map.moveMap
 
 private const val EMPTY_BITMAP_WIDTH = 28
 private const val EMPTY_BITMAP_HEIGHT = 18
@@ -103,14 +109,29 @@ fun SheetState.onSizeChanged(onSizeChanged: (Int) -> Unit) {
 
     LaunchedEffect(currentValue) {
         if (isVisible)  {
-            val height = configuration.screenHeightDp - requireOffset().toInt().toDp(context) - PADDING_CORRECTION
+            val height = configuration.screenHeightDp - requireOffset().toInt().pxToDp(context) - PADDING_CORRECTION
             onSizeChanged(height)
         }
         else onSizeChanged(0)
     }
 }
 
-const val PADDING_CORRECTION = 48
+fun moveMapForObject(mapView: MapView, latitude: Double, longitude: Double, size: DialogSize) {
+    if (latitude == 0.0 || longitude == 0.0 || size.width == 0 || size.height == 0 || size.mapHeight == 0) return
 
-fun Int.toDp(context: Context) : Int =
+    moveMap(mapView, Point(latitude, longitude))
+    try {
+        mapView.mapWindow.focusRect = ScreenRect(
+            ScreenPoint(0f, 0f),
+            ScreenPoint(size.width.toFloat(), (size.mapHeight - size.height).toFloat()),
+        )
+    } catch (_: Exception) {}
+}
+
+fun Int.pxToDp(context: Context) : Int =
     this * DisplayMetrics.DENSITY_DEFAULT / context.resources.displayMetrics.densityDpi
+
+fun Int.dpToPx(context: Context) : Int = (this * context.resources.displayMetrics.density).toInt()
+
+
+const val PADDING_CORRECTION = 48

@@ -73,7 +73,7 @@ fun SearchDialog(uiState: MapUiState, onAction: (String?) -> Unit, onChange: (St
             }
         }
 
-        BackPressHandler(onBackPressed = { state = CLOSING; searchStr = ""; onAction(null) })
+        BackPressHandler { state = CLOSING; searchStr = ""; onAction(null) }
     }
 }
 

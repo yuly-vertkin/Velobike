@@ -10,27 +10,34 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import ru.sitronics.velobike.tools.toDp
+import ru.sitronics.velobike.presentation.map.DialogSize
+import ru.sitronics.velobike.tools.BackPressHandler
 
 @Composable
 fun SimpleBottomDialog(
     onDismissRequest: () -> Unit,
-    onSizeChanged: (Int) -> Unit,
+    onSizeChanged: (DialogSize) -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val context = LocalContext.current
+    var size by remember { mutableStateOf(DialogSize()) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .clickable { onDismissRequest(); onSizeChanged(0) }
+            .clickable { onDismissRequest(); onSizeChanged(DialogSize()) }
+            .onGloballyPositioned { coordinates ->
+                size.mapHeight = coordinates.size.height
+            }
     ) {
         Column(
             modifier = Modifier
@@ -40,12 +47,17 @@ fun SimpleBottomDialog(
                 // used instead .clickable { } to avoid click visual effects
                 .pointerInput(null) { detectTapGestures { } }
                 .onGloballyPositioned { coordinates ->
-                    val height = coordinates.size.height.toDp(context)
-                    onSizeChanged(height)
+                    if (coordinates.size.width != size.width ||
+                        coordinates.size.height != size.height) {
+                        size.width = coordinates.size.width
+                        size.height = coordinates.size.height
+                        onSizeChanged(size)
+                    }
                 }
-
         ) {
             content()
         }
     }
+
+    BackPressHandler { onDismissRequest(); onSizeChanged(DialogSize()) }
 }

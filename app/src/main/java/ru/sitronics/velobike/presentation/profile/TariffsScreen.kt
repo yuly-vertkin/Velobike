@@ -71,7 +71,7 @@ fun TariffsScreen(
         }
     }
 
-    BackPressHandler(onBackPressed = { onAction(null) })
+    BackPressHandler { onAction(null) }
 }
 
 @Composable

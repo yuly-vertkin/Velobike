@@ -37,4 +37,6 @@ enum class DialogState {
 fun Boolean.toDialogState() : DialogState =
     if (this) DialogState.SHOW else DialogState.CLOSE
 
+data class DialogSize(var width: Int = 0, var height: Int = 0, var mapHeight: Int = 0)
+
 data class Padding(val top: Int, val bottom: Int)

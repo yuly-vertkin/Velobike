@@ -2,7 +2,6 @@ package ru.sitronics.velobike.presentation.map
 
 import android.content.Context
 import android.graphics.Color
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
@@ -40,13 +39,12 @@ import ru.sitronics.velobike.tools.getBitmapFromVectorDrawable
 import ru.sitronics.velobike.tools.rememberLocationPermissionLauncher
 
 @Composable
-fun BoxScope.MapViewContainer(
+fun MapViewContainer(
+    mapView: MapView,
     uiState: MapUiState,
-    padding: Padding,
     onAction: (MapIntent) -> Unit,
 ) {
     val context = LocalContext.current
-    val mapView = rememberMapViewWithLifecycle(onAction)
     val cameraListener = remember {
         CameraListener { map, cameraPosition, _, finished ->
             if (finished) {
@@ -138,8 +136,6 @@ fun BoxScope.MapViewContainer(
         }
         else -> {}
     }
-
-    MapTopLayerContainer(mapView, uiState, padding, onAction)
 }
 
 private fun updateBikes(

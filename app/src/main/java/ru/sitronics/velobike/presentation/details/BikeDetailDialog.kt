@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.yandex.mapkit.mapview.MapView
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.map.Bike
 import ru.sitronics.velobike.presentation.SimpleBottomDialog
@@ -33,12 +34,18 @@ import ru.sitronics.velobike.presentation.map.MapUiState
 import ru.sitronics.velobike.presentation.map.MapUiState.BikeDetail
 import ru.sitronics.velobike.presentation.map.MapUiState.CloseAllDetails
 import ru.sitronics.velobike.presentation.map.toDialogState
+import ru.sitronics.velobike.tools.moveMapForObject
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.minutes
 
 @SuppressLint("StringFormatInvalid")
 @Composable
-fun BikeDetailDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAction: (DialogAction, String?, Boolean) -> Unit) {
+fun BikeDetailDialog(
+    mapView: MapView,
+    uiState: MapUiState,
+    onSizeChanged: (Int) -> Unit,
+    onAction: (DialogAction, String?, Boolean) -> Unit
+) {
     var bike by remember { mutableStateOf<Bike?>(null) }
     var fromQrScan by remember { mutableStateOf(false) }
     var enableAction by remember { mutableStateOf(false) }
@@ -56,7 +63,10 @@ fun BikeDetailDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAction
 
     if (state == SHOW) {
         SimpleBottomDialog(
-            onSizeChanged = onSizeChanged,
+            onSizeChanged = {
+                moveMapForObject(mapView, bike!!.latitude, bike!!.longitude, it)
+                onSizeChanged(it.height)
+            },
             onDismissRequest = { state = CLOSING; onAction(DialogAction.DISSMISS, bike?.id, fromQrScan) },
         ) {
             Text(

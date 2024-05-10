@@ -136,7 +136,7 @@ fun ScanQrCodeDialog(uiState: MapUiState, onAction: (DialogAction, String?, Bool
             }
         }
 
-        BackPressHandler(onBackPressed = { state = CLOSING; onAction(DialogAction.DISSMISS, null, fromBikeDetail) })
+        BackPressHandler { state = CLOSING; onAction(DialogAction.DISSMISS, null, fromBikeDetail) }
     }
 }
 

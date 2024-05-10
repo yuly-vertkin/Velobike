@@ -43,6 +43,7 @@ fun MapScreen(
 ) {
     val mapUiState by mapViewModel.mapUiState.collectAsStateWithLifecycle()
     val onAction: (MapIntent) -> Unit = { intent -> mapViewModel.handleIntent(intent) }
+    val mapView = rememberMapViewWithLifecycle(onAction)
     val context = LocalContext.current
     val locationPermissionLauncher = rememberLocationPermissionLauncher()
     var padding by remember { mutableStateOf(Padding(0, 0)) }
@@ -56,17 +57,18 @@ fun MapScreen(
     ) {
         Logg.d("!!!! MapScreen ${mapUiState.javaClass.name}")
 
-        MapViewContainer(mapUiState, padding, onAction)
+        MapViewContainer(mapView, mapUiState, onAction)
+        MapTopLayerContainer(mapView, mapUiState, padding, onAction)
 
-        BikeDetailDialog(mapUiState, { padding = padding.copy(bottom = it) }) { action, id, from ->
+        BikeDetailDialog(mapView, mapUiState, { padding = padding.copy(bottom = it) }) { action, id, from ->
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->
                 onAction(MapIntent.BikeDetailAction(action, id, from, lat, lon))
             }
         }
 
-        StationDetailDialog(mapUiState, { padding = padding.copy(bottom = it) }) { onAction(MapIntent.ResetState) }
+        StationDetailDialog(mapView, mapUiState, { padding = padding.copy(bottom = it) }) { onAction(MapIntent.ResetState) }
 
-        ParkingDetailDialog(mapUiState, { padding = padding.copy(bottom = it) }) { onAction(MapIntent.ResetState) }
+        ParkingDetailDialog(mapView, mapUiState, { padding = padding.copy(bottom = it) }) { onAction(MapIntent.ResetState) }
 
         SearchDialog(mapUiState, { onAction(MapIntent.SearchAction(it)) }) {
             locationPermissionLauncher.runWithLocation(context) { lat, lon ->

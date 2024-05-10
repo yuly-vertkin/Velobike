@@ -31,7 +31,7 @@ import ru.sitronics.velobike.presentation.map.DialogState.SHOW
 import ru.sitronics.velobike.presentation.map.MapUiState
 import ru.sitronics.velobike.presentation.map.MapUiState.ActiveRentBar
 import ru.sitronics.velobike.presentation.map.toDialogState
-import ru.sitronics.velobike.tools.toDp
+import ru.sitronics.velobike.tools.dpToPx
 import ru.sitronics.velobike.ui.theme.HeaderBackgroundColor
 
 @Composable
@@ -58,7 +58,7 @@ fun ActiveRentBar(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onClick: ()
                 .padding(vertical = 16.dp)
                 .onGloballyPositioned { coordinates ->
                     // size correction: top padding = 32 + vertical paddings 16 + 16 = 32
-                    val height = coordinates.size.height.toDp(context) + 64
+                    val height = coordinates.size.height + 64.dpToPx(context)
                     onSizeChanged(height)
                 }
         ) {

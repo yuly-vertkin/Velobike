@@ -18,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.yandex.mapkit.mapview.MapView
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.map.Parking
 import ru.sitronics.velobike.presentation.SimpleBottomDialog
@@ -25,13 +26,19 @@ import ru.sitronics.velobike.presentation.map.DialogState.CLOSE
 import ru.sitronics.velobike.presentation.map.DialogState.CLOSING
 import ru.sitronics.velobike.presentation.map.DialogState.SHOW
 import ru.sitronics.velobike.presentation.map.MapUiState
-import ru.sitronics.velobike.presentation.map.MapUiState.ParkingDetail
 import ru.sitronics.velobike.presentation.map.MapUiState.CloseAllDetails
+import ru.sitronics.velobike.presentation.map.MapUiState.ParkingDetail
 import ru.sitronics.velobike.presentation.map.toDialogState
+import ru.sitronics.velobike.tools.moveMapForObject
 import ru.sitronics.velobike.ui.theme.HeaderBackgroundColor
 
 @Composable
-fun ParkingDetailDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDismiss: () -> Unit) {
+fun ParkingDetailDialog(
+    mapView: MapView,
+    uiState: MapUiState,
+    onSizeChanged: (Int) -> Unit,
+    onDismiss: () -> Unit
+) {
     var parking by remember { mutableStateOf<Parking?>(null) }
     var state by remember { mutableStateOf(CLOSE) }
 
@@ -47,7 +54,10 @@ fun ParkingDetailDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onDis
 
     if (state == SHOW) {
         SimpleBottomDialog(
-            onSizeChanged = onSizeChanged,
+            onSizeChanged = {
+                moveMapForObject(mapView, parking!!.latitude, parking!!.longitude, it)
+                onSizeChanged(it.height)
+            },
             onDismissRequest = { state = CLOSING; onDismiss() },
         ) {
             Column(

@@ -29,9 +29,9 @@ import ru.sitronics.velobike.CHANGE_ZOOM
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.tools.drawChatBitmap
 import ru.sitronics.velobike.tools.getBitmapFromVectorDrawable
+import ru.sitronics.velobike.tools.pxToDp
 import ru.sitronics.velobike.tools.rememberLocationPermissionLauncher
 import ru.sitronics.velobike.tools.runWithLocation
-import ru.sitronics.velobike.tools.toDp
 
 @Composable
 fun BoxScope.MapTopLayerContainer(
@@ -59,10 +59,10 @@ fun BoxScope.MapTopLayerContainer(
     Box(
         modifier = Modifier
             .matchParentSize()
-            .padding(top = padding.top.dp)
-            .padding(bottom = padding.bottom.dp)
+            .padding(top = padding.top.pxToDp(context).dp)
+            .padding(bottom = padding.bottom.pxToDp(context).dp)
             .onGloballyPositioned { coordinates ->
-                height = coordinates.size.height.toDp(context)
+                height = coordinates.size.height.pxToDp(context)
             }
 
     ) {
