@@ -53,4 +53,7 @@ interface RentService {
 
     @POST("api/rent/rents/{rentId}/returnToActiveRent")
     suspend fun returnToActiveRent(@Path("rentId") rentId: String) : RentStatus
+
+    @POST("api/rent/rents/{rentId}/commands/openOmniLock")
+    suspend fun unlockWheel(@Path("rentId") rentId: String) : Response<Unit>
 }

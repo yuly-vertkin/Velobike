@@ -77,4 +77,7 @@ class RentRepositoryImp @Inject constructor(
 
     override fun returnToActiveRent(rentId: String) : Flow<Result<RentStatus>> =
         callAction { service.returnToActiveRent(rentId) }
+
+    override fun unlockWheel(rentId: String) : Flow<Result<Boolean>> =
+        callAction { service.unlockWheel(rentId) }
 }

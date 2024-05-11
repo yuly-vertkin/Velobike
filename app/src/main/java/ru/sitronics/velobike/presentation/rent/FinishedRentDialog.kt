@@ -59,7 +59,7 @@ fun FinishedRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onActi
         rent?.let {
             SimpleBottomDialog(
                 onSizeChanged = { onSizeChanged(it.height) },
-                onDismissRequest = { state = CLOSING; onAction(DialogAction.DISSMISS, null, null) },
+                onDismissRequest = { state = CLOSING; onAction(DialogAction.DISMISS, null, null) },
             ) {
                 Text(
                     text = stringResource(R.string.finished_rent),

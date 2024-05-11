@@ -25,9 +25,9 @@ class ProfileUseCase  @Inject constructor(
         }
     }
 
-    private fun getProfile(onResult: (Profile) -> Unit) {
+    private fun getProfile(update: Boolean = false, onResult: (Profile) -> Unit) {
         val profile = profileRepository.getData().profile
-        if (profile != null) {
+        if (profile != null && !update) {
             onResult(profile)
         } else {
             processNetworkCall(
@@ -142,8 +142,11 @@ class ProfileUseCase  @Inject constructor(
         processNetworkCall(
             action = { profileRepository.payTariff(params) },
             onSuccess = {
-                Logg.d("!!!! payTariff success")
-                onSuccess(it.message)
+                val message = it.message
+                Logg.d("!!!! payTariff success: $message")
+                getProfile(update = true) {
+                    onSuccess(message)
+                }
             },
             onError = {
                 Logg.d("!!!! payTariff error")

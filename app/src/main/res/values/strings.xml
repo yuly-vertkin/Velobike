@@ -59,6 +59,7 @@
 <!-- Rent -->
     <string name="return_to_active_ride">Return to active ride</string>
     <string name="active_rent_btn">Complete</string>
+    <string name="unlock_wheel_btn">Unlock wheel</string>
     <string name="rent_fine">The allowed rental time of 48 hours has been exceeded\nA fine of 30,000 ₽ will be debited from your bank card</string>
     <string name="finish_rent">End of the trip</string>
     <string name="park_btn">Park with Port +</string>

@@ -17,4 +17,5 @@ interface RentRepository {
     fun finishRentAfterUploadPhoto(rentId: String) : Flow<Result<RentStatus>>
     fun sendFeedback(feedback: Feedback) : Flow<Result<FeedbackRes>>
     fun returnToActiveRent(rentId: String) : Flow<Result<RentStatus>>
+    fun unlockWheel(rentId: String) : Flow<Result<Boolean>>
 }

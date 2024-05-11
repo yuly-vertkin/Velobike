@@ -38,7 +38,7 @@ fun ChooseParkingDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAct
     if (state == SHOW) {
         SimpleBottomDialog(
             onSizeChanged = { onSizeChanged(it.height) },
-            onDismissRequest = { state = CLOSING; onAction(DialogAction.DISSMISS) },
+            onDismissRequest = { state = CLOSING; onAction(DialogAction.DISMISS) },
         ) {
             Text(
                 text = stringResource(R.string.choose_parking_title),

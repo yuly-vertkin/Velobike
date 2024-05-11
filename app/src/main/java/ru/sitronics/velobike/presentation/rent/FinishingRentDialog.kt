@@ -44,7 +44,7 @@ fun FinishingRentDialog(uiState: MapUiState, onSizeChanged: (Int) -> Unit, onAct
     if (state == SHOW) {
         SimpleBottomDialog(
             onSizeChanged = { onSizeChanged(it.height) },
-            onDismissRequest = { state = CLOSING; onAction(DialogAction.DISSMISS) },
+            onDismissRequest = { state = CLOSING; onAction(DialogAction.DISMISS) },
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

@@ -269,6 +269,24 @@ class RentUseCase @Inject constructor(
         )
     }
 
+    fun unlockWheel(onError: (String?) -> Unit, onSuccess: () -> Unit) {
+        Logg.d("!!!! unlockWheel start")
+        processNetworkCall(
+            action = {
+                rentRepository.unlockWheel(rent?.rentId.orEmpty())
+            },
+            onSuccess = {
+                Logg.d("!!!! unlockWheel success $it")
+                onSuccess()
+            },
+            onError = {
+                Logg.d("!!!! unlockWheel ERROR")
+                onError(context.getString(R.string.error_unknown))
+            },
+            callName = "unlockWheel"
+        )
+    }
+
     private fun getRentError(failedReason: FailedReason?, startRent: Boolean) : String {
         return failedReason?.let {
             context.getString( if (startRent) it.messageIdStart else it.messageIdFinish)

@@ -58,6 +58,7 @@
     <!-- Rent -->
     <string name="return_to_active_ride">Вернуться к активной поездке</string>
     <string name="active_rent_btn">Завершить</string>
+    <string name="unlock_wheel_btn">Разблокировать колесо</string>
     <string name="rent_fine">Превышено допустимое время проката 48 часов\nШтраф 30 000 ₽ будет списан с вашей банковской карты</string>
     <string name="finish_rent">Завершение поездки</string>
     <string name="park_btn">Паркуйтесь с Порт +</string>

@@ -241,7 +241,7 @@ class MapViewModel @Inject constructor(
                 }
             }
 
-            DialogAction.DISSMISS -> {
+            DialogAction.DISMISS -> {
                 changeState(MapUiState.Normal)
             }
 
@@ -268,7 +268,7 @@ class MapViewModel @Inject constructor(
                 }
             }
 
-            DialogAction.DISSMISS -> {
+            DialogAction.DISMISS -> {
                 changeState(MapUiState.Normal)
             }
 
@@ -310,11 +310,18 @@ class MapViewModel @Inject constructor(
                     }
                 }
             }
-            DialogAction.DISSMISS -> {
+
+            DialogAction.BACK -> {
+                changeState(MapUiState.Loading(true))
+                rentUseCase.unlockWheel({ showError(it) }) {
+                    changeState(MapUiState.Loading(false))
+                }
+            }
+
+            DialogAction.DISMISS -> {
                 dialogState = RentDialogState.ACTIVE_RENT_BAR
                 changeState(MapUiState.ActiveRentBar(true))
             }
-            else -> {}
         }
     }
 
@@ -381,7 +388,7 @@ class MapViewModel @Inject constructor(
                     }
                 }
 
-                DialogAction.DISSMISS -> {
+                DialogAction.DISMISS -> {
                     dialogState = RentDialogState.ACTIVE_RENT_BAR
                     changeState(MapUiState.ActiveRentBar(true))
                 }
@@ -433,7 +440,7 @@ class MapViewModel @Inject constructor(
                 }
             }
 
-            DialogAction.DISSMISS -> {
+            DialogAction.DISMISS -> {
                 changeState(MapUiState.FinishingRent(true))
             }
 
@@ -452,7 +459,7 @@ class MapViewModel @Inject constructor(
                 }
             }
 
-            DialogAction.DISSMISS -> {
+            DialogAction.DISMISS -> {
                 changeState(MapUiState.Normal)
             }
 

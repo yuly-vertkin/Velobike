@@ -35,7 +35,7 @@ fun TakePhotoScreen(uiState: MapUiState, onAction: (DialogAction, String) -> Uni
         if (success) {
             onAction(DialogAction.CLICK, filePath)
         } else {
-            onAction(DialogAction.DISSMISS, "")
+            onAction(DialogAction.DISMISS, "")
         }
     }
 

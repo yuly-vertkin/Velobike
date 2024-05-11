@@ -81,7 +81,7 @@ fun ScanQrCodeDialog(uiState: MapUiState, onAction: (DialogAction, String?, Bool
             codeScanner.errorCallback = ErrorCallback { // or ErrorCallback.SUPPRESS
                 Logg.d("!!!! Camera initialization error: ${it.message}")
                 state = CLOSING
-                onAction(DialogAction.DISSMISS, null, fromBikeDetail)
+                onAction(DialogAction.DISMISS, null, fromBikeDetail)
             }
 
             val bikeNumber = qrCodeScannerView.findViewById<EditText>(R.id.bike_number)
@@ -136,7 +136,7 @@ fun ScanQrCodeDialog(uiState: MapUiState, onAction: (DialogAction, String?, Bool
             }
         }
 
-        BackPressHandler { state = CLOSING; onAction(DialogAction.DISSMISS, null, fromBikeDetail) }
+        BackPressHandler { state = CLOSING; onAction(DialogAction.DISMISS, null, fromBikeDetail) }
     }
 }
 

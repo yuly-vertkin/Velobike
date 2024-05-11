@@ -55,7 +55,7 @@ sealed class MapIntent {
 }
 
 enum class DialogAction {
-    CLICK, DISSMISS, BACK
+    CLICK, DISMISS, BACK
 }
 
 enum class RentDialogState {
