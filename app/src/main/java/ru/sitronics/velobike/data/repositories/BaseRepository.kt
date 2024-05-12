@@ -38,7 +38,49 @@ open class BaseRepository<T>(
         cache = data
     }
 
-    protected fun <DTO, RESULT> callAction(action: suspend () -> DTO) : Flow<Result<RESULT>> = flow {
+    protected suspend fun <DTO, RESULT> callAction(action: suspend () -> DTO) : Result<RESULT> {
+        try {
+// for testing
+//            delay(5000)
+
+            val resDto = action()
+            val result = when {
+                resDto is ResponseDto<*> -> resDto.toModel()
+                resDto is List<*> && resDto.firstOrNull() is ResponseDto<*> ->
+                    resDto.map { (it as ResponseDto<*>).toModel() }
+                resDto is Response<*> -> {
+                    if (resDto.isSuccessful) true
+                    else {
+                        val body = resDto.errorBody()?.string()
+                        val error = gson.fromJson(body, BusinessErrorResponse::class.java)
+                        throw ResponseException(ERROR_UNKNOWN, error.message)
+                    }
+                }
+                else -> resDto
+            } ?: throw ResponseException(ERROR_UNKNOWN, context.getString(R.string.error_unknown))
+
+            return Result.Success(result as RESULT)
+        } catch (e: Exception) {
+            val exception = when {
+                !isNetworkAvailable(context) -> ResponseException(ERROR_NO_NETWORK, context.getString(R.string.error_no_network))
+                e is HttpException -> {
+                    val error = try {
+                        val errorStr = e.response()?.errorBody()?.string()
+                        if (errorStr.isNullOrEmpty()) throw Exception()
+                        gson.fromJson(errorStr, ErrorResponse::class.java)
+                    } catch (_: Exception) {
+                        ErrorResponse(context.getString(R.string.error_unknown))
+                    }
+                    ResponseException(ERROR_UNKNOWN, error.errorMsg)
+                }
+                else -> e
+            }
+            Logg.e(exception)
+            return Result.Error(exception)
+        }
+    }
+
+    protected fun <DTO, RESULT> callFlowAction(action: suspend () -> DTO) : Flow<Result<RESULT>> = flow {
         emit(Result.Loading)
         try {
 // for testing

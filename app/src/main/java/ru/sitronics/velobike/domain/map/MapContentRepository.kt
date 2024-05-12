@@ -1,15 +1,14 @@
 package ru.sitronics.velobike.domain.map
 
-import kotlinx.coroutines.flow.Flow
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.domain.MapRect
 
 interface MapContentRepository {
     fun getData(): MapContentData
     fun saveData(data: MapContentData)
-    fun getBikes(mapRect: MapRect) : Flow<Result<List<Bike>>>
-    fun getBike(bikeId: String) : Flow<Result<Bike>>
-    fun getParkings(mapRect: MapRect) : Flow<Result<List<Parking>>>
-    fun getSlowZones(): Flow<Result<List<SlowZone>>>
-    fun getMoveZones(): Flow<Result<List<MoveZone>>>
+    suspend fun getBikes(mapRect: MapRect) : Result<List<Bike>>
+    suspend fun getBike(bikeId: String) : Result<Bike>
+    suspend fun getParkings(mapRect: MapRect) : Result<List<Parking>>
+    suspend fun getSlowZones(): Result<List<SlowZone>>
+    suspend fun getMoveZones(): Result<List<MoveZone>>
 }

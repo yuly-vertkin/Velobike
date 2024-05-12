@@ -1,7 +1,6 @@
 package ru.sitronics.velobike.data.repositories.profile
 
 import com.google.gson.Gson
-import kotlinx.coroutines.flow.Flow
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.data.network.ProfileService
@@ -30,18 +29,18 @@ class ProfileRepositoryImp @Inject constructor(
         super.saveData(data)
     }
 
-    override fun getProfile() : Flow<Result<Profile>> =
+    override suspend fun getProfile() : Result<Profile> =
         callAction { service.getProfile() }
 
-    override fun getTariffs() : Flow<Result<List<Tariff>>> =
+    override suspend fun getTariffs() : Result<List<Tariff>> =
         callAction { service.getTariffs() }
 
-    override fun getTariff(id: String) : Flow<Result<Tariff>> =
+    override suspend fun getTariff(id: String) : Result<Tariff> =
         callAction { service.getTariff(id) }
 
-    override fun getCards(): Flow<Result<List<Card>>> =
+    override suspend fun getCards(): Result<List<Card>> =
         callAction { service.getCards() }
 
-    override fun payTariff(params: TariffPaymentParams): Flow<Result<TariffPayment>> =
+    override suspend fun payTariff(params: TariffPaymentParams): Result<TariffPayment> =
         callAction { service.payTariff(params) }
 }

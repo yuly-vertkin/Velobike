@@ -28,7 +28,7 @@ class HistoryRepositoryImp @Inject constructor(
         super.saveData(data)
     }
 
-    override fun getHistory(params: HistoryParams): Flow<Result<HistoryItemPackage>> =
+    override suspend fun getHistory(params: HistoryParams): Result<HistoryItemPackage> =
         callAction { service.getHistory(limit = params.limit, offset = params.offset, type = params.type?.value) }
 
     override fun getHistoryPagingSource(type: HistoryType?) =

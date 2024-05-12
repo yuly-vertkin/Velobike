@@ -7,6 +7,6 @@ import ru.sitronics.velobike.data.Result
 interface HistoryRepository {
     fun getData(): HistoryData
     fun saveData(data: HistoryData)
-    fun getHistory(params: HistoryParams) : Flow<Result<HistoryItemPackage>>
+    suspend fun getHistory(params: HistoryParams) : Result<HistoryItemPackage>
     fun getHistoryPagingSource(type: HistoryType?) : PagingSource<Int, HistoryItem>
 }

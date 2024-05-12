@@ -1,7 +1,6 @@
 package ru.sitronics.velobike.data.repositories.auth
 
 import com.google.gson.Gson
-import kotlinx.coroutines.flow.Flow
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.data.network.AuthService
@@ -33,10 +32,10 @@ class AuthRepositoryImp @Inject constructor(
         setSecureStringPreference(PASSWORD_KEY, data.password)
     }
 
-    override fun login(login: String, password: String) : Flow<Result<UserToken>> =
+    override suspend fun login(login: String, password: String) : Result<UserToken> =
         callAction { service.login(LoginDto(login, password)) }
 
-    override fun register(registerData: RegisterData) : Flow<Result<Register>> =
+    override suspend fun register(registerData: RegisterData) : Result<Register> =
         callAction { service.register(RegisterParams(registerData)) }
 
     companion object {

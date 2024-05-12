@@ -13,7 +13,6 @@ import ru.sitronics.velobike.presentation.BaseUseCase
 import ru.sitronics.velobike.tools.Logg
 import java.util.Timer
 import java.util.TimerTask
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.concurrent.schedule
@@ -180,12 +179,7 @@ class RentUseCase @Inject constructor(
     ) {
         Logg.d("!!!! uploadPhotoRent start")
         processNetworkCall(
-            action = {
-                rentRepository.uploadPhotoRent(
-                    rent?.rentId.orEmpty(),
-                    filePath
-                )
-            },
+            action = { rentRepository.uploadPhotoRent(rent?.rentId.orEmpty(), filePath) },
             onSuccess = {
                 Logg.d("!!!! uploadPhotoRent success $it")
                 onSuccess()
@@ -453,6 +447,5 @@ class RentUseCase @Inject constructor(
     companion object {
         private const val CHECK_RENT_STATUS_DELAY = 3000L
         private const val CHECK_ACTIVE_RENT_DELAY = 10000L
-        private const val MAX_RENT_TIME = 2 // in days
     }
 }

@@ -25,6 +25,37 @@ abstract class BaseUseCase(appContextProvider: AppContextProvider) {
     // Внимание! для корректной работы параллельных запросов необходимо дать им разные имена
 
     protected fun <T> processNetworkCall(
+        action: suspend () -> Result<T>,
+        onSuccess: (suspend (T) -> Unit)? = null,
+        onError: (suspend (Throwable) -> Unit)? = null,
+        force: Boolean = false,
+        callName: String = DEFAULT_CALL_NAME
+    ) {
+        val isActive = calledJobs[callName]?.isActive ?: false
+        if (isActive && force) {
+            calledJobs[callName]?.cancel()
+            println("!!! cancel job!")
+        }
+
+        if (!isActive || force) {
+            calledJobs[callName] = scope.launch {
+                action().let {
+                    when (it) {
+                        is Result.Success -> onSuccess?.invoke(it.data)
+                        is Result.Error -> {
+                            if (it.error is ResponseException && it.error.errorCode == ERROR_NO_NETWORK)
+                                Logg.d("!!! ${it.error.errorMessage}") //showNoNetworkDialog()
+                            else
+                                onError?.invoke(it.error)
+                        }
+                        else -> {}
+                    }
+                }
+            }
+        }
+    }
+
+    protected fun <T> processFlowNetworkCall(
         action: () -> Flow<Result<T>>,
         onSuccess: (suspend (T) -> Unit)? = null,
         onError: (suspend (Throwable) -> Unit)? = null,

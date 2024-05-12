@@ -1,7 +1,6 @@
 package ru.sitronics.velobike.data.repositories.map
 
 import com.google.gson.Gson
-import kotlinx.coroutines.flow.Flow
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.data.network.MapContentService
@@ -36,7 +35,7 @@ class MapContentRepositoryImp @Inject constructor(
         super.saveData(data)
     }
 
-    override fun getBikes(mapRect: MapRect) : Flow<Result<List<Bike>>> {
+    override suspend fun getBikes(mapRect: MapRect) : Result<List<Bike>> {
         val params = BikeParams(
             inventoryStatuses = listOf(BikeInventoryStatus.IN_CITY.value),
             operativeStatuses = listOf(BikeOperativeStatus.STATIONED.value),
@@ -54,19 +53,19 @@ class MapContentRepositoryImp @Inject constructor(
         return callAction { service.getBikes(params) }
     }
 
-    override fun getBike(bikeId: String) : Flow<Result<Bike>> =
+    override suspend fun getBike(bikeId: String) : Result<Bike> =
         callAction { service.getBike(bikeId) }
 
-    override fun getParkings(mapRect: MapRect) : Flow<Result<List<Parking>>> {
+    override suspend fun getParkings(mapRect: MapRect) : Result<List<Parking>> {
         return callAction {
             service.getParkings("gt.${mapRect.startLat}", "lt.${mapRect.endLat}",
                                "gt.${mapRect.startLong}", "lt.${mapRect.endLong}")
         }
     }
 
-    override fun getSlowZones(): Flow<Result<List<SlowZone>>> =
+    override suspend fun getSlowZones(): Result<List<SlowZone>> =
         callAction { service.getSlowZones() }
 
-    override fun getMoveZones(): Flow<Result<List<MoveZone>>> =
+    override suspend fun getMoveZones(): Result<List<MoveZone>> =
         callAction { service.getMoveZones() }
 }

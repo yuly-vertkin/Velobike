@@ -1,21 +1,20 @@
 package ru.sitronics.velobike.domain.rent
 
-import kotlinx.coroutines.flow.Flow
 import ru.sitronics.velobike.data.Result
 
 interface RentRepository {
     fun getData(): RentData
     fun saveData(data: RentData)
-    fun checkStatus(rentId: String, frameNumber: String) : Flow<Result<RentStatus>>
-    fun checkActiveRent() : Flow<Result<List<Rent>>>
-    fun checkActiveRentOld(uid: String) : Flow<Result<List<Rent>>>
-    fun checkFinishedRentOld(customerId: String, rentId: String) : Flow<Result<List<FinishedRentOld>>>
-    fun startRent(params: StartRentParams) : Flow<Result<RentStatus>>
-    fun finishRent(params: FinishRentParams) : Flow<Result<RentStatus>>
-    fun chooseParking(rentId: String, params: ChooseParkingParams) : Flow<Result<RentStatus>>
-    fun uploadPhotoRent(rentId: String, imagePath: String) : Flow<Result<Boolean>>
-    fun finishRentAfterUploadPhoto(rentId: String) : Flow<Result<RentStatus>>
-    fun sendFeedback(feedback: Feedback) : Flow<Result<FeedbackRes>>
-    fun returnToActiveRent(rentId: String) : Flow<Result<RentStatus>>
-    fun unlockWheel(rentId: String) : Flow<Result<Boolean>>
+    suspend fun checkStatus(rentId: String, frameNumber: String) : Result<RentStatus>
+    suspend fun checkActiveRent() : Result<List<Rent>>
+    suspend fun checkActiveRentOld(uid: String) : Result<List<Rent>>
+    suspend fun checkFinishedRentOld(customerId: String, rentId: String) : Result<List<FinishedRentOld>>
+    suspend fun startRent(params: StartRentParams) : Result<RentStatus>
+    suspend fun finishRent(params: FinishRentParams) : Result<RentStatus>
+    suspend fun chooseParking(rentId: String, params: ChooseParkingParams) : Result<RentStatus>
+    suspend fun uploadPhotoRent(rentId: String, imagePath: String) : Result<Boolean>
+    suspend fun finishRentAfterUploadPhoto(rentId: String) : Result<RentStatus>
+    suspend fun sendFeedback(feedback: Feedback) : Result<FeedbackRes>
+    suspend fun returnToActiveRent(rentId: String) : Result<RentStatus>
+    suspend fun unlockWheel(rentId: String) : Result<Boolean>
 }
