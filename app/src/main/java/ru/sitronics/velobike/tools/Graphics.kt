@@ -6,17 +6,18 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import android.os.Build
 import android.util.DisplayMetrics
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
+import coil.ImageLoader
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
 import com.yandex.mapkit.ScreenPoint
 import com.yandex.mapkit.ScreenRect
 import com.yandex.mapkit.geometry.Point
@@ -101,6 +102,7 @@ fun Bitmap.drawChatBitmap() : Bitmap {
 }
 */
 
+/*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SheetState.onSizeChanged(onSizeChanged: (Int) -> Unit) {
@@ -113,6 +115,23 @@ fun SheetState.onSizeChanged(onSizeChanged: (Int) -> Unit) {
             onSizeChanged(height)
         }
         else onSizeChanged(0)
+    }
+}
+*/
+
+@Composable
+fun getImageLoader() : ImageLoader {
+    val context = LocalContext.current
+
+    return remember {
+        ImageLoader.Builder(context)
+            .components {
+                if (Build.VERSION.SDK_INT >= 28)
+                    add(ImageDecoderDecoder.Factory())
+                else
+                    add(GifDecoder.Factory())
+            }
+            .build()
     }
 }
 
