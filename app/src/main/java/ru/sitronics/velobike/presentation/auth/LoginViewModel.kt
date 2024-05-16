@@ -85,7 +85,6 @@ class LoginViewModel @Inject constructor(
     }
 
     private fun onLoginSuccess(response: UserToken) {
-        Logg.d("!!! Login success")
         authManager.setToken(response.accessToken)
         changeState(LoginUiState.Close)
 

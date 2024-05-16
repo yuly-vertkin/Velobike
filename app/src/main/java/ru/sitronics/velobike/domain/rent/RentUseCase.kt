@@ -52,16 +52,14 @@ class RentUseCase @Inject constructor(
         processNetworkCall(
             action = { rentRepository.startRent(params) },
             onSuccess = {
-                Logg.d("!!!! startRent success, status ${it.status}")
+                Logg.d("!!! startRent status ${it.status}")
                 rentStatus = it
-                delay(CHECK_RENT_STATUS_DELAY)
+//                delay(CHECK_RENT_STATUS_DELAY)
 
                 while (rentStatus?.status == MainRentStatus.CHECK_START) {
                     checkRentStatus(it.id, it.frameNumber ?: "")
                     delay(CHECK_RENT_STATUS_DELAY)
-                    Logg.d("!!!! startRent while, status ${rentStatus?.status} ${rentStatus?.processStatus}")
                 }
-                Logg.d("!!!! startRent end, status ${rentStatus?.status} ${rentStatus?.processStatus}")
 
                 if (rentStatus?.status == MainRentStatus.IN_PROGRESS)
                     checkActiveRent(onError, onSuccess)
@@ -69,7 +67,6 @@ class RentUseCase @Inject constructor(
                     onError(getRentError(it.failedReason, true))
             },
             onError = {
-                Logg.d("!!!! ERROR startRent() ${it.message}")
                 onError(context.getString(R.string.error_unknown))
             },
             callName = "startRent"
@@ -92,13 +89,12 @@ class RentUseCase @Inject constructor(
             ),
         )
 
-        Logg.d("!1 finishRent start")
         processNetworkCall(
             action = { rentRepository.finishRent(params) },
             onSuccess = {
-                Logg.d("!1 finishRent success, status ${it.status}, ${it.processStatus}")
+                Logg.d("!!! finishRent status ${it.status}, ${it.processStatus}")
                 rentStatus = it
-                delay(CHECK_RENT_STATUS_DELAY)
+//                delay(CHECK_RENT_STATUS_DELAY)
 
                 while (rentStatus?.processStatus == ProgressStatus.S5_OBTAIN_LOCK_INFO ||
                        rentStatus?.processStatus == ProgressStatus.S6_OBTAIN_SINGLE_RIDING) {
@@ -109,7 +105,6 @@ class RentUseCase @Inject constructor(
                 checkActiveRent(onError, onSuccess)
             },
             onError = {
-                Logg.d("!1 finishRent ERROR")
                 onError(context.getString(R.string.error_unknown))
             },
             callName = "finishRent"
@@ -120,16 +115,14 @@ class RentUseCase @Inject constructor(
         rentId: String, frameNumber: String,
         onError: ((String?) -> Unit)? = null, onSuccess: ((RentStatus) -> Unit)? = null
     ) {
-        Logg.d("!!!! checkRentStatus start")
         processNetworkCall(
             action = { rentRepository.checkStatus(rentId, frameNumber) },
             onSuccess = {
-                Logg.d("!!!! checkRentStatus success, status ${it.status}, ${it.processStatus}")
+                Logg.d("!!! checkRentStatus status ${it.status}, ${it.processStatus}")
                 rentStatus = it
                 onSuccess?.invoke(it)
             },
             onError = {
-                Logg.d("!!!! checkRentStatus ERROR")
                 rentStatus = rentStatus?.copy(status = MainRentStatus.ERROR_START)
                 onError?.invoke(null)
             },
@@ -141,11 +134,10 @@ class RentUseCase @Inject constructor(
         rentId: String, params: ChooseParkingParams,
         onError: (String?) -> Unit, onSuccess: () -> Unit
     ) {
-        Logg.d("!!!! chooseParking start")
         processNetworkCall(
             action = { rentRepository.chooseParking(rentId, params) },
             onSuccess = {
-                Logg.d("!!!! chooseParking success, status ${it.status}, ${it.processStatus}")
+                Logg.d("!!! chooseParking status ${it.status}, ${it.processStatus}")
                 rentStatus = it
                 delay(CHECK_RENT_STATUS_DELAY)
 
@@ -156,10 +148,7 @@ class RentUseCase @Inject constructor(
 
                 onSuccess()
             },
-            onError = {
-                Logg.d("!!!! chooseParking ERROR")
-                onError(null)
-            },
+            onError = { onError(null) },
             callName = "chooseParking"
         )
     }
@@ -177,17 +166,10 @@ class RentUseCase @Inject constructor(
         filePath: String,
         onError: (String?) -> Unit, onSuccess: () -> Unit
     ) {
-        Logg.d("!!!! uploadPhotoRent start")
         processNetworkCall(
             action = { rentRepository.uploadPhotoRent(rent?.rentId.orEmpty(), filePath) },
-            onSuccess = {
-                Logg.d("!!!! uploadPhotoRent success $it")
-                onSuccess()
-            },
-            onError = {
-                Logg.d("!!!! uploadPhotoRent ERROR")
-                onError(context.getString(R.string.error_unknown))
-            },
+            onSuccess = { onSuccess() },
+            onError = { onError(context.getString(R.string.error_unknown)) },
             callName = "uploadPhotoRent"
         )
     }
@@ -195,15 +177,13 @@ class RentUseCase @Inject constructor(
     fun finishRentAfterUploadPhoto(
         onError: (String?) -> Unit, onSuccess: (RentStatus) -> Unit
     ) {
-        Logg.d("!!!! finishRentAfterUploadPhoto start")
         processNetworkCall(
             action = { rentRepository.finishRentAfterUploadPhoto(rent?.rentId.orEmpty()) },
             onSuccess = {
-                Logg.d("!!!! finishRentAfterUploadPhoto success $it")
+                Logg.d("!!! finishRentAfterUploadPhoto status ${it.status}, ${it.processStatus}")
                 onSuccess(it)
             },
             onError = {
-                Logg.d("!!!! finishRentAfterUploadPhoto ERROR")
                 onError(context.getString(R.string.error_unknown))
             },
             callName = "finishRentAfterUploadPhoto"
@@ -226,17 +206,10 @@ class RentUseCase @Inject constructor(
                 handlebar = rate < 5
             )
 
-            Logg.d("!!!! sendFeedback start")
             processNetworkCall(
                 action = { rentRepository.sendFeedback(params) },
-                onSuccess = {
-                    Logg.d("!!!! sendFeedback success")
-                    onSuccess()
-                },
-                onError = {
-                    Logg.d("!!!! sendFeedback ERROR")
-                    onError(context.getString(R.string.error_unknown))
-                },
+                onSuccess = { onSuccess() },
+                onError = { onError(context.getString(R.string.error_unknown)) },
                 callName = "sendFeedback"
             )
         }
@@ -245,38 +218,27 @@ class RentUseCase @Inject constructor(
     fun returnToActiveRent(
         rentId: String, onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit
     ) {
-        Logg.d("!!!! returnToActiveRent start")
         processNetworkCall(
             action = { rentRepository.returnToActiveRent(rentId) },
             onSuccess = {
-                Logg.d("!!!! returnToActiveRent success, status ${it.status}, ${it.processStatus}")
+                Logg.d("!!! returnToActiveRent status ${it.status}, ${it.processStatus}")
                 if (it.failedReason == null)
                     checkActiveRent(onError, onSuccess)
                 else
                     onError(getRentError(it.failedReason, false))
             },
-            onError = {
-                Logg.d("!!!! ERROR returnToActiveRent() ${it.message}")
-                onError(context.getString(R.string.error_unknown))
-            },
+            onError = { onError(context.getString(R.string.error_unknown)) },
             callName = "returnToActiveRent"
         )
     }
 
     fun unlockWheel(onError: (String?) -> Unit, onSuccess: () -> Unit) {
-        Logg.d("!!!! unlockWheel start")
         processNetworkCall(
             action = {
                 rentRepository.unlockWheel(rent?.rentId.orEmpty())
             },
-            onSuccess = {
-                Logg.d("!!!! unlockWheel success $it")
-                onSuccess()
-            },
-            onError = {
-                Logg.d("!!!! unlockWheel ERROR")
-                onError(context.getString(R.string.error_unknown))
-            },
+            onSuccess = { onSuccess() },
+            onError = { onError(context.getString(R.string.error_unknown)) },
             callName = "unlockWheel"
         )
     }
@@ -314,7 +276,7 @@ class RentUseCase @Inject constructor(
         processNetworkCall(
             action = { rentRepository.checkActiveRent() },
             onSuccess = { rents ->
-                Logg.d("!!!! checkActiveRent found ${rents.size}")
+                Logg.d("!!! checkActiveRent found ${rents.size}")
                 val curRent = rents.firstOrNull()
 
                 // check if rent (not old) has just finished
@@ -329,10 +291,7 @@ class RentUseCase @Inject constructor(
                     onCheckActiveRentSuccess(it, onSuccess)
                 } ?: checkActiveRentOld(onError, onSuccess, onFinish)
             },
-            onError = {
-                Logg.d("!!!! ERROR checkActiveRent()")
-                onError(null)
-            },
+            onError = { onError(null) },
             callName = "checkActiveRent"
         )
     }
@@ -344,7 +303,7 @@ class RentUseCase @Inject constructor(
             processNetworkCall(
                 action = { rentRepository.checkActiveRentOld(it) },
                 onSuccess = {
-                    Logg.d("!!!! checkActiveRentOld found ${it.size}")
+                    Logg.d("!!! checkActiveRentOld found ${it.size}")
                     val curRent = it.firstOrNull()
                     curRent?.isOld = true
 
@@ -358,14 +317,11 @@ class RentUseCase @Inject constructor(
                         checkFinishedRentOld(onFinish)
                     }
                 },
-                onError = {
-                    Logg.d("!!!! ERROR checkActiveRentOld()")
-                    onError(null)
-                },
+                onError = { onError(null) },
                 callName = "checkActiveRentOld"
             )
         } ?: {
-            Logg.d("!!!! no user error")
+            Logg.d("!!! no user error")
             scope.launch { onError(null) }
         }
     }
@@ -378,16 +334,14 @@ class RentUseCase @Inject constructor(
                 processNetworkCall(
                     action = { rentRepository.checkFinishedRentOld(userId, it.rentId) },
                     onSuccess = { rents ->
-                        Logg.d("!!!! checkFinishedRentOld found ${rents.size}")
+                        Logg.d("!!! checkFinishedRentOld found ${rents.size}")
                         rents.firstOrNull()?.let {
                             val rent = finishedRent?.copy(rentId = it.rentId)
                             onFinish?.invoke(rent)
                             finishedRent = null
                         }
                     },
-                    onError = {
-                        Logg.d("!!!! ERROR checkFinishedRentOld()")
-                    },
+                    onError = {},
                     callName = "checkFinishedRentOld"
                 )
             }
@@ -397,7 +351,7 @@ class RentUseCase @Inject constructor(
     private fun onCheckActiveRentSuccess(
         rent: Rent?, onSuccess: (Rent?) -> Unit
     ) {
-        Logg.d("!!!! checkActiveRent ${this.rent?.rentStatus?.name} ${rent?.rentStatus?.name}")
+        Logg.d("!!! checkActiveRent ${this.rent?.rentStatus?.name} ${rent?.rentStatus?.name}")
 
         rent?.let {
             // save old cost before calculate new one
@@ -430,15 +384,14 @@ class RentUseCase @Inject constructor(
                 rentRepository.saveData(rentRepository.getData().copy(rentBike = bike))
                 action(bike)
             } else {
-                Logg.d("!1 runWithBike processNetworkCall $id")
                 processNetworkCall(
                     action = { mapContentRepository.getBike(id) },
                     onSuccess = {
-                        Logg.d("!1 runWithBike success ${it.id}")
+                        Logg.d("!!! runWithBike id ${it.id}")
                         rentRepository.saveData(rentRepository.getData().copy(rentBike = it))
                         action(it)
                     },
-                    onError = { Logg.d("!1 runWithBike ERROR") },
+                    onError = {},
                 )
             }
         }

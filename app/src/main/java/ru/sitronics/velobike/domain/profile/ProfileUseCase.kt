@@ -33,17 +33,13 @@ class ProfileUseCase  @Inject constructor(
             processNetworkCall(
                 action = { profileRepository.getProfile() },
                 onSuccess = {
-                    Logg.d("!!!! getProfile success")
                     val profileData = profileRepository.getData().copy(
                         profile = it
                     )
                     profileRepository.saveData(profileData)
                     onResult(it)
                 },
-                onError = {
-                    Logg.d("!!!! getProfile error")
-                    onResult(Profile())
-                },
+                onError = { onResult(Profile()) },
                 callName = "getProfile"
             )
         }
@@ -60,17 +56,13 @@ class ProfileUseCase  @Inject constructor(
             processNetworkCall(
                 action = { profileRepository.getTariff(tariffId) },
                 onSuccess = { tariff ->
-                    Logg.d("!!!! getTariff $tariffId success")
                     profile?.let {
                         if (isOld) it.oldTariff = tariff
                         else       it.tariff = tariff
                     }
                     onResult()
                 },
-                onError = {
-                    Logg.d("!!!! getTariff $tariffId error")
-                    onResult()
-                },
+                onError = { onResult() },
                 callName = "getTariff $tariffId"
             )
         }
@@ -86,17 +78,13 @@ class ProfileUseCase  @Inject constructor(
             processNetworkCall(
                 action = { profileRepository.getTariffs() },
                 onSuccess = {
-                    Logg.d("!!!! getTariffs success")
                     val profileData = profileRepository.getData().copy(
                         tariffs = it
                     )
                     profileRepository.saveData(profileData)
                     onSuccess(it)
                 },
-                onError = {
-                    Logg.d("!!!! getTariffs error")
-                    onError("getTariffs error")
-                },
+                onError = { onError(null) },
                 callName = "getTariffs"
             )
         }
@@ -110,17 +98,13 @@ class ProfileUseCase  @Inject constructor(
             processNetworkCall(
                 action = { profileRepository.getCards() },
                 onSuccess = {
-                    Logg.d("!!!! getCards success")
                     val profileData = profileRepository.getData().copy(
                         cards = it
                     )
                     profileRepository.saveData(profileData)
                     onResult(it)
                 },
-                onError = {
-                    Logg.d("!!!! getCards error")
-                    onResult(emptyList())
-                },
+                onError = { onResult(emptyList()) },
                 callName = "getCards"
             )
         }
@@ -143,15 +127,12 @@ class ProfileUseCase  @Inject constructor(
             action = { profileRepository.payTariff(params) },
             onSuccess = {
                 val message = it.message
-                Logg.d("!!!! payTariff success: $message")
+                Logg.d("!!!! payTariff: $message")
                 getProfile(update = true) {
                     onSuccess(message)
                 }
             },
-            onError = {
-                Logg.d("!!!! payTariff error")
-                onError("payTariff error")
-            },
+            onError = { onError(null) },
             callName = "payTariff"
         )
     }

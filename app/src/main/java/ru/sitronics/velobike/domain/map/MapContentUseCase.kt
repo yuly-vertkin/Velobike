@@ -65,20 +65,17 @@ class MapContentUseCase @Inject constructor(
         mapContentRepository.getData().bikes?.find { it.id == id }
 
     fun runWithBike(id: String, action: (Bike) -> Unit) {
-        Logg.d("!!!! runWithBike: $id")
         val bike = getBike(id)
         if (bike != null) {
-            Logg.d("!!!! found Bike: $id")
             action(bike)
         } else {
-            Logg.d("!!!! runWithBike processNetworkCall $id")
             processNetworkCall(
                 action = { mapContentRepository.getBike(id) },
                 onSuccess = {
-                    Logg.d("!!!! getBike ${it.id}")
+                    Logg.d("!!! getBike id ${it.id}")
                     action(it)
                 },
-                onError = { Logg.d("!!!! ERROR getBike") },
+                onError = {},
             )
         }
     }
@@ -100,14 +97,11 @@ class MapContentUseCase @Inject constructor(
         processNetworkCall(
             action = { mapContentRepository.getBikes(mapRect) },
             onSuccess = { bikes ->
-                Logg.d("!!! getBikes() ${bikes.size}")
+                Logg.d("!!! getBikes size ${bikes.size}")
                 mapContentRepository.getData().bikes = bikes
                 onSuccess(bikes)
             },
-            onError = {
-                Logg.d("!!! ERROR getBikes()")
-                onError(null)
-            },
+            onError = { onError(null) },
             callName = "getBikes"
         )
     }
@@ -123,15 +117,12 @@ class MapContentUseCase @Inject constructor(
             onSuccess = { items ->
                 val stations = items.filter { it.type.isStation() }
                 val parkings = items.filter { it.type.isParking() }
-                Logg.d("!!! getParkings() stations: ${stations.size}, parkings: ${parkings.size}")
+                Logg.d("!!! getParkings stations: ${stations.size}, parkings: ${parkings.size}")
                 mapContentRepository.getData().stations = stations
                 mapContentRepository.getData().parkings = parkings
                 onSuccess(stations, if (zoom >= SHOW_PARKINGS_ZOOM) parkings else emptyList())
             },
-            onError = {
-                Logg.d("!!! ERROR getParkings() ${it.message}")
-                onError(null)
-            },
+            onError = { onError(null) },
             callName = "getParkings"
         )
     }
@@ -147,14 +138,11 @@ class MapContentUseCase @Inject constructor(
             processNetworkCall(
                 action = { mapContentRepository.getSlowZones() },
                 onSuccess = {
-                    Logg.d("!!! getSlowZones() ${it.size}")
+                    Logg.d("!!! getSlowZones size ${it.size}")
                     mapContentRepository.getData().slowZones = it
                     onSuccess(it, showMarkers)
                 },
-                onError = {
-                    Logg.d("!!! ERROR getSlowZones()")
-                    onError(null)
-                },
+                onError = { onError(null) },
                 callName = "getSlowZones"
             )
         } else /*if (show != showSlowZones || showMarkers != showSlowZoneMarkers)*/ {
@@ -173,14 +161,11 @@ class MapContentUseCase @Inject constructor(
             processNetworkCall(
                 action = { mapContentRepository.getMoveZones() },
                 onSuccess = {
-                    Logg.d("!!! getMoveZones() ${it.size}")
+                    Logg.d("!!! getMoveZones size ${it.size}")
                     mapContentRepository.getData().moveZones = it
                     onSuccess(it)
                 },
-                onError = {
-                    Logg.d("!!! ERROR getMoveZones()")
-                    onError(null)
-                },
+                onError = { onError(null) },
                 callName = "getMoveZones"
             )
         } else {

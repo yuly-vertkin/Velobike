@@ -39,14 +39,21 @@ abstract class BaseUseCase(appContextProvider: AppContextProvider) {
 
         if (!isActive || force) {
             calledJobs[callName] = scope.launch {
+                val startTime = System.currentTimeMillis()
                 action().let {
                     when (it) {
-                        is Result.Success -> onSuccess?.invoke(it.data)
+                        is Result.Success -> {
+                            val time = System.currentTimeMillis() - startTime
+                            Logg.d("!!! $callName success, time: $time")
+                            onSuccess?.invoke(it.data)
+                        }
                         is Result.Error -> {
                             if (it.error is ResponseException && it.error.errorCode == ERROR_NO_NETWORK)
                                 Logg.d("!!! ${it.error.errorMessage}") //showNoNetworkDialog()
-                            else
+                            else {
+                                Logg.d("!!! ERROR $callName ${it.error.message}")
                                 onError?.invoke(it.error)
+                            }
                         }
                         else -> {}
                     }
