@@ -2,7 +2,9 @@ package ru.sitronics.velobike.presentation
 
 import android.annotation.SuppressLint
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.data.AppContextProvider
@@ -90,6 +92,43 @@ abstract class BaseUseCase(appContextProvider: AppContextProvider) {
                         else -> { /* nothing to do */ }
                     }
                 }
+            }
+        }
+    }
+
+    protected fun processNetworkAsyncCall(
+        actions: List<suspend () -> Result<Any>>,
+        onResult: suspend (List<Any?>) -> Unit,
+        force: Boolean = false,
+        callName: String = DEFAULT_CALL_NAME
+    ) {
+        val isActive = calledJobs[callName]?.isActive ?: false
+        if (isActive && force) {
+            calledJobs[callName]?.cancel()
+            println("!!! cancel job!")
+        }
+
+        if (!isActive || force) {
+            calledJobs[callName] = scope.launch {
+                val startTime = System.currentTimeMillis()
+
+                val deferredResults = mutableListOf<Deferred<*>>()
+                actions.forEach {
+                    deferredResults.add(async { it() })
+                }
+
+                val results = mutableListOf<Any?>()
+                deferredResults.forEach {
+                    val res = it.await()
+                    if (res is Result.Success<*>)
+                        results.add(res.data)
+                    else
+                        results.add(null)
+                }
+
+                val time = System.currentTimeMillis() - startTime
+                Logg.d("!!! $callName result, time: $time")
+                onResult(results)
             }
         }
     }
