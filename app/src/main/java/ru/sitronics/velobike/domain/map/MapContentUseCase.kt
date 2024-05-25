@@ -1,5 +1,8 @@
 package ru.sitronics.velobike.domain.map
 
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.MapRect
 import ru.sitronics.velobike.presentation.BaseUseCase
@@ -17,49 +20,112 @@ class MapContentUseCase @Inject constructor(
 //    private var showSlowZoneMarkers: Boolean = false
 
 /*
-    fun updateMapContent(
-        mapRect: MapRect, zoom: Float,
-        onReady: (MapContent) -> Unit
-    ) {
-        val mapContent = MapContent()
-        mapContentCounter = MAP_CONTENT_ITEM_NUM
+        // updateMapContent with joinAll
+        fun updateMapContent(
+            mapRect: MapRect, zoom: Float,
+            onReady: (MapContent) -> Unit
+        ) {
+            val mapContent = MapContent()
 
-        updateBikes(
-            mapRect, zoom,
-            {
-                mapContent.bikes = it
-                checkResult { onReady(mapContent) }
-            },
-            { checkResult { onReady(mapContent) }}
-        )
+            scope.launch {
+                updateBikes(
+                    mapRect, zoom,
+                    { mapContent.bikes = it }, {}
+                )
 
-        updateParkings(
-            mapRect, zoom,
-            { stations, parkings ->
-                mapContent.stations = stations
-                mapContent.parkings = parkings
-                checkResult { onReady(mapContent) }
-            },
-            { checkResult { onReady(mapContent) }}
-        )
+                updateParkings(
+                    mapRect, zoom,
+                    { stations, parkings ->
+                        mapContent.stations = stations
+                        mapContent.parkings = parkings
+                    }, {}
+                )
 
-        updateSlowZones(
-            zoom,
-            { slowZones, showMarkers ->
-                mapContent.slowZones = slowZones
-                mapContent.showMarkers = showMarkers
-                checkResult { onReady(mapContent) }
-            },
-            { checkResult { onReady(mapContent) }}
-        )
-    }
+                updateSlowZones(
+                    zoom,
+                    { slowZones, showMarkers ->
+                        mapContent.slowZones = slowZones
+                        mapContent.showMarkers = showMarkers
+                    }, {}
+                )
 
-    private fun checkResult(onReady: () -> Unit) {
-        mapContentCounter--
-        if (mapContentCounter == 0)
-            onReady()
-    }
-*/
+                val jobs = listOf("getBikes", "getParkings", "getSlowZones")
+                    .mapNotNull { getJob(it) }
+                joinAll(*jobs.toTypedArray())
+
+                onReady(mapContent)
+            }
+        }
+
+        // updateMapContent with mapContentCounter
+        fun updateMapContent(
+            mapRect: MapRect, zoom: Float,
+            onReady: (MapContent) -> Unit
+        ) {
+            val mapContent = MapContent()
+            mapContentCounter = MAP_CONTENT_ITEM_NUM
+
+            updateBikes(
+                mapRect, zoom,
+                {
+                    mapContent.bikes = it
+                    checkResult { onReady(mapContent) }
+                },
+                { checkResult { onReady(mapContent) }}
+            )
+
+            updateParkings(
+                mapRect, zoom,
+                { stations, parkings ->
+                    mapContent.stations = stations
+                    mapContent.parkings = parkings
+                    checkResult { onReady(mapContent) }
+                },
+                { checkResult { onReady(mapContent) }}
+            )
+
+            updateSlowZones(
+                zoom,
+                { slowZones, showMarkers ->
+                    mapContent.slowZones = slowZones
+                    mapContent.showMarkers = showMarkers
+                    checkResult { onReady(mapContent) }
+                },
+                { checkResult { onReady(mapContent) }}
+            )
+        }
+
+        private fun checkResult(onReady: () -> Unit) {
+            mapContentCounter--
+            if (mapContentCounter == 0)
+                onReady()
+        }
+
+        // updateMapContent with processNetworkAsyncCall
+        fun updateMapContent(
+            mapRect: MapRect, zoom: Float,
+            onReady: (MapContent) -> Unit
+        ) {
+            processNetworkAsyncCall(
+                actions = listOf(
+                    { mapContentRepository.getBikes(mapRect) },
+                    { mapContentRepository.getParkings(mapRect) },
+                    { mapContentRepository.getSlowZones() },
+                ),
+                onResult = { results ->
+                    val mapContent = MapContent(
+                        bikes = results[0] as? List<Bike>,
+                        stations = (results[1] as? List<Parking>)?.filter { it.type.isStation() },
+                        parkings = (results[1] as? List<Parking>)?.filter { it.type.isParking() },
+                        slowZones = results[2] as? List<SlowZone>,
+                        showMarkers = zoom >= SHOW_SLOW_ZONE_MARKER_ZOOM,
+                    )
+                    onReady(mapContent)
+                },
+                callName = "updateMapContent"
+            )
+        }
+    */
 
     fun getBike(id: String) : Bike? =
         mapContentRepository.getData().bikes?.find { it.id == id }
@@ -79,6 +145,7 @@ class MapContentUseCase @Inject constructor(
             )
         }
     }
+
     fun getStations() : List<Parking>? =
         mapContentRepository.getData().stations
 

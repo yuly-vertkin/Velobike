@@ -64,6 +64,9 @@ abstract class BaseUseCase(appContextProvider: AppContextProvider) {
         }
     }
 
+    protected fun getJob(callName: String) =
+        calledJobs[callName]
+
     protected fun <T> processFlowNetworkCall(
         action: () -> Flow<Result<T>>,
         onSuccess: (suspend (T) -> Unit)? = null,
