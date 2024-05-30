@@ -36,6 +36,11 @@ class RentUseCase @Inject constructor(
         profileUseCase.initScope(vmScope)
     }
 
+    override fun clearScope() {
+        super.clearScope()
+        profileUseCase.clearScope()
+    }
+
     fun startRent(
         bikeId: String, latitude: Double?, longitude: Double?,
         onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit
@@ -322,7 +327,7 @@ class RentUseCase @Inject constructor(
             )
         } ?: {
             Logg.d("!!! no user error")
-            scope.launch { onError(null) }
+            scope?.launch { onError(null) }
         }
     }
 

@@ -50,6 +50,8 @@ class MapViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
+        rentUseCase.clearScope()
+        mapContentUseCase.clearScope()
         closeStates()
     }
 

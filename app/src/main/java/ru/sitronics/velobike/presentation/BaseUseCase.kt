@@ -14,13 +14,17 @@ import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.tools.Logg
 
 abstract class BaseUseCase(appContextProvider: AppContextProvider) {
-    protected lateinit var scope: CoroutineScope
+    protected var scope: CoroutineScope? = null
     @SuppressLint("StaticFieldLeak")
     protected val context = appContextProvider.getContext()
     private val calledJobs = HashMap<String, Job?>()
 
     open fun initScope(vmScope: CoroutineScope) {
         scope = vmScope
+    }
+
+    open fun clearScope() {
+        scope = null
     }
 
     // Если force = false Мы не повторяем запрос, если предыдущий еще не отработал
@@ -40,7 +44,7 @@ abstract class BaseUseCase(appContextProvider: AppContextProvider) {
         }
 
         if (!isActive || force) {
-            calledJobs[callName] = scope.launch {
+            calledJobs[callName] = scope?.launch {
                 val startTime = System.currentTimeMillis()
                 action().let {
                     when (it) {
@@ -81,7 +85,7 @@ abstract class BaseUseCase(appContextProvider: AppContextProvider) {
         }
 
         if (!isActive || force) {
-            calledJobs[callName] = scope.launch {
+            calledJobs[callName] = scope?.launch {
                 action().collect {
 
                     when (it) {
@@ -112,7 +116,7 @@ abstract class BaseUseCase(appContextProvider: AppContextProvider) {
         }
 
         if (!isActive || force) {
-            calledJobs[callName] = scope.launch {
+            calledJobs[callName] = scope?.launch {
                 val startTime = System.currentTimeMillis()
 
                 val deferredResults = mutableListOf<Deferred<*>>()
