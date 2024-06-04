@@ -124,15 +124,15 @@ data class Insurance(
 
 data class TariffSegment(
     @SerializedName("Id")
-    val id : String,
+    val id: String,
     @SerializedName("Name")
-    val name : String,
+    val name: String,
     @SerializedName("From")
-    val from : Int? = null,
+    val from: Int? = null,
     @SerializedName("To")
-    val to : Int? = null,
+    val to: Int? = null,
     @SerializedName("Cost")
-    val cost : Double? = null
+    val cost: Double? = null
 )
 
 data class LKP(

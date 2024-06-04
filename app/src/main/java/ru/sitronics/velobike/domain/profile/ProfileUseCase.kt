@@ -2,9 +2,10 @@ package ru.sitronics.velobike.domain.profile
 
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
+import ru.sitronics.velobike.domain.auth.AuthManager
 import ru.sitronics.velobike.presentation.BaseUseCase
 import ru.sitronics.velobike.tools.Logg
-import java.util.TimeZone
+import java.util.Date
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -12,6 +13,7 @@ import javax.inject.Singleton
 @Singleton
 class ProfileUseCase  @Inject constructor(
     private val profileRepository: ProfileRepository,
+    private val authManager: AuthManager,
     appContextProvider: AppContextProvider,
 ) : BaseUseCase(appContextProvider) {
 
@@ -24,6 +26,9 @@ class ProfileUseCase  @Inject constructor(
             }
         }
     }
+
+    fun getProfileFromCache() =
+        profileRepository.getData().profile
 
     private fun getProfile(update: Boolean = false, onResult: (Profile) -> Unit) {
         val profile = profileRepository.getData().profile
@@ -137,6 +142,41 @@ class ProfileUseCase  @Inject constructor(
         )
     }
 
+    fun getLKPStatus(onResult: (LKPStatus) -> Unit) {
+        authManager.userId?.let { id ->
+            processNetworkCall(
+                action = { profileRepository.getLKPStatus(id) },
+                onSuccess = { onResult(it.status) },
+                onError = { onResult(LKPStatus.NONE) },
+                callName = "getLKPStatus"
+            )
+        }
+    }
+
+    fun authInMetro(onError: (String?) -> Unit, onSuccess: (MetroPasswordParameters) -> Unit) {
+        authManager.userId?.let { id ->
+            getProfileFromCache()?.let { profile ->
+                processNetworkCall(
+                    action = { profileRepository.authInMetro(id, profile.phoneNumber) },
+                    onSuccess = { onSuccess(it) },
+                    onError = { onError(context.getString(R.string.error_unknown_later)) },
+                    callName = "authInMetro"
+                )
+            }
+        }
+    }
+
+    fun createAuthToken(code: String, onError: (String?) -> Unit, onSuccess: () -> Unit) {
+        authManager.userId?.let { id ->
+            processNetworkCall(
+                action = { profileRepository.createAuthToken(id, code) },
+                onSuccess = { onSuccess() },
+                onError = { onError(context.getString(R.string.error_unknown_later)) },
+                callName = "createAuthToken"
+            )
+        }
+    }
+
     fun calculateRentCost(startTime: Long, isOld: Boolean, onResult: (Int) -> Unit) {
         val duration = System.currentTimeMillis() - startTime
         val time = TimeUnit.MILLISECONDS.toMinutes(duration).toInt()
@@ -169,6 +209,26 @@ class ProfileUseCase  @Inject constructor(
         val duration = System.currentTimeMillis() - startTime
         val time = TimeUnit.MILLISECONDS.toMinutes(duration).toInt()
         return time > MAX_RIDE_TIME
+    }
+
+    fun isAccountLinked() : Boolean {
+        val profile = profileRepository.getData().profile
+        return !profile?.tariff?.lkp.isNullOrEmpty() || !profile?.oldTariff?.lkp.isNullOrEmpty()
+    }
+
+    fun tariffIsActive() : Boolean {
+        val profile = profileRepository.getData().profile
+        val tariffState = profile?.oldTariffState()
+        return tariffState == TariffState.Disabled || tariffState == TariffState.Current
+    }
+
+    private fun Profile.oldTariffState(): TariffState {
+        return when {
+            balance < 0 -> TariffState.Disabled
+            oldTariffId.isBlank() && oldTariffEnd == null -> TariffState.Unbilled
+            oldTariffEnd != null && oldTariffEnd.time < Date().time -> TariffState.Expired
+            else -> TariffState.Current
+        }
     }
 
     companion object {

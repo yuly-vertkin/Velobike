@@ -8,6 +8,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.auth.AuthManager
+import ru.sitronics.velobike.domain.profile.BonusMetroStatus.ACTIVATED
+import ru.sitronics.velobike.domain.profile.BonusMetroStatus.NOT_ACTIVATED
+import ru.sitronics.velobike.domain.profile.BonusMetroStatus.UNDEFINED
+import ru.sitronics.velobike.domain.profile.LKPStatus
 import ru.sitronics.velobike.domain.profile.Profile
 import ru.sitronics.velobike.domain.profile.ProfileUseCase
 import ru.sitronics.velobike.presentation.BaseViewModel
@@ -28,6 +32,11 @@ class ProfileViewModel @Inject constructor(
         profileUseCase.getProfileData {
             changeState(ProfileUiState.Normal(it))
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        profileUseCase.clearScope()
     }
 
     fun handleIntent(intent: ProfileIntent) {
@@ -65,9 +74,30 @@ class ProfileViewModel @Inject constructor(
                     changeState(ProfileUiState.Cards(it))
                 }
             }
-            is ProfileIntent.MessageAction -> {
+            is ProfileIntent.GoToNormal -> {
                 profileUseCase.getProfileData {
                     changeState(ProfileUiState.Normal(it))
+                }
+            }
+            is ProfileIntent.BonusMetro -> {
+                profileUseCase.getLKPStatus {
+                    val metroStatus = when {
+                        !profileUseCase.tariffIsActive() ||
+                        !profileUseCase.isAccountLinked() -> NOT_ACTIVATED
+                        it == LKPStatus.FULL -> ACTIVATED
+                        else -> UNDEFINED
+                    }
+                    changeState(ProfileUiState.BonusMetro(metroStatus, profileUseCase.getProfileFromCache()))
+                }
+            }
+            is ProfileIntent.BonusMetroAuth -> {
+                profileUseCase.authInMetro({ showError(it) }) {
+                    changeState(ProfileUiState.BonusMetroAuth(profileUseCase.getProfileFromCache()))
+                }
+            }
+            is ProfileIntent.BonusMetroToken -> {
+                profileUseCase.createAuthToken(intent.code, { showError(it) }) {
+                    changeState(ProfileUiState.Message(context.getString(R.string.success), context.getString(R.string.lkp_linked)))
                 }
             }
             is ProfileIntent.Logout -> {

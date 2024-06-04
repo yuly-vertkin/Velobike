@@ -12,6 +12,7 @@
     <string name="error_title">Error</string>
     <string name="error_no_network">No network</string>
     <string name="error_unknown">Unknown error</string>
+    <string name="error_unknown_later">Unknown error. Try Later</string>
 
 <!-- Login -->
     <string name="entrance">Entrance</string>
@@ -127,6 +128,37 @@
     <string name="my_bank_cards">My bank cards</string>
     <string name="no_bank_cards">No active cards found.\nAttach your card to pay for access to the bike.</string>
     <string name="logout">Logout</string>
+
+    <!-- Bonus metro -->
+    <string name="bonus_metro">Bonus from Moscow Metro</string>
+    <!-- Bonus metro activated -->
+    <string name="bonus_validity">Validity: until %1$s</string>
+    <string name="bonus_trips_left">%1$s trips left</string>
+    <string name="bonus_free_minutes">%1$s minutes free,\nthen — %2$s ₽/min</string>
+    <!-- Bonus metro undefined-->
+    <string name="bonus_not_found">We update information about your subscriptions to the Moscow Metro. Update can take up to 6 hours</string>
+    <string name="bonus_go_to_metro">Go to the Moscow Metro</string>
+    <string name="metro_moscow_link" translatable="false">https://redirect.appmetrica.yandex.com/serve/820871577817065281</string>
+    <string name="bonus_questions">Have a questions?</string>
+    <!-- Bonus metro not activated-->
+    <string name="bonus_trip_num">The number of trips depends on your \"Single\" subscription</string>
+    <string name="bonus_variant_30" translatable="false">30</string>
+    <string name="bonus_variant_30_title">Single 30</string>
+    <string name="bonus_variant_30_desc">30 free trips of 30 minutes</string>
+    <string name="bonus_variant_90" translatable="false">90</string>
+    <string name="bonus_variant_90_title">Single 90</string>
+    <string name="bonus_variant_90_desc">90 free trips of 30 minutes</string>
+    <string name="bonus_variant_365" translatable="false">365</string>
+    <string name="bonus_variant_365_title">Single 365</string>
+    <string name="bonus_variant_365_desc">365 free trips of 30 minutes</string>
+    <string name="get_bonus">Get Bonus</string>
+    <!-- Bonus metro auth -->
+    <string name="link_account">Link Account</string>
+    <string name="sms_sent">We sent an SMS with \na confirmation code to \n%s</string>
+    <string name="wrong_code">Code entered incorrectly</string>
+    <string name="send_sms_again">Send SMS again</string>
+    <string name="resend_sms">Code can be resubmitted\nin %1$s</string>
+    <string name="lkp_linked">Account is linked</string>
 
     <!-- Help -->
     <string name="help">Help</string>

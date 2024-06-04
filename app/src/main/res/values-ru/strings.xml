@@ -12,6 +12,7 @@
     <string name="error_title">Ошибка</string>
     <string name="error_no_network">Нет сети</string>
     <string name="error_unknown">Неизвестная ошибка</string>
+    <string name="error_unknown_later">Неизвестная ошибка. Попробуйте позже</string>
 
 <!-- Login -->
     <string name="entrance">Вход</string>
@@ -126,6 +127,33 @@
     <string name="my_bank_cards">Мои банковские карты</string>
     <string name="no_bank_cards">Активных карт не найдено.\nПривяжите вашу карту, чтобы оплачивать доступ к велопрокату.</string>
     <string name="logout">Выход</string>
+
+    <!-- Bonus metro -->
+    <string name="bonus_metro">Бонус от Метро Москвы</string>
+    <!-- Bonus metro activated -->
+    <string name="bonus_validity">"Срок действия: до %1$s"</string>
+    <string name="bonus_trips_left">Осталось %1$s поездок</string>
+    <string name="bonus_free_minutes">%1$s минут бесплатно,\nдалее — %2$s ₽/мин</string>
+    <!-- Bonus metro undefined-->
+    <string name="bonus_not_found">Мы обновляем информацию о Ваших абонементах в Метро Москвы. Обновление может занимать до 6 часов</string>
+    <string name="bonus_go_to_metro">Перейти в Метро Москвы</string>
+    <string name="bonus_questions">Остались вопросы?</string>
+    <!-- Bonus metro not activated-->
+    <string name="bonus_trip_num">Количество поездок зависит от вашего абонемента «Единый»</string>
+    <string name="bonus_variant_30_title">Единый 30</string>
+    <string name="bonus_variant_30_desc">30 бесплатных поездок по 30 минут</string>
+    <string name="bonus_variant_90_title">Единый 90</string>
+    <string name="bonus_variant_90_desc">90 бесплатных поездок по 30 минут</string>
+    <string name="bonus_variant_365_title">Единый 365</string>
+    <string name="bonus_variant_365_desc">365 бесплатных поездок по 30 минут</string>
+    <string name="get_bonus">Получить Бонус</string>
+    <!-- Bonus metro auth -->
+    <string name="link_account">Привязать Учётную запись</string>
+    <string name="sms_sent">Мы отправили СМС с кодом \nподтверждения на номер \n%s</string>
+    <string name="wrong_code">Код введён неверно</string>
+    <string name="send_sms_again">Отправить СМС повторно</string>
+    <string name="resend_sms">Код можно отправить повторно через %1$s</string>
+    <string name="lkp_linked">Учетная запись привязана</string>
 
     <!-- Help -->
     <string name="help">Помощь</string>

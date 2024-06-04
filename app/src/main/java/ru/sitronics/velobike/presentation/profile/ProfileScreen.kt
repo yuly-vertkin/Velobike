@@ -62,13 +62,21 @@ fun ProfileScreen(
         is ProfileUiState.Cards -> {
             val cards = (profileUiState as? ProfileUiState.Cards)?.cards ?: emptyList()
             BankCardsScreen(cards) {
-                onAction(ProfileIntent.MessageAction)
+                onAction(ProfileIntent.GoToNormal)
             }
+        }
+        is ProfileUiState.BonusMetro -> {
+            val uiState = profileUiState as ProfileUiState.BonusMetro
+            BonusMetroScreen(contentPadding, uiState.status, uiState.profile, onAction)
+        }
+        is ProfileUiState.BonusMetroAuth -> {
+            val uiState = profileUiState as ProfileUiState.BonusMetroAuth
+            BonusMetroDialog(uiState.profile, onAction)
         }
         is ProfileUiState.Message -> {
             val uiState = profileUiState as ProfileUiState.Message
             ShowMessageDialog(uiState.text) {
-                onAction(ProfileIntent.MessageAction)
+                onAction(ProfileIntent.GoToNormal)
             }
         }
     }
@@ -121,6 +129,7 @@ fun ProfileScreenInt(
         TariffSection(profile, isOld = false, onAction)
 
         MenuItem(R.string.my_bank_cards, R.drawable.card) { onAction(ProfileIntent.GetCards) }
+        MenuItem(R.string.bonus_metro, R.drawable.bonus_metro) { onAction(ProfileIntent.BonusMetro) }
         MenuItem(R.string.logout, R.drawable.exit) { onAction(ProfileIntent.Logout) }
     }
 }

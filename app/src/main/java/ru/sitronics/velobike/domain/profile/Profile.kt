@@ -36,8 +36,8 @@ data class Profile(
 //    val registerDate: Date?,
 //    @SerializedName("Birthday")
 //    val birthday: String,
-//    @SerializedName("Balance")
-//    val balance: Double,
+    @SerializedName("Balance")
+    val balance: Double = 0.0,
     @SerializedName("TariffId")
     val oldTariffId: String = "",
     @SerializedName("TariffName")
@@ -62,8 +62,8 @@ data class Profile(
 //    val activationFlag: Boolean = false,
 //    @SerializedName("OmniActivationFlag")
 //    val omniActivationFlag: Boolean = false,
-//    @SerializedName("FullNumberRental")
-//    val fullNumberRental: Int,
+    @SerializedName("FullNumberRental")
+    val fullNumberRental: Int = 0,
 //    @SerializedName("OmniFullNumberRental")
 //    val omniFullNumberRental: Int,
 //    @SerializedName("ActivationRcId")
@@ -77,3 +77,11 @@ data class Profile(
     var oldTariff: Tariff? = null,
     var tariff: Tariff? = null,
 )
+
+enum class TariffState {
+    Current, Unbilled, Disabled, Expired
+}
+
+enum class BonusMetroStatus {
+    ACTIVATED, NOT_ACTIVATED, UNDEFINED
+}

@@ -6,6 +6,8 @@ import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.data.network.ProfileService
 import ru.sitronics.velobike.data.repositories.BaseRepository
 import ru.sitronics.velobike.domain.profile.Card
+import ru.sitronics.velobike.domain.profile.LKPStatusData
+import ru.sitronics.velobike.domain.profile.MetroPasswordParameters
 import ru.sitronics.velobike.domain.profile.Profile
 import ru.sitronics.velobike.domain.profile.ProfileData
 import ru.sitronics.velobike.domain.profile.ProfileRepository
@@ -43,4 +45,15 @@ class ProfileRepositoryImp @Inject constructor(
 
     override suspend fun payTariff(params: TariffPaymentParams): Result<TariffPayment> =
         callAction { service.payTariff(params) }
+
+    override suspend fun getLKPStatus(userId: String): Result<LKPStatusData> =
+        callAction { service.getLKPStatus(userId) }
+
+    override suspend fun authInMetro(userId: String, phone: String) : Result<MetroPasswordParameters> =
+        callAction { service.authInMetro(userId, phone) }
+
+    override suspend fun createAuthToken(userId: String, code: String) : Result<Boolean> =
+        callAction { service.createAuthToken(userId, code) }
+
+
 }

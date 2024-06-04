@@ -1,8 +1,5 @@
 package ru.sitronics.velobike.presentation.help
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,8 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.tools.BackPressHandler
-import ru.sitronics.velobike.tools.Logg
 import ru.sitronics.velobike.tools.MenuItem
+import ru.sitronics.velobike.tools.callToSupport
 
 enum class SupportScreen {
     BASE, CALL_US
@@ -66,17 +63,3 @@ fun SupportScreen(
 
     BackPressHandler(onBackPressed = onBack)
 }
-
-private fun callToSupport(context: Context) {
-    try {
-        val intent = Intent(
-            Intent.ACTION_DIAL,
-            Uri.fromParts("tel", context.getString(R.string.support_phone), null)
-        )
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK + Intent.FLAG_ACTIVITY_NO_USER_ACTION
-        context.startActivity(intent)
-    } catch (e: Exception) {
-        Logg.e(e)
-    }
-}
-

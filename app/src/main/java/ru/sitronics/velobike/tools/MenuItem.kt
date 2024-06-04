@@ -23,6 +23,14 @@ fun MenuItem(
     @StringRes textId: Int, @DrawableRes imageId: Int,
     onClick: () -> Unit
 ) {
+    MenuItem(stringResource(textId), imageId, onClick)
+}
+
+@Composable
+fun MenuItem(
+    text: String, @DrawableRes imageId: Int,
+    onClick: () -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -33,7 +41,7 @@ fun MenuItem(
         Icon(painterResource(imageId), null)
 
         Text(
-            text = stringResource(textId),
+            text = text,
             modifier = Modifier
                 .padding(start = 12.dp)
                 .weight(1f)
