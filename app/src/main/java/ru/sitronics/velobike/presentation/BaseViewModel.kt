@@ -1,6 +1,6 @@
 package ru.sitronics.velobike.presentation
 
-import android.annotation.SuppressLint
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
@@ -12,9 +12,9 @@ import ru.sitronics.velobike.data.ResponseException
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.tools.Logg
 
-abstract class BaseViewModel(appContextProvider: AppContextProvider) : ViewModel() {
-    @SuppressLint("StaticFieldLeak")
-    protected val context = appContextProvider.getContext()
+abstract class BaseViewModel(val appContextProvider: AppContextProvider) : ViewModel() {
+    protected val context: Context
+        get() = appContextProvider.getContext()
     private val calledJobs = HashMap<String, Job>()
 
     // Если force = false Мы не повторяем запрос, если предыдущий еще не отработал

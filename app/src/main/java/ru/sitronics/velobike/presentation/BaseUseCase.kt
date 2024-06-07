@@ -1,6 +1,6 @@
 package ru.sitronics.velobike.presentation
 
-import android.annotation.SuppressLint
+import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
@@ -13,10 +13,10 @@ import ru.sitronics.velobike.data.ResponseException
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.tools.Logg
 
-abstract class BaseUseCase(appContextProvider: AppContextProvider) {
+abstract class BaseUseCase(val appContextProvider: AppContextProvider) {
     protected var scope: CoroutineScope? = null
-    @SuppressLint("StaticFieldLeak")
-    protected val context = appContextProvider.getContext()
+    protected val context: Context
+        get() = appContextProvider.getContext()
     private val calledJobs = HashMap<String, Job?>()
 
     open fun initScope(vmScope: CoroutineScope) {
