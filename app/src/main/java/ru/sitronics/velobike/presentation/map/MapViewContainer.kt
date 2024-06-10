@@ -400,7 +400,7 @@ private fun updateMoveZones(
  * Remembers a MapView and gives it the lifecycle of the current LifecycleOwner
  */
 @Composable
-fun rememberMapViewWithLifecycle(onAction: (MapIntent) -> Unit): MapView {
+fun rememberMapViewWithLifecycle(onAction: (MapIntent) -> Unit) : MapView {
     val context = LocalContext.current
     val mapView = remember {
         MapView(context).apply {
@@ -413,26 +413,31 @@ fun rememberMapViewWithLifecycle(onAction: (MapIntent) -> Unit): MapView {
         // Make MapView follow the current lifecycle
         val lifecycleObserver = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_START -> {
-                    MapKitFactory.getInstance().onStart()
-                    mapView.onStart()
-                    onAction(MapIntent.MapStart)
-                }
-                Lifecycle.Event.ON_STOP -> {
-                    mapView.onStop()
-                    MapKitFactory.getInstance().onStop()
-                    onAction(MapIntent.MapStop)
-                }
+                Lifecycle.Event.ON_START -> onMapStart(mapView, onAction)
+                Lifecycle.Event.ON_STOP -> onMapStop(mapView, onAction)
                 else -> {}
             }
         }
         lifecycle.addObserver(lifecycleObserver)
         onDispose {
+            onMapStop(mapView, onAction)
             lifecycle.removeObserver(lifecycleObserver)
         }
     }
 
     return mapView
+}
+
+private fun onMapStart(mapView: MapView, onAction: (MapIntent) -> Unit) {
+    MapKitFactory.getInstance().onStart()
+    mapView.onStart()
+    onAction(MapIntent.MapStart)
+}
+
+private fun onMapStop(mapView: MapView, onAction: (MapIntent) -> Unit) {
+    mapView.onStop()
+    MapKitFactory.getInstance().onStop()
+    onAction(MapIntent.MapStop)
 }
 
 private fun getMapRect(mapView: MapView) : MapRect {
