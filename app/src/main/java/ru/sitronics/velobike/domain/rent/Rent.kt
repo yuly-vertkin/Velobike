@@ -46,7 +46,7 @@ data class Rent(
     var showFine: Boolean = false
 ) {
     companion object {
-        fun empty(): Rent =
+        fun empty() =
             Rent("", "", "", "", null, null, 0L, null, 0, "")
     }
 }

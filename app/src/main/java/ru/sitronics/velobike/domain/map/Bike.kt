@@ -14,7 +14,7 @@ data class Bike(
     val vehicleOperativeStatus: BikeOperativeStatus,
 ) {
     companion object {
-        fun empty(): Bike =
+        fun empty() =
             Bike("", "", 0, 0.0, 0.0, null, BikeInventoryStatus.UNKNOWN, BikeOperativeStatus.UNKNOWN)
     }
 }

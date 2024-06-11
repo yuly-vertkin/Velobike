@@ -9,7 +9,9 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -36,7 +38,8 @@ class MapViewModel @Inject constructor(
     private val chatManager: ChatManager,
     appContext: Context,
 ) : BaseViewModel(appContext) {
-    private val mapUiStates: MutableSharedFlow<MapUiState> = MutableSharedFlow(replay = 10, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    private val _mapUiStates: MutableSharedFlow<MapUiState> = MutableSharedFlow(replay = 10, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    val mapUiStates: SharedFlow<MapUiState> = _mapUiStates.asSharedFlow()   // used for testing
     private lateinit var mapUiStatesJob: Job
     private val _mapUiState: MutableStateFlow<MapUiState> = MutableStateFlow(MapUiState.Normal)
     val mapUiState: StateFlow<MapUiState> = _mapUiState.asStateFlow()
@@ -475,7 +478,7 @@ class MapViewModel @Inject constructor(
     }
 
     private fun initStates() {
-        mapUiStatesJob = mapUiStates.onEach {
+        mapUiStatesJob = _mapUiStates.onEach {
             delay(CHANGE_STATE_DELAY)
             _mapUiState.value = it
         }.launchIn(viewModelScope)
@@ -487,8 +490,8 @@ class MapViewModel @Inject constructor(
 
     private fun changeState(uiState: MapUiState, stopLoading: Boolean = false) {
         if (stopLoading)
-            mapUiStates.tryEmit(MapUiState.Loading(false))
-        mapUiStates.tryEmit(uiState)
+            _mapUiStates.tryEmit(MapUiState.Loading(false))
+        _mapUiStates.tryEmit(uiState)
     }
 
     companion object {

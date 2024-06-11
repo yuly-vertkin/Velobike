@@ -17,7 +17,12 @@ data class Parking(
     val availableOmniBikes: Int,
     val isLocked: Boolean,
     var distance: Float? = null,
-)
+) {
+    companion object {
+        fun empty() =
+            Parking("", StationType.Omni, 0.0, 0.0, "", 0, 0, 0, 0, 0, 0, 0, 0, 0, false)
+    }
+}
 
 enum class StationType(val type: Int) {
     Ordinary(0),
