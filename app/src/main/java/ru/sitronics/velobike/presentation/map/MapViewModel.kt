@@ -1,5 +1,6 @@
 package ru.sitronics.velobike.presentation.map
 
+import android.content.Context
 import android.location.Location
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +15,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
-import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.chat.ChatManager
 import ru.sitronics.velobike.domain.map.MapContentUseCase
 import ru.sitronics.velobike.domain.map.Parking
@@ -34,8 +34,8 @@ class MapViewModel @Inject constructor(
     private val rentUseCase: RentUseCase,
     private val mapContentUseCase: MapContentUseCase,
     private val chatManager: ChatManager,
-    appContextProvider: AppContextProvider,
-) : BaseViewModel(appContextProvider) {
+    appContext: Context,
+) : BaseViewModel(appContext) {
     private val mapUiStates: MutableSharedFlow<MapUiState> = MutableSharedFlow(replay = 10, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     private lateinit var mapUiStatesJob: Job
     private val _mapUiState: MutableStateFlow<MapUiState> = MutableStateFlow(MapUiState.Normal)
@@ -371,7 +371,7 @@ class MapViewModel @Inject constructor(
                                         changeState(MapUiState.FinishingRent(false), true)
                                         changeState(MapUiState.FinishedRent(rentUseCase.rent))
                                     } else
-                                        showError(context.getString(R.string.error_unknown))
+                                        showError(appContext.getString(R.string.error_unknown))
                                 }
                             }
 
@@ -437,7 +437,7 @@ class MapViewModel @Inject constructor(
                             changeState(MapUiState.FinishingRent(false), true)
                             changeState(MapUiState.FinishedRent(rentUseCase.rent))
                         } else
-                            showError(context.getString(R.string.error_unknown))
+                            showError(appContext.getString(R.string.error_unknown))
                     }
                 }
             }
@@ -471,7 +471,7 @@ class MapViewModel @Inject constructor(
 
     private fun showError(msg: String?) {
         changeState(MapUiState.Loading(false))
-        msg?.let { changeState(MapUiState.Error(context.getString(R.string.error_title), it)) }
+        msg?.let { changeState(MapUiState.Error(appContext.getString(R.string.error_title), it)) }
     }
 
     private fun initStates() {

@@ -44,7 +44,12 @@ data class Rent(
     var cost: Int = 0,
     var isOld: Boolean = false,
     var showFine: Boolean = false
-)
+) {
+    companion object {
+        fun empty(): Rent =
+            Rent("", "", "", "", null, null, 0L, null, 0, "")
+    }
+}
 
 @Parcelize
 data class RentStatus(

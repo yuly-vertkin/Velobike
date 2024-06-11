@@ -1,7 +1,7 @@
 package ru.sitronics.velobike.data.repositories.profile
 
+import android.content.Context
 import com.google.gson.Gson
-import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.data.network.ProfileService
 import ru.sitronics.velobike.data.repositories.BaseRepository
@@ -20,9 +20,9 @@ import javax.inject.Singleton
 @Singleton
 class ProfileRepositoryImp @Inject constructor(
     private val service: ProfileService,
-    appContextProvider: AppContextProvider,
+    appContext: Context,
     gson: Gson,
-) : BaseRepository<ProfileData>(appContextProvider, gson), ProfileRepository {
+) : BaseRepository<ProfileData>(appContext, gson), ProfileRepository {
 
     override fun getData() : ProfileData =
         super.getData() ?: ProfileData()

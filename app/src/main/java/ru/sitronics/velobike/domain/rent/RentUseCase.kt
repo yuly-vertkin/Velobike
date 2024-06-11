@@ -1,35 +1,48 @@
 package ru.sitronics.velobike.domain.rent
 
+import android.content.Context
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
-import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.auth.AuthManager
 import ru.sitronics.velobike.domain.map.Bike
 import ru.sitronics.velobike.domain.map.MapContentRepository
 import ru.sitronics.velobike.domain.profile.ProfileUseCase
 import ru.sitronics.velobike.presentation.BaseUseCase
+import ru.sitronics.velobike.presentation.BaseUseCaseImp
 import ru.sitronics.velobike.tools.Logg
-import java.util.Timer
-import java.util.TimerTask
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.concurrent.schedule
+
+interface RentUseCase : BaseUseCase {
+    val rent: Rent?
+    fun startRent(bikeId: String, latitude: Double?, longitude: Double?, onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit)
+    fun finishRent(latitude: Double?, longitude: Double?, onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit)
+    fun checkRentStatus(rentId: String, frameNumber: String, onError: ((String?) -> Unit)? = null, onSuccess: ((RentStatus) -> Unit)? = null)
+    fun chooseParking(rentId: String, params: ChooseParkingParams, onError: (String?) -> Unit, onSuccess: () -> Unit)
+    fun uploadPhotoAndFinishRent(filePath: String, onError: (String?) -> Unit, onSuccess: (RentStatus) -> Unit)
+    fun uploadPhotoRent(filePath: String, onError: (String?) -> Unit, onSuccess: () -> Unit)
+    fun finishRentAfterUploadPhoto(onError: (String?) -> Unit, onSuccess: (RentStatus) -> Unit)
+    fun sendFeedback(rent: Rent?, rate: Int, onError: (String?) -> Unit, onSuccess: () -> Unit)
+    fun returnToActiveRent(rentId: String, onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit)
+    fun unlockWheel(onError: (String?) -> Unit, onSuccess: () -> Unit)
+    fun updateActiveRent(needStop: Boolean, onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit, onFinish: ((Rent?) -> Unit)? = null)
+}
 
 @Singleton
-class RentUseCase @Inject constructor(
+class RentUseCaseImp @Inject constructor(
     private val rentRepository: RentRepository,
     private val mapContentRepository: MapContentRepository,
     private val profileUseCase: ProfileUseCase,
     private val authManager: AuthManager,
-    appContextProvider: AppContextProvider,
-) : BaseUseCase(appContextProvider) {
-    var rent: Rent? = null
-        private set
+    appContext: Context,
+) : BaseUseCaseImp(appContext), RentUseCase {
+    override var rent: Rent? = null
     private var finishedRent: Rent? = null
     private var rentStatus: RentStatus? = null
-    private var activeRentUpdateTask: TimerTask? = null
+    private var activeRentUpdateJob: Job? = null
 
     override fun initScope(vmScope: CoroutineScope) {
         super.initScope(vmScope)
@@ -41,7 +54,7 @@ class RentUseCase @Inject constructor(
         profileUseCase.clearScope()
     }
 
-    fun startRent(
+    override fun startRent(
         bikeId: String, latitude: Double?, longitude: Double?,
         onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit
     ) {
@@ -72,13 +85,13 @@ class RentUseCase @Inject constructor(
                     onError(getRentError(it.failedReason, true))
             },
             onError = {
-                onError(context.getString(R.string.error_unknown))
+                onError(appContext.getString(R.string.error_unknown))
             },
             callName = "startRent"
         )
     }
 
-    fun finishRent(
+    override fun finishRent(
         latitude: Double?, longitude: Double?,
         onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit
     ) {
@@ -110,15 +123,15 @@ class RentUseCase @Inject constructor(
                 checkActiveRent(onError, onSuccess)
             },
             onError = {
-                onError(context.getString(R.string.error_unknown))
+                onError(appContext.getString(R.string.error_unknown))
             },
             callName = "finishRent"
         )
     }
 
-    fun checkRentStatus(
+    override fun checkRentStatus(
         rentId: String, frameNumber: String,
-        onError: ((String?) -> Unit)? = null, onSuccess: ((RentStatus) -> Unit)? = null
+        onError: ((String?) -> Unit)?, onSuccess: ((RentStatus) -> Unit)?
     ) {
         processNetworkCall(
             action = { rentRepository.checkStatus(rentId, frameNumber) },
@@ -135,7 +148,7 @@ class RentUseCase @Inject constructor(
         )
     }
 
-    fun chooseParking(
+    override fun chooseParking(
         rentId: String, params: ChooseParkingParams,
         onError: (String?) -> Unit, onSuccess: () -> Unit
     ) {
@@ -158,7 +171,7 @@ class RentUseCase @Inject constructor(
         )
     }
 
-    fun uploadPhotoAndFinishRent(
+    override fun uploadPhotoAndFinishRent(
         filePath: String,
         onError: (String?) -> Unit, onSuccess: (RentStatus) -> Unit
     ) {
@@ -167,19 +180,19 @@ class RentUseCase @Inject constructor(
         }
     }
 
-    fun uploadPhotoRent(
+    override fun uploadPhotoRent(
         filePath: String,
         onError: (String?) -> Unit, onSuccess: () -> Unit
     ) {
         processNetworkCall(
             action = { rentRepository.uploadPhotoRent(rent?.rentId.orEmpty(), filePath) },
             onSuccess = { onSuccess() },
-            onError = { onError(context.getString(R.string.error_unknown)) },
+            onError = { onError(appContext.getString(R.string.error_unknown)) },
             callName = "uploadPhotoRent"
         )
     }
 
-    fun finishRentAfterUploadPhoto(
+    override fun finishRentAfterUploadPhoto(
         onError: (String?) -> Unit, onSuccess: (RentStatus) -> Unit
     ) {
         processNetworkCall(
@@ -189,13 +202,13 @@ class RentUseCase @Inject constructor(
                 onSuccess(it)
             },
             onError = {
-                onError(context.getString(R.string.error_unknown))
+                onError(appContext.getString(R.string.error_unknown))
             },
             callName = "finishRentAfterUploadPhoto"
         )
     }
 
-    fun sendFeedback(
+    override fun sendFeedback(
         rent: Rent?, rate: Int,
         onError: (String?) -> Unit, onSuccess: () -> Unit
     ) {
@@ -214,13 +227,13 @@ class RentUseCase @Inject constructor(
             processNetworkCall(
                 action = { rentRepository.sendFeedback(params) },
                 onSuccess = { onSuccess() },
-                onError = { onError(context.getString(R.string.error_unknown)) },
+                onError = { onError(appContext.getString(R.string.error_unknown)) },
                 callName = "sendFeedback"
             )
         }
     }
 
-    fun returnToActiveRent(
+    override fun returnToActiveRent(
         rentId: String, onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit
     ) {
         processNetworkCall(
@@ -232,46 +245,49 @@ class RentUseCase @Inject constructor(
                 else
                     onError(getRentError(it.failedReason, false))
             },
-            onError = { onError(context.getString(R.string.error_unknown)) },
+            onError = { onError(appContext.getString(R.string.error_unknown)) },
             callName = "returnToActiveRent"
         )
     }
 
-    fun unlockWheel(onError: (String?) -> Unit, onSuccess: () -> Unit) {
+    override fun unlockWheel(onError: (String?) -> Unit, onSuccess: () -> Unit) {
         processNetworkCall(
             action = {
                 rentRepository.unlockWheel(rent?.rentId.orEmpty())
             },
             onSuccess = { onSuccess() },
-            onError = { onError(context.getString(R.string.error_unknown)) },
+            onError = { onError(appContext.getString(R.string.error_unknown)) },
             callName = "unlockWheel"
         )
     }
 
     private fun getRentError(failedReason: FailedReason?, startRent: Boolean) : String {
         return failedReason?.let {
-            context.getString( if (startRent) it.messageIdStart else it.messageIdFinish)
-        } ?: context.getString(R.string.start_omni_failed_default)
+            appContext.getString( if (startRent) it.messageIdStart else it.messageIdFinish)
+        } ?: appContext.getString(R.string.start_omni_failed_default)
     }
 
-    fun updateActiveRent(
+    override fun updateActiveRent(
         needStop: Boolean,
-        onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit, onFinish: ((Rent?) -> Unit)? = null
+        onError: (String?) -> Unit, onSuccess: (Rent?) -> Unit, onFinish: ((Rent?) -> Unit)?
     ) {
         var needStart = !needStop
 
-        if (activeRentUpdateTask == null) {
-            activeRentUpdateTask = Timer().schedule(0, CHECK_ACTIVE_RENT_DELAY) {
-                if (needStart || rent != null) {
-                    checkActiveRent(onError, onSuccess, onFinish)
-                    needStart = false
+        if (activeRentUpdateJob == null) {
+            activeRentUpdateJob = scope?.launch {
+                while (true) {
+                    if (needStart || rent != null) {
+                        checkActiveRent(onError, onSuccess, onFinish)
+                        needStart = false
+                        delay(CHECK_ACTIVE_RENT_DELAY)
+                    }
                 }
             }
         }
 
         if (needStop) {
-            activeRentUpdateTask?.cancel()
-            activeRentUpdateTask = null
+            activeRentUpdateJob?.cancel()
+            activeRentUpdateJob = null
         }
     }
 

@@ -1,12 +1,12 @@
 package ru.sitronics.velobike.presentation.profile
 
+import android.content.Context
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import ru.sitronics.velobike.R
-import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.auth.AuthManager
 import ru.sitronics.velobike.domain.profile.BonusMetroStatus.ACTIVATED
 import ru.sitronics.velobike.domain.profile.BonusMetroStatus.NOT_ACTIVATED
@@ -21,8 +21,8 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val profileUseCase: ProfileUseCase,
     private val authManager: AuthManager,
-    appContextProvider: AppContextProvider,
-) : BaseViewModel(appContextProvider) {
+    appContext: Context,
+) : BaseViewModel(appContext) {
     private val _profileUiState: MutableStateFlow<ProfileUiState> = MutableStateFlow(ProfileUiState.Normal(Profile()))
     val profileUiState: StateFlow<ProfileUiState> = _profileUiState.asStateFlow()
 
@@ -57,7 +57,7 @@ class ProfileViewModel @Inject constructor(
                 if (intent.tariff != null)
                     profileUseCase.getCards { cards ->
                         profileUseCase.payTariff(intent.tariff.id, cards, { showError(it) }) {
-                            changeState(ProfileUiState.Message(context.getString(R.string.success), it.orEmpty()))
+                            changeState(ProfileUiState.Message(appContext.getString(R.string.success), it.orEmpty()))
                         }
                     }
                 else if (intent.canBuy)
@@ -97,7 +97,7 @@ class ProfileViewModel @Inject constructor(
             }
             is ProfileIntent.BonusMetroToken -> {
                 profileUseCase.createAuthToken(intent.code, { showError(it) }) {
-                    changeState(ProfileUiState.Message(context.getString(R.string.success), context.getString(R.string.lkp_linked)))
+                    changeState(ProfileUiState.Message(appContext.getString(R.string.success), appContext.getString(R.string.lkp_linked)))
                 }
             }
             is ProfileIntent.Logout -> {
@@ -107,7 +107,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     private fun showError(msg: String?) {
-        msg?.let { changeState(ProfileUiState.Message(context.getString(R.string.error_title), it)) }
+        msg?.let { changeState(ProfileUiState.Message(appContext.getString(R.string.error_title), it)) }
     }
 
     private fun changeState(uiState: ProfileUiState) {

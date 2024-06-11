@@ -12,7 +12,12 @@ data class Bike(
     val currnetRentId: UUID? = null,
     val vehicleInventoryStatus: BikeInventoryStatus,
     val vehicleOperativeStatus: BikeOperativeStatus,
-)
+) {
+    companion object {
+        fun empty(): Bike =
+            Bike("", "", 0, 0.0, 0.0, null, BikeInventoryStatus.UNKNOWN, BikeOperativeStatus.UNKNOWN)
+    }
+}
 
 enum class BikeOperativeStatus(val value: String) {
     @SerializedName("UNKNOWN")

@@ -1,23 +1,39 @@
 package ru.sitronics.velobike.domain.profile
 
+import android.content.Context
 import ru.sitronics.velobike.R
-import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.auth.AuthManager
 import ru.sitronics.velobike.presentation.BaseUseCase
+import ru.sitronics.velobike.presentation.BaseUseCaseImp
 import ru.sitronics.velobike.tools.Logg
 import java.util.Date
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
+interface ProfileUseCase : BaseUseCase {
+    fun getProfileData(onResult: (Profile) -> Unit)
+    fun getProfileFromCache() : Profile?
+    fun getTariffs(onError: (String?) -> Unit, onSuccess: (List<Tariff>) -> Unit)
+    fun getCards(onResult: (List<Card>) -> Unit)
+    fun payTariff(tariffId: String, cards: List<Card>, onError: (String?) -> Unit, onSuccess: (String?) -> Unit)
+    fun getLKPStatus(onResult: (LKPStatus) -> Unit)
+    fun authInMetro(onError: (String?) -> Unit, onSuccess: (MetroPasswordParameters) -> Unit)
+    fun createAuthToken(code: String, onError: (String?) -> Unit, onSuccess: () -> Unit)
+    fun calculateRentCost(startTime: Long, isOld: Boolean, onResult: (Int) -> Unit)
+    fun isFine(startTime: Long) : Boolean
+    fun isAccountLinked() : Boolean
+    fun tariffIsActive() : Boolean
+}
+
 @Singleton
-class ProfileUseCase  @Inject constructor(
+class ProfileUseCaseImp @Inject constructor(
     private val profileRepository: ProfileRepository,
     private val authManager: AuthManager,
-    appContextProvider: AppContextProvider,
-) : BaseUseCase(appContextProvider) {
+    appContext: Context,
+) : BaseUseCaseImp(appContext), ProfileUseCase {
 
-    fun getProfileData(onResult: (Profile) -> Unit) {
+    override fun getProfileData(onResult: (Profile) -> Unit) {
         getProfile { profile ->
             getTariff(isOld = true) {
                 getTariff(isOld = false) {
@@ -27,7 +43,7 @@ class ProfileUseCase  @Inject constructor(
         }
     }
 
-    fun getProfileFromCache() =
+    override fun getProfileFromCache() =
         profileRepository.getData().profile
 
     private fun getProfile(update: Boolean = false, onResult: (Profile) -> Unit) {
@@ -73,7 +89,7 @@ class ProfileUseCase  @Inject constructor(
         }
     }
 
-    fun getTariffs(
+    override fun getTariffs(
         onError: (String?) -> Unit, onSuccess: (List<Tariff>) -> Unit
     ) {
         val tariffs = profileRepository.getData().tariffs
@@ -95,7 +111,7 @@ class ProfileUseCase  @Inject constructor(
         }
     }
 
-    fun getCards(onResult: (List<Card>) -> Unit) {
+    override fun getCards(onResult: (List<Card>) -> Unit) {
         val cards = profileRepository.getData().cards
         if (cards != null) {
             onResult(cards)
@@ -115,14 +131,14 @@ class ProfileUseCase  @Inject constructor(
         }
     }
 
-    fun payTariff(
+    override fun payTariff(
         tariffId: String, cards: List<Card>,
         onError: (String?) -> Unit, onSuccess: (String?) -> Unit
     ) {
         val cardId = cards.firstOrNull { it.status == CardStatus.ACTIVE && it.isDefault != 0 }?.cardIdp?.toLongOrNull()
 
         if (cardId == null) {
-            onError(context.getString(R.string.error_no_active_card))
+            onError(appContext.getString(R.string.error_no_active_card))
             return
         }
 
@@ -142,7 +158,7 @@ class ProfileUseCase  @Inject constructor(
         )
     }
 
-    fun getLKPStatus(onResult: (LKPStatus) -> Unit) {
+    override fun getLKPStatus(onResult: (LKPStatus) -> Unit) {
         authManager.userId?.let { id ->
             processNetworkCall(
                 action = { profileRepository.getLKPStatus(id) },
@@ -153,31 +169,31 @@ class ProfileUseCase  @Inject constructor(
         }
     }
 
-    fun authInMetro(onError: (String?) -> Unit, onSuccess: (MetroPasswordParameters) -> Unit) {
+    override fun authInMetro(onError: (String?) -> Unit, onSuccess: (MetroPasswordParameters) -> Unit) {
         authManager.userId?.let { id ->
             getProfileFromCache()?.let { profile ->
                 processNetworkCall(
                     action = { profileRepository.authInMetro(id, profile.phoneNumber) },
                     onSuccess = { onSuccess(it) },
-                    onError = { onError(context.getString(R.string.error_unknown_later)) },
+                    onError = { onError(appContext.getString(R.string.error_unknown_later)) },
                     callName = "authInMetro"
                 )
             }
         }
     }
 
-    fun createAuthToken(code: String, onError: (String?) -> Unit, onSuccess: () -> Unit) {
+    override fun createAuthToken(code: String, onError: (String?) -> Unit, onSuccess: () -> Unit) {
         authManager.userId?.let { id ->
             processNetworkCall(
                 action = { profileRepository.createAuthToken(id, code) },
                 onSuccess = { onSuccess() },
-                onError = { onError(context.getString(R.string.error_unknown_later)) },
+                onError = { onError(appContext.getString(R.string.error_unknown_later)) },
                 callName = "createAuthToken"
             )
         }
     }
 
-    fun calculateRentCost(startTime: Long, isOld: Boolean, onResult: (Int) -> Unit) {
+    override fun calculateRentCost(startTime: Long, isOld: Boolean, onResult: (Int) -> Unit) {
         val duration = System.currentTimeMillis() - startTime
         val time = TimeUnit.MILLISECONDS.toMinutes(duration).toInt()
 
@@ -205,18 +221,18 @@ class ProfileUseCase  @Inject constructor(
         }
     }
 
-    fun isFine(startTime: Long) : Boolean {
+    override fun isFine(startTime: Long) : Boolean {
         val duration = System.currentTimeMillis() - startTime
         val time = TimeUnit.MILLISECONDS.toMinutes(duration).toInt()
         return time > MAX_RIDE_TIME
     }
 
-    fun isAccountLinked() : Boolean {
+    override fun isAccountLinked() : Boolean {
         val profile = profileRepository.getData().profile
         return !profile?.tariff?.lkp.isNullOrEmpty() || !profile?.oldTariff?.lkp.isNullOrEmpty()
     }
 
-    fun tariffIsActive() : Boolean {
+    override fun tariffIsActive() : Boolean {
         val profile = profileRepository.getData().profile
         val tariffState = profile?.oldTariffState()
         return tariffState == TariffState.Disabled || tariffState == TariffState.Current

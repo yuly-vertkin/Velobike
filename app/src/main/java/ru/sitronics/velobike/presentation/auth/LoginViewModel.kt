@@ -1,5 +1,6 @@
 package ru.sitronics.velobike.presentation.auth
 
+import android.content.Context
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -8,7 +9,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
-import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.ResponseException
 import ru.sitronics.velobike.domain.auth.AuthManager
 import ru.sitronics.velobike.domain.auth.AuthRepository
@@ -23,8 +23,8 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val authManager: AuthManager,
-    appContextProvider: AppContextProvider,
-) : BaseViewModel(appContextProvider) {
+    appContext: Context,
+) : BaseViewModel(appContext) {
     private val _loginUiState: MutableStateFlow<LoginUiState> = MutableStateFlow(
         initNormalState()
     )
@@ -96,7 +96,7 @@ class LoginViewModel @Inject constructor(
 
     private fun onRegisterSuccess(status: Register) {
         Logg.d("!!! register status ${status.code}")
-        changeState(LoginUiState.Message(context.getString(
+        changeState(LoginUiState.Message(appContext.getString(
             if (status.isSuccess()) R.string.register_success else R.string.error_unknown)))
     }
 

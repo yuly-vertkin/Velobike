@@ -1,10 +1,10 @@
 package ru.sitronics.velobike.data.repositories.rent
 
+import android.content.Context
 import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.data.network.RentService
 import ru.sitronics.velobike.data.repositories.BaseRepository
@@ -25,9 +25,9 @@ import javax.inject.Singleton
 @Singleton
 class RentRepositoryImp @Inject constructor(
     private val service: RentService,
-    appContextProvider: AppContextProvider,
+    appContext: Context,
     gson: Gson,
-) : BaseRepository<RentData>(appContextProvider, gson), RentRepository {
+) : BaseRepository<RentData>(appContext, gson), RentRepository {
 
     override fun getData() : RentData =
         super.getData() ?: RentData()

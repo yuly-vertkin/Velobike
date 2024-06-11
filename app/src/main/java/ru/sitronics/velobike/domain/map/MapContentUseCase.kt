@@ -1,20 +1,31 @@
 package ru.sitronics.velobike.domain.map
 
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
-import ru.sitronics.velobike.data.AppContextProvider
+import android.content.Context
 import ru.sitronics.velobike.domain.MapRect
 import ru.sitronics.velobike.presentation.BaseUseCase
+import ru.sitronics.velobike.presentation.BaseUseCaseImp
 import ru.sitronics.velobike.tools.Logg
 import javax.inject.Inject
 import javax.inject.Singleton
 
+interface MapContentUseCase : BaseUseCase {
+    fun getBike(id: String) : Bike?
+    fun runWithBike(id: String, action: (Bike) -> Unit)
+    fun getStations() : List<Parking>?
+    fun getStation(id: String) : Parking?
+    fun getParking(id: String) : Parking?
+    fun updateBikes(mapRect: MapRect, zoom: Float, onSuccess: (List<Bike>) -> Unit, onError: (String?) -> Unit)
+    fun updateParkings(mapRect: MapRect, zoom: Float, onSuccess: (List<Parking>, List<Parking>) -> Unit, onError: (String?) -> Unit)
+    fun updateSlowZones(zoom: Float, onSuccess: (List<SlowZone>, Boolean) -> Unit, onError: (String?) -> Unit)
+    fun updateMoveZones(onError: (String?) -> Unit, onSuccess: (List<MoveZone>) -> Unit)
+    fun findParking(findStr: String) : List<Parking>
+}
+
 @Singleton
-class MapContentUseCase @Inject constructor(
+class MapContentUseCaseImp @Inject constructor(
     private val mapContentRepository: MapContentRepository,
-    appContextProvider: AppContextProvider,
-) : BaseUseCase(appContextProvider) {
+    appContext: Context,
+) : BaseUseCaseImp(appContext), MapContentUseCase {
 //    private var mapContentCounter = 0
 //    private var showSlowZones: Boolean = false
 //    private var showSlowZoneMarkers: Boolean = false
@@ -127,10 +138,10 @@ class MapContentUseCase @Inject constructor(
         }
     */
 
-    fun getBike(id: String) : Bike? =
+    override fun getBike(id: String) : Bike? =
         mapContentRepository.getData().bikes?.find { it.id == id }
 
-    fun runWithBike(id: String, action: (Bike) -> Unit) {
+    override fun runWithBike(id: String, action: (Bike) -> Unit) {
         val bike = getBike(id)
         if (bike != null) {
             action(bike)
@@ -146,16 +157,16 @@ class MapContentUseCase @Inject constructor(
         }
     }
 
-    fun getStations() : List<Parking>? =
+    override fun getStations() : List<Parking>? =
         mapContentRepository.getData().stations
 
-    fun getStation(id: String) : Parking? =
+    override fun getStation(id: String) : Parking? =
         mapContentRepository.getData().stations?.find { it.id == id }
 
-    fun getParking(id: String) : Parking? =
+    override fun getParking(id: String) : Parking? =
         mapContentRepository.getData().parkings?.find { it.id == id }
 
-    fun updateBikes(
+    override fun updateBikes(
         mapRect: MapRect, zoom: Float,
         onSuccess: (List<Bike>) -> Unit, onError: (String?) -> Unit
     ) {
@@ -173,7 +184,7 @@ class MapContentUseCase @Inject constructor(
         )
     }
 
-    fun updateParkings(
+    override fun updateParkings(
         mapRect: MapRect, zoom: Float,
         onSuccess: (List<Parking>, List<Parking>) -> Unit, onError: (String?) -> Unit
     ) {
@@ -194,7 +205,7 @@ class MapContentUseCase @Inject constructor(
         )
     }
 
-    fun updateSlowZones(
+    override fun updateSlowZones(
         zoom: Float,
         onSuccess: (List<SlowZone>, Boolean) -> Unit, onError: (String?) -> Unit
     ) {
@@ -221,7 +232,7 @@ class MapContentUseCase @Inject constructor(
 //        showSlowZoneMarkers = showMarkers
     }
 
-    fun updateMoveZones(
+    override fun updateMoveZones(
         onError: (String?) -> Unit, onSuccess: (List<MoveZone>) -> Unit
     ) {
         if (mapContentRepository.getData().moveZones == null) {
@@ -242,7 +253,7 @@ class MapContentUseCase @Inject constructor(
         }
     }
 
-    fun findParking(findStr: String) : List<Parking> {
+    override fun findParking(findStr: String) : List<Parking> {
         val data = mapContentRepository.getData()
         return (data.parkings.orEmpty() + data.stations.orEmpty()).filter { x ->
             x.id.contains(findStr, ignoreCase = true) ||

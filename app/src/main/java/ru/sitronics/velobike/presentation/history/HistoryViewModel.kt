@@ -1,5 +1,6 @@
 package ru.sitronics.velobike.presentation.history
 
+import android.content.Context
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -7,7 +8,6 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
-import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.domain.history.HISTORY_PAGINATION_SIZE
 import ru.sitronics.velobike.domain.history.HistoryItem
 import ru.sitronics.velobike.domain.history.HistoryRepository
@@ -18,8 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
     private val historyRepository: HistoryRepository,
-    appContextProvider: AppContextProvider,
-) : BaseViewModel(appContextProvider) {
+    appContext: Context,
+) : BaseViewModel(appContext) {
     val historyTripItems = getPagingItem(HistoryType.RIDE)
     val historyPayItems = getPagingItem(HistoryType.PAY)
 

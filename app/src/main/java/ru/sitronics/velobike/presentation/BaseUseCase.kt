@@ -7,23 +7,25 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.ERROR_NO_NETWORK
 import ru.sitronics.velobike.data.ResponseException
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.tools.Logg
 
-abstract class BaseUseCase(val appContextProvider: AppContextProvider) {
+interface BaseUseCase {
+    fun initScope(vmScope: CoroutineScope)
+    fun clearScope()
+}
+
+abstract class BaseUseCaseImp(val appContext: Context) : BaseUseCase {
     protected var scope: CoroutineScope? = null
-    protected val context: Context
-        get() = appContextProvider.getContext()
     private val calledJobs = HashMap<String, Job?>()
 
-    open fun initScope(vmScope: CoroutineScope) {
+    override fun initScope(vmScope: CoroutineScope) {
         scope = vmScope
     }
 
-    open fun clearScope() {
+    override fun clearScope() {
         scope = null
     }
 

@@ -1,7 +1,5 @@
 package ru.sitronics.velobike.data
 
-import android.content.Context
-
 const val ERROR_UNKNOWN = -1
 const val ERROR_NO_NETWORK = 5000
 
@@ -17,12 +15,4 @@ class ErrorResponse(val errorMsg: String?)
 class BusinessErrorResponse(val message : String?)
 
 class ResponseException(val errorCode: Int, val errorMessage: String? = null) : Exception()
-
-interface AppContextProvider {
-    fun getContext() : Context
-}
-
-class AppContextProviderImp(private val appContext: Context) : AppContextProvider {
-    override fun getContext() = appContext
-}
 

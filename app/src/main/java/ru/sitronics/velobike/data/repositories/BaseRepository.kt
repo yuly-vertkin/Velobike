@@ -11,7 +11,6 @@ import retrofit2.HttpException
 import retrofit2.Response
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.SHARED_PREFERENCES_NAME
-import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.BusinessErrorResponse
 import ru.sitronics.velobike.data.ERROR_NO_NETWORK
 import ru.sitronics.velobike.data.ERROR_UNKNOWN
@@ -22,12 +21,8 @@ import ru.sitronics.velobike.data.network.isNetworkAvailable
 import ru.sitronics.velobike.tools.Logg
 import java.lang.reflect.Type
 
-open class BaseRepository<T>(
-    appContextProvider: AppContextProvider,
-    private val gson: Gson
-) {
-    protected val context = appContextProvider.getContext()
-    private val sharedPreferences: SharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
+open class BaseRepository<T>(val appContext: Context, private val gson: Gson) {
+    private val sharedPreferences: SharedPreferences = appContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
 
     @Volatile
     private var cache: T? = null
@@ -57,19 +52,19 @@ open class BaseRepository<T>(
                     }
                 }
                 else -> resDto
-            } ?: throw ResponseException(ERROR_UNKNOWN, context.getString(R.string.error_unknown))
+            } ?: throw ResponseException(ERROR_UNKNOWN, appContext.getString(R.string.error_unknown))
 
             return Result.Success(result as RESULT)
         } catch (e: Exception) {
             val exception = when {
-                !isNetworkAvailable(context) -> ResponseException(ERROR_NO_NETWORK, context.getString(R.string.error_no_network))
+                !isNetworkAvailable(appContext) -> ResponseException(ERROR_NO_NETWORK, appContext.getString(R.string.error_no_network))
                 e is HttpException -> {
                     val error = try {
                         val errorStr = e.response()?.errorBody()?.string()
                         if (errorStr.isNullOrEmpty()) throw Exception()
                         gson.fromJson(errorStr, ErrorResponse::class.java)
                     } catch (_: Exception) {
-                        ErrorResponse(context.getString(R.string.error_unknown))
+                        ErrorResponse(appContext.getString(R.string.error_unknown))
                     }
                     ResponseException(ERROR_UNKNOWN, error.errorMsg)
                 }
@@ -100,19 +95,19 @@ open class BaseRepository<T>(
                     }
                 }
                 else -> resDto
-            } ?: throw ResponseException(ERROR_UNKNOWN, context.getString(R.string.error_unknown))
+            } ?: throw ResponseException(ERROR_UNKNOWN, appContext.getString(R.string.error_unknown))
 
             emit(Result.Success((result as RESULT)))
         } catch (e: Exception) {
             val exception = when {
-                !isNetworkAvailable(context) -> ResponseException(ERROR_NO_NETWORK, context.getString(R.string.error_no_network))
+                !isNetworkAvailable(appContext) -> ResponseException(ERROR_NO_NETWORK, appContext.getString(R.string.error_no_network))
                 e is HttpException -> {
                     val error = try {
                         val errorStr = e.response()?.errorBody()?.string()
                         if (errorStr.isNullOrEmpty()) throw Exception()
                         gson.fromJson(errorStr, ErrorResponse::class.java)
                     } catch (_: Exception) {
-                        ErrorResponse(context.getString(R.string.error_unknown))
+                        ErrorResponse(appContext.getString(R.string.error_unknown))
                     }
                     ResponseException(ERROR_UNKNOWN, error.errorMsg)
                 }
@@ -172,12 +167,12 @@ open class BaseRepository<T>(
     }
 
     protected fun getSecureStringPreference(key: String): String {
-        return SecurePreferences.getStringValue(context, key, null) ?: ""
+        return SecurePreferences.getStringValue(appContext, key, null) ?: ""
     }
 
     protected fun setSecureStringPreference(key: String, value: String?) {
         value?.let {
-            SecurePreferences.setValue(context, key, it)
+            SecurePreferences.setValue(appContext, key, it)
         }
     }
 
@@ -211,7 +206,7 @@ open class BaseRepository<T>(
 
     protected fun <T> readFromAsset(name: String, classOfT: Class<T>) : T? {
         return try {
-            gson.fromJson(context.assets.open(name).reader(), classOfT)
+            gson.fromJson(appContext.assets.open(name).reader(), classOfT)
         } catch (ex: Exception) {
             null
         }
@@ -231,10 +226,10 @@ open class BaseRepository<T>(
         private const val USER_ID_KEY = "USER_ID_KEY"
 
         fun getUserIdPreference(context: Context) =
-            context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getString(USER_ID_KEY, null)
+            appContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getString(USER_ID_KEY, null)
 
         fun clearOldUserPreferences(context: Context, value: String?) {
-            val sharedPref = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
+            val sharedPref = appContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
             with(sharedPref.edit()) {
                 clear()
                 putString(USER_ID_KEY, value)

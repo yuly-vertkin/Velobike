@@ -1,8 +1,6 @@
 package ru.sitronics.velobike.di
 
 import android.content.Context
-import ru.sitronics.velobike.data.AppContextProvider
-import ru.sitronics.velobike.data.AppContextProviderImp
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,7 +13,5 @@ import javax.inject.Singleton
 object AppModule {
     @Singleton
     @Provides
-    fun provideAppContextProvider(@ApplicationContext appContext: Context): AppContextProvider {
-        return AppContextProviderImp(appContext)
-    }
+    fun provideAppContext(@ApplicationContext appContext: Context) = appContext
 }

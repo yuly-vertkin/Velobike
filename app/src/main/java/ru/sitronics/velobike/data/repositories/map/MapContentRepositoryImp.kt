@@ -1,7 +1,7 @@
 package ru.sitronics.velobike.data.repositories.map
 
+import android.content.Context
 import com.google.gson.Gson
-import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.data.network.MapContentService
 import ru.sitronics.velobike.data.repositories.BaseRepository
@@ -20,9 +20,9 @@ import javax.inject.Singleton
 @Singleton
 class MapContentRepositoryImp @Inject constructor(
     private val service: MapContentService,
-    appContextProvider: AppContextProvider,
+    appContext: Context,
     gson: Gson,
-) : BaseRepository<MapContentData>(appContextProvider, gson), MapContentRepository {
+) : BaseRepository<MapContentData>(appContext, gson), MapContentRepository {
 
     override fun getData() : MapContentData =
         super.getData() ?: run {

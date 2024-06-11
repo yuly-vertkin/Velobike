@@ -1,7 +1,7 @@
 package ru.sitronics.velobike.data.repositories.auth
 
+import android.content.Context
 import com.google.gson.Gson
-import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.data.network.AuthService
 import ru.sitronics.velobike.data.repositories.BaseRepository
@@ -16,9 +16,9 @@ import javax.inject.Singleton
 @Singleton
 class AuthRepositoryImp @Inject constructor(
     private val service: AuthService,
-    appContextProvider: AppContextProvider,
+    appContext: Context,
     gson: Gson,
-) : BaseRepository<AuthData>(appContextProvider, gson), AuthRepository {
+) : BaseRepository<AuthData>(appContext, gson), AuthRepository {
 
     override fun getData() : AuthData =
         super.getData() ?: AuthData(

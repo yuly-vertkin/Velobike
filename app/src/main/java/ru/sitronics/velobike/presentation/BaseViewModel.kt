@@ -6,15 +6,12 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import ru.sitronics.velobike.data.AppContextProvider
 import ru.sitronics.velobike.data.ERROR_NO_NETWORK
 import ru.sitronics.velobike.data.ResponseException
 import ru.sitronics.velobike.data.Result
 import ru.sitronics.velobike.tools.Logg
 
-abstract class BaseViewModel(val appContextProvider: AppContextProvider) : ViewModel() {
-    protected val context: Context
-        get() = appContextProvider.getContext()
+abstract class BaseViewModel(val appContext: Context) : ViewModel() {
     private val calledJobs = HashMap<String, Job>()
 
     // Если force = false Мы не повторяем запрос, если предыдущий еще не отработал
