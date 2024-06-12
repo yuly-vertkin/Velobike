@@ -19,6 +19,7 @@ import com.yandex.mapkit.map.CameraListener
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.ClusterListener
 import com.yandex.mapkit.map.ClusterizedPlacemarkCollection
+import com.yandex.mapkit.map.IconStyle
 import com.yandex.mapkit.map.MapObjectCollection
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.map.PlacemarkMapObject
@@ -45,6 +46,7 @@ fun MapViewContainer(
     onAction: (MapIntent) -> Unit,
 ) {
     val context = LocalContext.current
+//    val userLocationLayer = remember { MapKitFactory.getInstance().createUserLocationLayer(mapView.mapWindow) }
     val cameraListener = remember {
         CameraListener { map, cameraPosition, _, finished ->
             if (finished) {
@@ -63,7 +65,34 @@ fun MapViewContainer(
     val userLocationObjectListener = remember {
         object : UserLocationObjectListener {
             override fun onObjectAdded(userLocationView: UserLocationView) {
-                userLocationView.arrow.setIcon(ImageProvider.fromResource(context, R.drawable.user_place))
+//                userLocationLayer.setAnchor(
+//                    PointF((mapView.width * 0.5).toFloat(), (mapView.height * 0.5).toFloat()),
+//                    PointF((mapView.width * 0.5).toFloat(), (mapView.height * 0.83).toFloat())
+//                )
+
+                userLocationView.arrow.setIcon(ImageProvider.fromResource(context, R.drawable.yandex_user_arrow))
+
+                val pinIcon = userLocationView.pin.useCompositeIcon()
+
+                pinIcon.setIcon(
+                    "icon",
+                    ImageProvider.fromResource(context, R.drawable.yandex_search),
+                    IconStyle()/*.setAnchor(PointF(0f, 0f))
+                        .setRotationType(RotationType.ROTATE)
+                        .setZIndex(0f)
+                        .setScale(1f)*/
+                )
+
+                pinIcon.setIcon(
+                    "pin",
+                    ImageProvider.fromResource(context, R.drawable.yandex_search_result),
+                    IconStyle()/*.setAnchor(PointF(0.5f, 0.5f))
+                        .setRotationType(RotationType.ROTATE)
+                        .setZIndex(1f)
+                        .setScale(0.5f)*/
+                )
+
+                userLocationView.accuracyCircle.fillColor = Color.BLUE and -0x66000001
             }
             override fun onObjectRemoved(p0: UserLocationView) {}
             override fun onObjectUpdated(p0: UserLocationView, p1: ObjectEvent) {}
@@ -73,7 +102,7 @@ fun MapViewContainer(
     val locationPermissionLauncher = rememberLocationPermissionLauncher()
     locationPermissionLauncher.RunWithLocation { lat, lon ->
         // TODO: commented for debug purpose
-        moveMap(mapView, Point(MOSCOW_LAT, MOSCOW_LON) /*Point(lat, lon)*/)
+        moveMap(mapView, Point(lat ?: MOSCOW_LAT, lon ?: MOSCOW_LON))
         MapKitFactory.getInstance().resetLocationManagerToDefault()
         try {
             MapKitFactory.getInstance().createUserLocationLayer(mapView.mapWindow).apply {

@@ -16,7 +16,7 @@ class VelobikeApplication: Application() {
     override fun onCreate() {
         super.onCreate()
         // Initialize Yandex MapKit
-        MapKitFactory.setApiKey("ae3586ac-f9c6-45b8-87e3-08c514d8f59e");
+        MapKitFactory.setApiKey("ae3586ac-f9c6-45b8-87e3-08c514d8f59e")
 
         chatManager.initialize()
 
