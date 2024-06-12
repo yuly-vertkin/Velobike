@@ -4,6 +4,7 @@ import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.auth.AuthManager
@@ -275,12 +276,13 @@ class RentUseCaseImp @Inject constructor(
 
         if (activeRentUpdateJob == null) {
             activeRentUpdateJob = scope?.launch {
-                while (true) {
+                while (isActive) {
                     if (needStart || rent != null) {
+                        println("!!!!!! updateActiveRent checkActiveRent")
                         checkActiveRent(onError, onSuccess, onFinish)
                         needStart = false
-                        delay(CHECK_ACTIVE_RENT_DELAY)
                     }
+                    delay(CHECK_ACTIVE_RENT_DELAY)
                 }
             }
         }
