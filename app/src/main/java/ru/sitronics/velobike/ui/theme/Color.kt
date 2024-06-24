@@ -15,3 +15,5 @@ val LoadingBackgroundColor = Color(0x80000000)
 val LightGrayBackgroundColor = Color(0xFFE7E8EC)
 val LightGrayTextColor = Color(0xFF8C8D90)
 val SelectedBackgroundColor = Color(0xFF45464A)
+// TODO: regulate map background color
+val MapBackgroundColor = Color(0x33333333)

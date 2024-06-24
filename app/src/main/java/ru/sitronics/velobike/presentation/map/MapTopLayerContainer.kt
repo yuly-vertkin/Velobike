@@ -3,6 +3,7 @@ package ru.sitronics.velobike.presentation.map
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
@@ -50,6 +51,7 @@ import ru.sitronics.velobike.tools.pxToDp
 import ru.sitronics.velobike.tools.rememberLocationPermissionLauncher
 import ru.sitronics.velobike.tools.runWithLocation
 import ru.sitronics.velobike.ui.theme.LightGrayTextColor
+import ru.sitronics.velobike.ui.theme.MapBackgroundColor
 import ru.sitronics.velobike.ui.theme.SelectedBackgroundColor
 
 @Composable
@@ -82,6 +84,7 @@ fun BoxScope.MapTopLayerContainer(
             .matchParentSize()
             .padding(top = padding.top.pxToDp(context).dp)
             .padding(bottom = padding.bottom.pxToDp(context).dp)
+            .background(MapBackgroundColor)
             .onGloballyPositioned { coordinates ->
                 height = coordinates.size.height.pxToDp(context)
             }
@@ -209,15 +212,21 @@ fun BoxScope.MapTopLayerContainer(
 
             FilterCard(R.drawable.filter_bike, R.string.filter_bike, R.string.filter_no_station, selectedFilter == 1) {
                 selectedFilter = if (selectedFilter != 1) 1 else 0
-                onAction(MapIntent.MapFilterTap(BikeParkingType.ELECTRO_2_0, zoom))
+                onAction(MapIntent.MapFilterTap(
+                    if (selectedFilter != 0) BikeParkingType.ELECTRO_2_0 else BikeParkingType.ALL, zoom
+                ))
             }
             FilterCard(R.drawable.filter_bike_m, R.string.filter_bike_m, R.string.filter_at_station, selectedFilter == 2) {
                 selectedFilter = if (selectedFilter != 2) 2 else 0
-                onAction(MapIntent.MapFilterTap(BikeParkingType.MECHANICAL, zoom))
+                onAction(MapIntent.MapFilterTap(
+                    if (selectedFilter != 0) BikeParkingType.MECHANICAL else BikeParkingType.ALL, zoom
+                ))
             }
             FilterCard(R.drawable.filter_bike_el, R.string.filter_bike_el, R.string.filter_at_station, selectedFilter == 3) {
                 selectedFilter = if (selectedFilter != 3) 3 else 0
-                onAction(MapIntent.MapFilterTap(BikeParkingType.ELECTRICAL, zoom))
+                onAction(MapIntent.MapFilterTap(
+                    if (selectedFilter != 0) BikeParkingType.ELECTRICAL else BikeParkingType.ALL, zoom
+                ))
             }
         }
     }

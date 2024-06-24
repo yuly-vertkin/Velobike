@@ -204,8 +204,12 @@ class MapViewModel @Inject constructor(
         else emptyList()
 
     private fun List<Parking>.filterStations() =
-        if (filterType == BikeParkingType.ALL || filterType == BikeParkingType.ELECTRICAL || filterType == BikeParkingType.MECHANICAL) this
-        else emptyList()
+        when (filterType) {
+            BikeParkingType.ALL -> this
+            BikeParkingType.ELECTRICAL -> this.filter { it.availableElectricBikes > 0 }
+            BikeParkingType.MECHANICAL -> this.filter { it.availableElectricBikes == 0 }
+            else -> emptyList()
+        }
 
     private fun List<SlowZone>.filterSlowZones(zoom: Float) =
         if (zoom >= SHOW_SLOW_ZONE_ZOOM) this
