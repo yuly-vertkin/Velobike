@@ -123,11 +123,6 @@ fun MapViewContainer(
     AndroidView({
         moveMap(mapView, Point(MOSCOW_LAT, MOSCOW_LON), initZoom = INITIAL_ZOOM)
         mapView.mapWindow.map.addCameraListener(cameraListener)
-        // change map screen color, but it looks bad
-//        mapView.mapWindow.map.mapObjects.addPolygon(getScreenPolygon()).apply {
-//            fillColor = ContextCompat.getColor(context, R.color.map_screen_fillcolor)
-//            isDraggable = false
-//        }
         mapView
     })
 

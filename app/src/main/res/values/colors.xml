@@ -13,8 +13,6 @@
     <color name="move_zone_fillcolor">#66D86666</color>
     <color name="move_zone_stroke">#B2D86666</color>
 
-    <color name="map_screen_fillcolor">#33333333</color>
-
     // redesign
     <color name="pin_bike_counter">#FFF26F21</color>
     <color name="pin_bike_el_counter">#FFEB1C24</color>
