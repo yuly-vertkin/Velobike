@@ -33,6 +33,17 @@
     <string name="agree">I accept the terms of the agreement on the processing of personal information</string>
     <string name="register_success">You are successfully registered</string>
 
+<!-- Map -->
+    <string name="filter_bike">Electro 2.0</string>
+    <string name="filter_bike_el">Electric</string>
+    <string name="filter_bike_m">Mechanical</string>
+    <string name="filter_park">Electro 2.0</string>
+    <string name="filter_park_el">Electric</string>
+    <string name="filter_park_m">Mechanical</string>
+    <string name="filter_no_station">Without station</string>
+    <string name="filter_at_station">At the station</string>
+    <string name="filter_free_places">Free places</string>
+
 <!-- Bike detail -->
     <string name="bike_detail_title">Electric bike 2.0 №%s</string>
     <string name="start_ride_btn">Start ride</string>

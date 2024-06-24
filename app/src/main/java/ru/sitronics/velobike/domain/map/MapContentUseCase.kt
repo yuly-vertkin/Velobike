@@ -9,14 +9,16 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 interface MapContentUseCase : BaseUseCase {
+    fun getBikes() : List<Bike>
     fun getBike(id: String) : Bike?
     fun runWithBike(id: String, action: (Bike) -> Unit)
-    fun getStations() : List<Parking>?
+    fun getStations() : List<Parking>
     fun getStation(id: String) : Parking?
+    fun getParkings() : List<Parking>
     fun getParking(id: String) : Parking?
-    fun updateBikes(mapRect: MapRect, zoom: Float, onSuccess: (List<Bike>) -> Unit, onError: (String?) -> Unit)
-    fun updateParkings(mapRect: MapRect, zoom: Float, onSuccess: (List<Parking>, List<Parking>) -> Unit, onError: (String?) -> Unit)
-    fun updateSlowZones(zoom: Float, onSuccess: (List<SlowZone>, Boolean) -> Unit, onError: (String?) -> Unit)
+    fun updateBikes(mapRect: MapRect, onSuccess: (List<Bike>) -> Unit, onError: (String?) -> Unit)
+    fun updateParkings(mapRect: MapRect, onSuccess: (List<Parking>, List<Parking>) -> Unit, onError: (String?) -> Unit)
+    fun updateSlowZones(onSuccess: (List<SlowZone>) -> Unit, onError: (String?) -> Unit)
     fun updateMoveZones(onError: (String?) -> Unit, onSuccess: (List<MoveZone>) -> Unit)
     fun findParking(findStr: String) : List<Parking>
 }
@@ -27,8 +29,6 @@ class MapContentUseCaseImp @Inject constructor(
     appContext: Context,
 ) : BaseUseCaseImp(appContext), MapContentUseCase {
 //    private var mapContentCounter = 0
-//    private var showSlowZones: Boolean = false
-//    private var showSlowZoneMarkers: Boolean = false
 
 /*
         // updateMapContent with joinAll
@@ -138,6 +138,9 @@ class MapContentUseCaseImp @Inject constructor(
         }
     */
 
+    override fun getBikes(): List<Bike> =
+        mapContentRepository.getData().bikes ?: emptyList()
+
     override fun getBike(id: String) : Bike? =
         mapContentRepository.getData().bikes?.find { it.id == id }
 
@@ -157,21 +160,22 @@ class MapContentUseCaseImp @Inject constructor(
         }
     }
 
-    override fun getStations() : List<Parking>? =
-        mapContentRepository.getData().stations
+    override fun getStations() : List<Parking> =
+        mapContentRepository.getData().stations ?: emptyList()
 
     override fun getStation(id: String) : Parking? =
         mapContentRepository.getData().stations?.find { it.id == id }
+
+    override fun getParkings(): List<Parking> =
+        mapContentRepository.getData().parkings ?: emptyList()
 
     override fun getParking(id: String) : Parking? =
         mapContentRepository.getData().parkings?.find { it.id == id }
 
     override fun updateBikes(
-        mapRect: MapRect, zoom: Float,
+        mapRect: MapRect,
         onSuccess: (List<Bike>) -> Unit, onError: (String?) -> Unit
     ) {
-        if (zoom < SHOW_CONTENT_ZOOM) return
-
         processNetworkCall(
             action = { mapContentRepository.getBikes(mapRect) },
             onSuccess = { bikes ->
@@ -185,11 +189,9 @@ class MapContentUseCaseImp @Inject constructor(
     }
 
     override fun updateParkings(
-        mapRect: MapRect, zoom: Float,
+        mapRect: MapRect,
         onSuccess: (List<Parking>, List<Parking>) -> Unit, onError: (String?) -> Unit
     ) {
-        if (zoom < SHOW_CONTENT_ZOOM) return
-
         processNetworkCall(
             action = { mapContentRepository.getParkings(mapRect) },
             onSuccess = { items ->
@@ -198,7 +200,7 @@ class MapContentUseCaseImp @Inject constructor(
                 Logg.d("!!! getParkings stations: ${stations.size}, parkings: ${parkings.size}")
                 mapContentRepository.getData().stations = stations
                 mapContentRepository.getData().parkings = parkings
-                onSuccess(stations, if (zoom >= SHOW_PARKINGS_ZOOM) parkings else emptyList())
+                onSuccess(stations, parkings)
             },
             onError = { onError(null) },
             callName = "getParkings"
@@ -206,30 +208,22 @@ class MapContentUseCaseImp @Inject constructor(
     }
 
     override fun updateSlowZones(
-        zoom: Float,
-        onSuccess: (List<SlowZone>, Boolean) -> Unit, onError: (String?) -> Unit
+        onSuccess: (List<SlowZone>) -> Unit, onError: (String?) -> Unit
     ) {
-        val show = zoom >= SHOW_SLOW_ZONE_ZOOM
-        val showMarkers = zoom >= SHOW_SLOW_ZONE_MARKER_ZOOM
-
-        if (show && mapContentRepository.getData().slowZones == null) {
+        if (mapContentRepository.getData().slowZones == null) {
             processNetworkCall(
                 action = { mapContentRepository.getSlowZones() },
                 onSuccess = {
                     Logg.d("!!! getSlowZones size ${it.size}")
                     mapContentRepository.getData().slowZones = it
-                    onSuccess(it, showMarkers)
+                    onSuccess(it)
                 },
                 onError = { onError(null) },
                 callName = "getSlowZones"
             )
-        } else /*if (show != showSlowZones || showMarkers != showSlowZoneMarkers)*/ {
-            mapContentRepository.getData().slowZones?.let {
-                onSuccess(if (show) it else emptyList(), showMarkers)
-            }
+        } else {
+            mapContentRepository.getData().slowZones?.let { onSuccess(it) }
         }
-//        showSlowZones = show
-//        showSlowZoneMarkers = showMarkers
     }
 
     override fun updateMoveZones(
@@ -263,9 +257,5 @@ class MapContentUseCaseImp @Inject constructor(
 
     companion object {
         private const val MAP_CONTENT_ITEM_NUM = 3
-        private const val SHOW_CONTENT_ZOOM = 5f
-        private const val SHOW_PARKINGS_ZOOM = 16f
-        private const val SHOW_SLOW_ZONE_ZOOM = 11f
-        private const val SHOW_SLOW_ZONE_MARKER_ZOOM = 14f
     }
 }

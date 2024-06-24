@@ -1,6 +1,7 @@
 package ru.sitronics.velobike.presentation.map
 
 import android.content.Context
+import kotlinx.collections.immutable.ImmutableList
 import ru.sitronics.velobike.domain.MapRect
 import ru.sitronics.velobike.domain.map.Bike
 import ru.sitronics.velobike.domain.map.Parking
@@ -9,9 +10,9 @@ import ru.sitronics.velobike.domain.rent.Rent
 sealed class MapUiState {
     data object Normal : MapUiState()
 //    data class MapContent(val bikes: List<Bike>?, val stations: List<Parking>?, val parkings: List<Parking>?, val slowZones: List<SlowZoneObject>?, val showMarkers: Boolean) : MapUiState()
-    data class Bikes(val bikes: List<Bike>) : MapUiState()
-    data class Parkings(val stations: List<Parking>, val parkings: List<Parking>) : MapUiState()
-    data class SlowZones(val slowZones: List<SlowZoneObject>, val showMarkers: Boolean) : MapUiState()
+    data class Bikes(val bikes: ImmutableList<Bike>) : MapUiState()
+    data class Parkings(val stations: ImmutableList<Parking>, val parkings: ImmutableList<Parking>, val isParkMode: Boolean) : MapUiState()
+    data class SlowZones(val slowZones: ImmutableList<SlowZoneObject>, val showMarkers: Boolean) : MapUiState()
     data class MoveZones(val moveZone: MoveZoneObject) : MapUiState()
     data class BikeDetail(val bike: Bike, val fromQrScan: Boolean, val enableAction: Boolean) : MapUiState()
     data class StationDetail(val station: Parking) : MapUiState()
@@ -38,6 +39,8 @@ sealed class MapIntent {
     data object MapStop : MapIntent()
     data class ChangeMapPosition(val mapRect: MapRect, val zoom: Float) : MapIntent()
     data class MapObjectTap(val userData: MarkerUserData?) : MapIntent()
+    data class MapFilterTap(val type: BikeParkingType, val zoom: Float) : MapIntent()
+    data object ChangeParkMode : MapIntent()
     data class ChatTap(val context: Context) : MapIntent()
     data class Search(val searchStr: String, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
     data class SearchAction(val id: String?) : MapIntent()

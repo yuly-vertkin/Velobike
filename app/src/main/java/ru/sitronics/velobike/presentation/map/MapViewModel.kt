@@ -4,6 +4,7 @@ import android.content.Context
 import android.location.Location
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
@@ -17,9 +18,15 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ru.sitronics.velobike.R
+import ru.sitronics.velobike.SHOW_CONTENT_ZOOM
+import ru.sitronics.velobike.SHOW_PARKINGS_ZOOM
+import ru.sitronics.velobike.SHOW_SLOW_ZONE_MARKER_ZOOM
+import ru.sitronics.velobike.SHOW_SLOW_ZONE_ZOOM
 import ru.sitronics.velobike.domain.chat.ChatManager
+import ru.sitronics.velobike.domain.map.Bike
 import ru.sitronics.velobike.domain.map.MapContentUseCase
 import ru.sitronics.velobike.domain.map.Parking
+import ru.sitronics.velobike.domain.map.SlowZone
 import ru.sitronics.velobike.domain.rent.ChooseParkingParams
 import ru.sitronics.velobike.domain.rent.MainRentStatus
 import ru.sitronics.velobike.domain.rent.ProgressStatus
@@ -28,7 +35,7 @@ import ru.sitronics.velobike.domain.rent.RentUseCase
 import ru.sitronics.velobike.presentation.BaseViewModel
 import ru.sitronics.velobike.tools.Logg
 import ru.sitronics.velobike.tools.filterMoveZones
-import ru.sitronics.velobike.tools.filterSlowZones
+import ru.sitronics.velobike.tools.mapSlowZones
 import javax.inject.Inject
 
 @HiltViewModel
@@ -44,6 +51,8 @@ class MapViewModel @Inject constructor(
     private val _mapUiState: MutableStateFlow<MapUiState> = MutableStateFlow(MapUiState.Normal)
     val mapUiState: StateFlow<MapUiState> = _mapUiState.asStateFlow()
     private var dialogState: RentDialogState = RentDialogState.NONE
+    private var filterType: BikeParkingType = BikeParkingType.ALL
+    private var isParkMode: Boolean = false
 
     init {
         rentUseCase.initScope(viewModelScope)
@@ -84,6 +93,9 @@ class MapViewModel @Inject constructor(
             }
             is MapIntent.ChangeMapPosition -> {
                 Logg.d("!!!! MapIntent.ChangeMapPosition ${intent.mapRect}")
+
+                if (intent.zoom < SHOW_CONTENT_ZOOM) return
+
 /*
                 mapContentUseCase.updateMapContent(intent.mapRect, intent.zoom) {
                     changeState(MapUiState.MapContent(
@@ -95,21 +107,21 @@ class MapViewModel @Inject constructor(
                     ))
                 }
 */
+
                 mapContentUseCase.updateBikes(
-                    intent.mapRect, intent.zoom,
-                    { changeState(MapUiState.Bikes(it)) },
+                    intent.mapRect,
+                    { bikes -> changeState(MapUiState.Bikes(bikes.filterBikes().toImmutableList())) },
                     { showError(it) }
                 )
 
                 mapContentUseCase.updateParkings(
-                    intent.mapRect, intent.zoom,
-                    { stations, parkings -> changeState(MapUiState.Parkings(stations, parkings)) },
+                    intent.mapRect,
+                    { stations, parkings -> changeState(MapUiState.Parkings(stations.filterStations().toImmutableList(), parkings.filterParkings(intent.zoom).toImmutableList(), isParkMode)) },
                     { showError(it) }
                 )
 
                 mapContentUseCase.updateSlowZones(
-                    intent.zoom,
-                    { slowZones, showMarkers -> changeState(MapUiState.SlowZones(filterSlowZones(slowZones), showMarkers)) },
+                    { slowZones -> changeState(MapUiState.SlowZones(slowZones.filterSlowZones(intent.zoom).mapSlowZones().toImmutableList(), intent.zoom >= SHOW_SLOW_ZONE_MARKER_ZOOM)) },
                     { showError(it) }
                 )
             }
@@ -122,6 +134,16 @@ class MapViewModel @Inject constructor(
                     is MarkerUserData.MoveZone -> {}//onNotMoveZoneClick()
                     null -> {}
                 }
+            }
+            is MapIntent.MapFilterTap -> {
+                filterType = intent.type
+                changeState(MapUiState.Bikes(mapContentUseCase.getBikes().filterBikes().toImmutableList()))
+                changeState(MapUiState.Parkings(mapContentUseCase.getStations().filterStations().toImmutableList(),
+                                                mapContentUseCase.getParkings().filterParkings(intent.zoom).toImmutableList(), isParkMode))
+            }
+            // temporary
+            is MapIntent.ChangeParkMode -> {
+                isParkMode = !isParkMode
             }
             is MapIntent.ChatTap -> {
                 chatManager.showChat(intent.context)
@@ -172,6 +194,22 @@ class MapViewModel @Inject constructor(
             }
         }
     }
+
+    private fun List<Bike>.filterBikes() =
+        if ((filterType == BikeParkingType.ALL || filterType == BikeParkingType.ELECTRO_2_0) && !isParkMode) this
+        else emptyList()
+
+    private fun List<Parking>.filterParkings(zoom: Float) =
+        if ((filterType == BikeParkingType.ALL || filterType == BikeParkingType.ELECTRO_2_0) && zoom >= SHOW_PARKINGS_ZOOM) this
+        else emptyList()
+
+    private fun List<Parking>.filterStations() =
+        if (filterType == BikeParkingType.ALL || filterType == BikeParkingType.ELECTRICAL || filterType == BikeParkingType.MECHANICAL) this
+        else emptyList()
+
+    private fun List<SlowZone>.filterSlowZones(zoom: Float) =
+        if (zoom >= SHOW_SLOW_ZONE_ZOOM) this
+        else emptyList()
 
     private fun showBikeDetail(id: String) {
         Logg.d("!!! showBikeDetail $id")
@@ -285,9 +323,9 @@ class MapViewModel @Inject constructor(
         if (lat == null || lon == null) return null
         val res = FloatArray(1)
 
-        return mapContentUseCase.getStations()?.filter {
+        return mapContentUseCase.getStations().filter {
             !it.isLocked && it.freeNonElectricSlots + it.freeElectricSlots > 0
-        }?.minByOrNull {
+        }.minByOrNull {
             Location.distanceBetween(lat, lon, it.latitude, it.longitude, res)
             if (res[0] != 0f) res[0] else Float.MAX_VALUE
         }

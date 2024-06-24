@@ -4,7 +4,10 @@ import android.content.Context
 import android.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
@@ -28,12 +31,16 @@ import com.yandex.mapkit.mapview.MapView
 import com.yandex.mapkit.user_location.UserLocationObjectListener
 import com.yandex.mapkit.user_location.UserLocationView
 import com.yandex.runtime.image.ImageProvider
+import ru.sitronics.velobike.CLUSTERS_ZOOM
 import ru.sitronics.velobike.INITIAL_ZOOM
 import ru.sitronics.velobike.R
 import ru.sitronics.velobike.domain.MapRect
 import ru.sitronics.velobike.domain.map.Bike
 import ru.sitronics.velobike.domain.map.Parking
 import ru.sitronics.velobike.tools.ClusterImageProvider
+import ru.sitronics.velobike.tools.ClusterType
+import ru.sitronics.velobike.tools.PinManager
+import ru.sitronics.velobike.tools.PinType
 import ru.sitronics.velobike.tools.RunWithLocation
 import ru.sitronics.velobike.tools.drawText
 import ru.sitronics.velobike.tools.getBitmapFromVectorDrawable
@@ -102,7 +109,7 @@ fun MapViewContainer(
     val locationPermissionLauncher = rememberLocationPermissionLauncher()
     locationPermissionLauncher.RunWithLocation { lat, lon ->
         // TODO: commented for debug purpose
-        moveMap(mapView, Point(lat ?: MOSCOW_LAT, lon ?: MOSCOW_LON))
+        moveMap(mapView, Point(/*lat ?:*/ MOSCOW_LAT, /*lon ?:*/ MOSCOW_LON))
         MapKitFactory.getInstance().resetLocationManagerToDefault()
         try {
             MapKitFactory.getInstance().createUserLocationLayer(mapView.mapWindow).apply {
@@ -116,14 +123,21 @@ fun MapViewContainer(
     AndroidView({
         moveMap(mapView, Point(MOSCOW_LAT, MOSCOW_LON), initZoom = INITIAL_ZOOM)
         mapView.mapWindow.map.addCameraListener(cameraListener)
+        // change map screen color, but it looks bad
+//        mapView.mapWindow.map.mapObjects.addPolygon(getScreenPolygon()).apply {
+//            fillColor = ContextCompat.getColor(context, R.color.map_screen_fillcolor)
+//            isDraggable = false
+//        }
         mapView
     })
 
+    val pinManager = remember { PinManager(context) }
+    var isParkMode by remember { mutableStateOf(false) }
     val bikeClusterListener = remember { ClusterListener { cluster ->
-            cluster.appearance.setIcon(ClusterImageProvider(context, cluster.size, R.drawable.bike_cluster))
+            cluster.appearance.setIcon(ClusterImageProvider(cluster.size, mapView.mapWindow.map.cameraPosition.zoom, pinManager, isParkMode, ClusterType.BIKE))
     }}
     val stationClusterListener = remember { ClusterListener { cluster ->
-        cluster.appearance.setIcon(ClusterImageProvider(context, cluster.size, R.drawable.parking_cluster, Color.WHITE))
+        cluster.appearance.setIcon(ClusterImageProvider(cluster.size, mapView.mapWindow.map.cameraPosition.zoom, pinManager, isParkMode, ClusterType.STATION))
     }}
     val bikeClusterCollection = remember { mapView.mapWindow.map.mapObjects.addClusterizedPlacemarkCollection(bikeClusterListener) }
     val bikePlacemarks = remember { hashMapOf<String, PlacemarkMapObject>() }
@@ -151,11 +165,13 @@ fun MapViewContainer(
         }
 */
         is MapUiState.Bikes -> {
-            updateBikes(LocalContext.current, uiState.bikes, bikeClusterCollection, bikePlacemarks, tapListener)
+            updateBikes(uiState.bikes, bikeClusterCollection, bikePlacemarks, tapListener, pinManager)
         }
         is MapUiState.Parkings -> {
-            updateStations(LocalContext.current, uiState.stations, stationClusterCollection, stationPlacemarks, tapListener)
-            updateParkings(LocalContext.current, uiState.parkings, parkingCollection, parkingPlacemarks, tapListener)
+            val isParkModeChanged = isParkMode != uiState.isParkMode
+            isParkMode = uiState.isParkMode
+            updateStations(uiState.stations, stationClusterCollection, stationPlacemarks, tapListener, pinManager, isParkMode, isParkModeChanged)
+            updateParkings(uiState.parkings, parkingCollection, parkingPlacemarks, tapListener, pinManager)
         }
         is MapUiState.SlowZones -> {
             updateSlowZones(LocalContext.current, uiState.slowZones, uiState.showMarkers, slowZoneCollection, slowZonePolygons, slowZoneMarkerCollection, slowZoneMarkerPlacemarks, tapListener)
@@ -168,11 +184,11 @@ fun MapViewContainer(
 }
 
 private fun updateBikes(
-    context: Context,
     bikes: List<Bike>?,
     mapCollection: ClusterizedPlacemarkCollection,
     placemarks: HashMap<String, PlacemarkMapObject>,
     tapListener: MapObjectTapListener,
+    pinManager: PinManager
 ) {
     if (bikes.isNullOrEmpty()) {
         mapCollection.clear()
@@ -181,8 +197,6 @@ private fun updateBikes(
     }
 
     val currentIds = mutableListOf<String>()
-    val bitmap = context.getBitmapFromVectorDrawable(R.drawable.bike)
-    val imageProvider = ImageProvider.fromBitmap(bitmap)
 
     bikes.forEach { bike ->
         val id = bike.id
@@ -191,7 +205,8 @@ private fun updateBikes(
         if (id !in placemarks) {
             placemarks[id] = mapCollection.addPlacemark().apply {
                 geometry = Point(bike.latitude, bike.longitude)
-                setIcon(imageProvider)
+                val bitmap = pinManager.getPinBitmap(PinType.BIKE, batteryPower = bike.batteryPower)
+                setIcon(ImageProvider.fromBitmap(bitmap))
                 userData = MarkerUserData.Bike(id)
                 addTapListener(tapListener)
             }
@@ -205,36 +220,38 @@ private fun updateBikes(
         }
     }
 
-    mapCollection.clusterPlacemarks(60.0, 15)
+    mapCollection.clusterPlacemarks(60.0, CLUSTERS_ZOOM)
 }
 
 private fun updateStations(
-    context: Context,
     parkings: List<Parking>?,
     mapCollection: ClusterizedPlacemarkCollection,
     placemarks: HashMap<String, PlacemarkMapObject>,
     tapListener: MapObjectTapListener,
+    pinManager: PinManager,
+    isParkMode: Boolean,
+    isParkModeChanged: Boolean,
 ) {
-    if (parkings.isNullOrEmpty()) {
+    if (parkings.isNullOrEmpty() || isParkModeChanged) {
         mapCollection.clear()
         placemarks.clear()
-        return
     }
 
     val currentIds = mutableListOf<String>()
-    val stationBitmap = context.getBitmapFromVectorDrawable(R.drawable.station)
-    val stationElectroBitmap = context.getBitmapFromVectorDrawable(R.drawable.station_electro)
 
-    parkings.forEach { parking ->
+    parkings?.forEach { parking ->
         val id = parking.id
         currentIds.add(id)
 
         if (id !in placemarks) {
             placemarks[id] = mapCollection.addPlacemark().apply {
                 geometry = Point(parking.latitude, parking.longitude)
-                val text = (parking.availableNonElectricBikes + parking.availableElectricBikes).toString()
-                val bitmap = if (parking.type.isElectro()) stationElectroBitmap.drawText(context, text, TEXT_SIZE, textOnRight = true)
-                             else stationBitmap.drawText(context, text, TEXT_SIZE)
+                val bitmap = pinManager.getPinBitmap(
+                    if (!isParkMode) PinType.STATION else PinType.STATION_PARK,
+                    parking.availableElectricBikes,
+                    parking.availableNonElectricBikes,
+                )
+
                 setIcon(ImageProvider.fromBitmap(bitmap))
                 userData = MarkerUserData.Station(id)
                 addTapListener(tapListener)
@@ -249,15 +266,15 @@ private fun updateStations(
         }
     }
 
-    mapCollection.clusterPlacemarks(60.0, 15)
+    mapCollection.clusterPlacemarks(60.0, CLUSTERS_ZOOM)
 }
 
 private fun updateParkings(
-    context: Context,
     parkings: List<Parking>?,
     mapCollection: MapObjectCollection,
     placemarks: HashMap<String, PlacemarkMapObject>,
     tapListener: MapObjectTapListener,
+    pinManager: PinManager
 ) {
     if (parkings.isNullOrEmpty()) {
         mapCollection.clear()
@@ -266,7 +283,7 @@ private fun updateParkings(
     }
 
     val currentIds = mutableListOf<String>()
-    val bitmap = context.getBitmapFromVectorDrawable(R.drawable.parking)
+    val bitmap = pinManager.getPinBitmap(PinType.PARKING)
     val imageProvider = ImageProvider.fromBitmap(bitmap)
 
     parkings.forEach { parking ->

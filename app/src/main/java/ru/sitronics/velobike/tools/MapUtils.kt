@@ -9,13 +9,13 @@ import ru.sitronics.velobike.presentation.map.MoveZoneObject
 import ru.sitronics.velobike.presentation.map.SlowZoneObject
 import java.util.Calendar
 
-fun filterSlowZones(zones: List<SlowZone>?) : List<SlowZoneObject> {
+fun List<SlowZone>.mapSlowZones() : List<SlowZoneObject> {
     val calendar = Calendar.getInstance()
     val currentDay = calendar[Calendar.DAY_OF_WEEK]
     val currentSecconds = calendar.get(Calendar.SECOND)
     val result = mutableListOf<SlowZoneObject>()
 
-    zones?.forEach {
+    forEach {
         val polygon = coordinatesToPolygon(it.geomGeo.coordinates)
         val markerPoint = getSlowZoneMarkerPoint(polygon.outerRing.points)
         when (currentDay) {
@@ -168,4 +168,14 @@ fun filterMoveZones(zones: List<MoveZone>) : MoveZoneObject {
         id = zones.firstOrNull()?.id ?: 0,
         polygon = Polygon(LinearRing(outerPoints), innerRings),
     )
+}
+
+fun getScreenPolygon() : Polygon {
+    val outerPoints = listOf(
+        Point(89.0, -180.0),
+        Point(-89.0, -180.0),
+        Point(-89.0, 180.0),
+        Point(89.0, 180.0),
+    )
+    return Polygon(LinearRing(outerPoints), emptyList())
 }

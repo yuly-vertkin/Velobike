@@ -33,6 +33,17 @@
     <string name="agree">Я принимаю условия соглашения об обработке персональной информации</string>
     <string name="register_success">Вы успешно зарегистрированны</string>
 
+<!-- Map -->
+    <string name="filter_bike">Электро 2.0</string>
+    <string name="filter_bike_el">Электрический</string>
+    <string name="filter_bike_m">Механический</string>
+    <string name="filter_park">Электро 2.0</string>
+    <string name="filter_park_el">Электрические</string>
+    <string name="filter_park_m">Механические</string>
+    <string name="filter_no_station">Без станции</string>
+    <string name="filter_at_station">На станции</string>
+    <string name="filter_free_places">Свободные места</string>
+
 <!-- Bike detail -->
     <string name="bike_detail_title">Электровелосипед 2.0 №%s</string>
     <string name="start_ride_btn">Начать поездку</string>

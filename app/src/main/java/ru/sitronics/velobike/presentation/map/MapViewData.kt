@@ -7,6 +7,8 @@ const val MOSCOW_LAT = 55.75222
 const val MOSCOW_LON = 37.61556
 const val TEXT_SIZE = 14
 const val MIN_HEIGHT_FOR_ZOOM_BUTTONS = 280
+const val BIKE_BATTERY_POWER_LOW = 30
+const val BIKE_BATTERY_POWER_HIGH = 60
 
 data class SlowZoneObject(
     val id: Int,
@@ -40,3 +42,7 @@ fun Boolean.toDialogState() : DialogState =
 data class DialogSize(var width: Int = 0, var height: Int = 0, var mapHeight: Int = 0)
 
 data class Padding(val top: Int, val bottom: Int)
+
+enum class BikeParkingType {
+    MECHANICAL, ELECTRICAL, ELECTRO_2_0, ALL
+}
