@@ -23,6 +23,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -69,14 +70,15 @@ fun BoxScope.MapTopLayerContainer(
     val chatBitmap = remember { mutableStateOf(chatDefaultBitmap) }
     var height by remember { mutableStateOf(0) }
     var selectedFilter by remember { mutableStateOf(0) }
+    var isParkMode by remember { mutableStateOf(false) }
     val zoom = mapView.mapWindow.map.cameraPosition.zoom
 
-    if (uiState is MapUiState.QrScanButton) {
-        showQrScanButton = uiState.show
-    }
-
-    if (uiState is MapUiState.ChatUnreadMessages) {
-        chatBitmap.value = if (uiState.count > 0) chatUnreadMessagesBitmap else chatDefaultBitmap
+    when (uiState) {
+        is MapUiState.QrScanButton -> showQrScanButton = uiState.show
+        is MapUiState.ChatUnreadMessages -> chatBitmap.value =
+            if (uiState.count > 0) chatUnreadMessagesBitmap else chatDefaultBitmap
+        is MapUiState.Parkings -> isParkMode = uiState.isParkMode
+        else -> {}
     }
 
     Box(
@@ -93,10 +95,11 @@ fun BoxScope.MapTopLayerContainer(
         FloatingActionButton(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .offset(x = 8.dp, y = 16.dp),
+                .padding(start = 8.dp)
+                .padding(top = 16.dp),
             onClick = { onAction(MapIntent.ChatTap(context)) },
             shape = CircleShape,
-            containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+            containerColor = MaterialTheme.colorScheme.background,
             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
         ) {
             Image(
@@ -108,10 +111,11 @@ fun BoxScope.MapTopLayerContainer(
         FloatingActionButton(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .offset(x = (-8).dp, y = 16.dp),
+                .padding(end = 8.dp)
+                .padding(top = 16.dp),
             onClick = { onAction(MapIntent.Search("")) },
             shape = CircleShape,
-            containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+            containerColor = MaterialTheme.colorScheme.background,
             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
         ) {
             Icon(painterResource(R.drawable.search), "")
@@ -120,10 +124,11 @@ fun BoxScope.MapTopLayerContainer(
         FloatingActionButton(
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .offset(x = 8.dp, y = (-16).dp),
+                .padding(start = 8.dp)
+                .padding(bottom = 16.dp),
             onClick = { },
             shape = CircleShape,
-            containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+            containerColor = MaterialTheme.colorScheme.background,
             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
         ) {
             Icon(painterResource(R.drawable.layers), "")
@@ -133,10 +138,11 @@ fun BoxScope.MapTopLayerContainer(
             FloatingActionButton(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .offset(x = (-8).dp, y = (-32).dp),
+                    .padding(end = 8.dp)
+                    .padding(bottom = 64.dp),
                 onClick = { moveMap(mapView, changeZoom = ZOOM_STEP) },
                 shape = CircleShape,
-                containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                containerColor = MaterialTheme.colorScheme.background,
                 elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
             ) {
                 Icon(painterResource(R.drawable.plus), "")
@@ -145,10 +151,11 @@ fun BoxScope.MapTopLayerContainer(
             FloatingActionButton(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .offset(x = (-8).dp, y = 32.dp),
+                    .padding(end = 8.dp)
+                    .padding(top = 64.dp),
                 onClick = { moveMap(mapView, changeZoom = -ZOOM_STEP) },
                 shape = CircleShape,
-                containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                containerColor = MaterialTheme.colorScheme.background,
                 elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
             ) {
                 Icon(painterResource(R.drawable.minus), "")
@@ -159,10 +166,10 @@ fun BoxScope.MapTopLayerContainer(
             FloatingActionButton(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .offset(y = (-16).dp),
+                    .padding(bottom = 16.dp),
                 onClick = { onAction(MapIntent.ScanQrTap) },
                 shape = CircleShape,
-                containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                containerColor = MaterialTheme.colorScheme.background,
                 elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
             ) {
                 Icon(
@@ -176,14 +183,15 @@ fun BoxScope.MapTopLayerContainer(
         FloatingActionButton(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .offset(x = (-8).dp, y = (-16).dp),
+                .padding(end = 8.dp)
+                .padding(bottom = 16.dp),
             onClick = {
                 locationPermissionLauncher.runWithLocation(context) { lat, lon ->
                     moveMap(mapView, Point(lat ?: MOSCOW_LAT, lon ?: MOSCOW_LON))
                 }
             },
             shape = CircleShape,
-            containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+            containerColor = MaterialTheme.colorScheme.background,
             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
         ) {
             Icon(painterResource(R.drawable.to_user_position), "")
@@ -210,19 +218,25 @@ fun BoxScope.MapTopLayerContainer(
                     .clickable { onAction(MapIntent.ChangeParkMode) }
             )
 
-            FilterCard(R.drawable.filter_bike, R.string.filter_bike, R.string.filter_no_station, selectedFilter == 1) {
+            @DrawableRes var resId = if (!isParkMode) R.drawable.filter_bike else R.drawable.filter_park
+            @StringRes var descId = R.string.filter_no_station
+            FilterCard(resId, R.string.filter_bike, descId, isParkMode, selectedFilter == 1) {
                 selectedFilter = if (selectedFilter != 1) 1 else 0
                 onAction(MapIntent.MapFilterTap(
                     if (selectedFilter != 0) BikeParkingType.ELECTRO_2_0 else BikeParkingType.ALL, zoom
                 ))
             }
-            FilterCard(R.drawable.filter_bike_m, R.string.filter_bike_m, R.string.filter_at_station, selectedFilter == 2) {
+            resId = if (!isParkMode) R.drawable.filter_bike_m else R.drawable.filter_park_m
+            descId = if (!isParkMode) R.string.filter_at_station else R.string.filter_free_places
+            FilterCard(resId, R.string.filter_bike_m, descId, isParkMode, selectedFilter == 2) {
                 selectedFilter = if (selectedFilter != 2) 2 else 0
                 onAction(MapIntent.MapFilterTap(
                     if (selectedFilter != 0) BikeParkingType.MECHANICAL else BikeParkingType.ALL, zoom
                 ))
             }
-            FilterCard(R.drawable.filter_bike_el, R.string.filter_bike_el, R.string.filter_at_station, selectedFilter == 3) {
+            resId = if (!isParkMode) R.drawable.filter_bike_el else R.drawable.filter_park_el
+            descId = if (!isParkMode) R.string.filter_at_station else R.string.filter_free_places
+            FilterCard(resId, R.string.filter_bike_el, descId, isParkMode, selectedFilter == 3) {
                 selectedFilter = if (selectedFilter != 3) 3 else 0
                 onAction(MapIntent.MapFilterTap(
                     if (selectedFilter != 0) BikeParkingType.ELECTRICAL else BikeParkingType.ALL, zoom
@@ -233,11 +247,14 @@ fun BoxScope.MapTopLayerContainer(
 }
 
 @Composable
-private fun FilterCard(@DrawableRes resId: Int, @StringRes textId: Int, @StringRes descId: Int, isSelected: Boolean, onClick: () -> Unit) {
+private fun FilterCard(
+    @DrawableRes resId: Int, @StringRes textId: Int, @StringRes descId: Int,
+    isParkMode: Boolean, isSelected: Boolean, onClick: () -> Unit
+) {
     Card(
         colors = CardDefaults.cardColors(containerColor = if (isSelected) SelectedBackgroundColor else Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        shape = RoundedCornerShape(48.dp),
+        shape = RoundedCornerShape(if (!isParkMode) 48.dp else 16.dp),
         modifier = Modifier
             .padding(start = 16.dp)
             .clickable(onClick = onClick)
@@ -265,7 +282,8 @@ private fun FilterCard(@DrawableRes resId: Int, @StringRes textId: Int, @StringR
                     text = stringResource(descId),
                     color = LightGrayTextColor,
                     fontSize = 12.sp,
-                    modifier = Modifier.offset(y = (-6).dp)
+                    lineHeight = 18.sp,
+                    modifier = Modifier.offset(y = (-4).dp)
                 )
             }
         }

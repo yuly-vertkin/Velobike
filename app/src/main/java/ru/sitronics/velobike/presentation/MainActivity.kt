@@ -20,7 +20,7 @@ class MainActivity : FragmentActivity() {
         MapKitFactory.initialize(this)
 
         setContent {
-            VelobikeTheme {
+            VelobikeTheme(dynamicColor = false) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
