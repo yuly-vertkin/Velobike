@@ -141,9 +141,10 @@ class MapViewModel @Inject constructor(
                 changeState(MapUiState.Parkings(mapContentUseCase.getStations().filterStations().toImmutableList(),
                                                 mapContentUseCase.getParkings().filterParkings(intent.zoom).toImmutableList(), isParkMode))
             }
-            // temporary
             is MapIntent.ChangeParkMode -> {
                 isParkMode = !isParkMode
+                changeState(MapUiState.Parkings(mapContentUseCase.getStations().filterStations().toImmutableList(),
+                                                mapContentUseCase.getParkings().filterParkings(intent.zoom).toImmutableList(), isParkMode))
             }
             is MapIntent.ChatTap -> {
                 chatManager.showChat(intent.context)

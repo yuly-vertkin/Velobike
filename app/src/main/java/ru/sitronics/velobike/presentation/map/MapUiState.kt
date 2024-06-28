@@ -40,7 +40,7 @@ sealed class MapIntent {
     data class ChangeMapPosition(val mapRect: MapRect, val zoom: Float) : MapIntent()
     data class MapObjectTap(val userData: MarkerUserData?) : MapIntent()
     data class MapFilterTap(val type: BikeParkingType, val zoom: Float) : MapIntent()
-    data object ChangeParkMode : MapIntent()
+    data class ChangeParkMode(val zoom: Float) : MapIntent()
     data class ChatTap(val context: Context) : MapIntent()
     data class Search(val searchStr: String, val latitude: Double? = null, val longitude: Double? = null) : MapIntent()
     data class SearchAction(val id: String?) : MapIntent()

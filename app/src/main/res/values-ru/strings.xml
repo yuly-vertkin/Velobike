@@ -34,6 +34,7 @@
     <string name="register_success">Вы успешно зарегистрированны</string>
 
 <!-- Map -->
+    <string name="qr_code">Сканировать QR-код</string>
     <string name="filter_bike">Электро 2.0</string>
     <string name="filter_bike_el">Электрический</string>
     <string name="filter_bike_m">Механический</string>
