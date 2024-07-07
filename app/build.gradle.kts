@@ -78,6 +78,24 @@ android {
             buildConfigField("String", "QRATOR_SECRET", "\"qqsFJjHdpFcQ\"")
         }
     }
+
+/*  // for CI
+    // run in terminal: .\gradlew phoneproductionDebugAndroidTest
+    testOptions {
+        managedDevices {
+            localDevices {
+                create("phone") {
+                    // Use device profiles you typically see in Android Studio.
+                    device = "Pixel 2"
+                    // Use only API levels 27 and higher.
+                    apiLevel = 35
+                    // To include Google services, use "google".
+                    systemImageSource = "google"
+                }
+            }
+        }
+    }
+*/
 }
 
 dependencies {
