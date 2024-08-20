@@ -9,10 +9,10 @@ import ru.sitronics.velobike.domain.map.StationType
 
 @Parcelize
 data class ParkingDto(
-    @SerializedName("static_firestore_id")
-    val staticFirestoreId: String?,
-    @SerializedName("dynamic_firestore_id")
-    val dynamicFirestoreId: String?,
+    @SerializedName("static_external_id")
+    val staticExternalId: String?,
+    @SerializedName("dynamic_external_id")
+    val dynamicExternalId: String?,
     @SerializedName("addr")
     val address: String?,
     @SerializedName("addr_en")
@@ -60,7 +60,7 @@ data class ParkingDto(
         val stType = StationType.values().firstOrNull { st -> st.type == type } ?: StationType.Ordinary
 
         return Parking(
-            id = staticFirestoreId ?: "",
+            id = staticExternalId ?: "",
             type = stType,
             latitude = latitude ?: 0.0,
             longitude = longitude ?: 0.0,

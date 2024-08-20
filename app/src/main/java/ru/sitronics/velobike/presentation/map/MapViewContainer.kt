@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -150,31 +151,33 @@ fun MapViewContainer(
     val moveZoneCollection = remember { mapView.mapWindow.map.mapObjects.addCollection() }
     val moveZonePolygons = remember { mutableListOf<PolygonMapObject>() }
 
-    when(uiState) {
-/*
-        is MapUiState.MapContent -> {
-            updateBikes(LocalContext.current, uiState.bikes, bikeClusterCollection, bikePlacemarks, tapListener)
-            updateStations(LocalContext.current, uiState.stations, stationClusterCollection, stationPlacemarks, tapListener)
-            updateParkings(LocalContext.current, uiState.parkings, parkingCollection, parkingPlacemarks, tapListener)
-            updateSlowZones(LocalContext.current, uiState.slowZones, uiState.showMarkers, slowZoneCollection, slowZonePolygons, slowZoneMarkerCollection, slowZoneMarkerPlacemarks, tapListener)
+    SideEffect {
+        when(uiState) {
+    /*
+            is MapUiState.MapContent -> {
+                updateBikes(LocalContext.current, uiState.bikes, bikeClusterCollection, bikePlacemarks, tapListener)
+                updateStations(LocalContext.current, uiState.stations, stationClusterCollection, stationPlacemarks, tapListener)
+                updateParkings(LocalContext.current, uiState.parkings, parkingCollection, parkingPlacemarks, tapListener)
+                updateSlowZones(LocalContext.current, uiState.slowZones, uiState.showMarkers, slowZoneCollection, slowZonePolygons, slowZoneMarkerCollection, slowZoneMarkerPlacemarks, tapListener)
+            }
+    */
+            is MapUiState.Bikes -> {
+                updateBikes(uiState.bikes, bikeClusterCollection, bikePlacemarks, tapListener, pinManager)
+            }
+            is MapUiState.Parkings -> {
+                val isParkModeChanged = isParkMode != uiState.isParkMode
+                isParkMode = uiState.isParkMode
+                updateStations(uiState.stations, stationClusterCollection, stationPlacemarks, tapListener, pinManager, isParkMode, isParkModeChanged)
+                updateParkings(uiState.parkings, parkingCollection, parkingPlacemarks, tapListener, pinManager)
+            }
+            is MapUiState.SlowZones -> {
+                updateSlowZones(context, uiState.slowZones, uiState.showMarkers, slowZoneCollection, slowZonePolygons, slowZoneMarkerCollection, slowZoneMarkerPlacemarks, tapListener)
+            }
+            is MapUiState.MoveZones -> {
+                updateMoveZones(context, uiState.moveZone, moveZoneCollection, moveZonePolygons, tapListener)
+            }
+            else -> {}
         }
-*/
-        is MapUiState.Bikes -> {
-            updateBikes(uiState.bikes, bikeClusterCollection, bikePlacemarks, tapListener, pinManager)
-        }
-        is MapUiState.Parkings -> {
-            val isParkModeChanged = isParkMode != uiState.isParkMode
-            isParkMode = uiState.isParkMode
-            updateStations(uiState.stations, stationClusterCollection, stationPlacemarks, tapListener, pinManager, isParkMode, isParkModeChanged)
-            updateParkings(uiState.parkings, parkingCollection, parkingPlacemarks, tapListener, pinManager)
-        }
-        is MapUiState.SlowZones -> {
-            updateSlowZones(LocalContext.current, uiState.slowZones, uiState.showMarkers, slowZoneCollection, slowZonePolygons, slowZoneMarkerCollection, slowZoneMarkerPlacemarks, tapListener)
-        }
-        is MapUiState.MoveZones -> {
-            updateMoveZones(LocalContext.current, uiState.moveZone, moveZoneCollection, moveZonePolygons, tapListener)
-        }
-        else -> {}
     }
 }
 
